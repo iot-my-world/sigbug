@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
+#include <NMEASentence.h>
 
 #define rxPin 7
 #define txPin 8
@@ -9,23 +10,6 @@
 SoftwareSerial sSerial = SoftwareSerial(rxPin, txPin, false);
 
 String nmeaSentence = ""; // a String to hold incoming data
-
-class NMEASentence
-{
-private:
-  String raw; // the raw nmea message data
-
-public:
-  NMEASentence(String rawNMEASentence)
-  {
-    raw = rawNMEASentence;
-  };
-
-  String getRaw()
-  {
-    return raw;
-  };
-};
 
 void setup()
 {
@@ -60,7 +44,7 @@ void logError(String error)
 void processNMEASentence(String nmeaSentence)
 {
   NMEASentence msg = NMEASentence(nmeaSentence);
-  sSerial.print(msg.getRaw());
+  sSerial.print(msg.raw());
 }
 
 void serialEvent()
