@@ -8,8 +8,24 @@
 
 SoftwareSerial sSerial = SoftwareSerial(rxPin, txPin, false);
 
-String inputString = "";     // a String to hold incoming data
-bool stringComplete = false; // whether the string is complete
+String nmeaSentence = ""; // a String to hold incoming data
+
+class NMEASentence
+{
+private:
+  String raw; // the raw nmea message data
+
+public:
+  NMEASentence(String rawNMEASentence)
+  {
+    raw = rawNMEASentence;
+  };
+
+  String getRaw()
+  {
+    return raw;
+  };
+};
 
 void setup()
 {
@@ -27,20 +43,24 @@ void setup()
   // initialize serial:
   Serial.begin(9600);
 
-  // reserve 200 bytes for the inputString:
-  inputString.reserve(200);
+  // reserve 200 bytes for the nmeaSentence:
+  nmeaSentence.reserve(100);
 }
 
 void loop()
 {
-  // print the string when a newline arrives:
-  if (stringComplete)
-  {
-    sSerial.print(inputString);
-    // clear the string:
-    inputString = "";
-    stringComplete = false;
-  }
+}
+
+void logError(String error)
+{
+  sSerial.print("Error: ");
+  sSerial.println(nmeaSentence);
+}
+
+void processNMEASentence(String nmeaSentence)
+{
+  NMEASentence msg = NMEASentence(nmeaSentence);
+  sSerial.print(msg.getRaw());
 }
 
 void serialEvent()
@@ -49,13 +69,14 @@ void serialEvent()
   {
     // get the new byte:
     char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString += inChar;
+    // add it to the nmeaSentence:
+    nmeaSentence += inChar;
     // if the incoming character is a newline, set a flag so the main loop can
     // do something about it:
     if (inChar == '\n')
     {
-      stringComplete = true;
+      processNMEASentence(nmeaSentence);
+      nmeaSentence = "";
     }
   }
 }
