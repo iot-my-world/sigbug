@@ -19,14 +19,18 @@ class NMEASentence
 {
 private:
     // optional error logger
+    bool _logErr;
     void (*_logError)(String);
 
-    // called by the various constructors
+    // called by the various constructors to perform
+    // initialisation of the NMEA Message
     void _initFromRaw();
 
     // raw nmea sentence data
     String _raw;
     String _checkSum;
+
+    bool _valid;
 
 public:
     //
@@ -41,6 +45,7 @@ public:
     //
     String raw();
     String checkSum();
+    bool valid();
 };
 
 #endif
