@@ -43,7 +43,8 @@ void logError(String error)
 
 void processNMEASentence(String nmeaSentence)
 {
-  NMEASentence msg = NMEASentence(nmeaSentence, &logError);
+  // NMEASentence msg = NMEASentence(nmeaSentence, &logError);
+  NMEASentence msg = NMEASentence(nmeaSentence);
   if (msg.valid())
   {
     sSerial.println(msg.talkerIdentifier() + " - " + msg.sentenceIdentifier() + " - " + msg.sentenceData());

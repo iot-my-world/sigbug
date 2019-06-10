@@ -119,7 +119,7 @@ void NMEASentence::_initFromRaw()
     }
 
     // check that there is at least 1 comma
-    if (_raw.indexOf(",") < 0)
+    if (sentenceBody.indexOf(",") < 0)
     {
         if (_logErr)
         {
@@ -129,8 +129,8 @@ void NMEASentence::_initFromRaw()
     }
 
     // separate string into id and data parts
-    String ids = _raw.substring(1, _raw.indexOf(","));
-    _sentenceData = _raw.substring(_raw.indexOf(",") + 1);
+    String ids = sentenceBody.substring(0, sentenceBody.indexOf(","));
+    _sentenceData = sentenceBody.substring(sentenceBody.indexOf(",") + 1);
 
     // confirm that identifier length is correct
     if (ids.length() != 5)
