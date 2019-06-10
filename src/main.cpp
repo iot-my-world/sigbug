@@ -22,7 +22,7 @@ void setup()
 
   // set the data rate for the SoftwareSerial port
   sSerial.begin(9600);
-  sSerial.println("Hello World - SoftwareSerial");
+  sSerial.println("Software Serial Initialised");
 
   // initialize serial:
   Serial.begin(9600);
@@ -38,12 +38,12 @@ void loop()
 void logError(String error)
 {
   sSerial.print("Error: ");
-  sSerial.println(nmeaSentence);
+  sSerial.println(error);
 }
 
 void processNMEASentence(String nmeaSentence)
 {
-  NMEASentence msg = NMEASentence(nmeaSentence);
+  NMEASentence msg = NMEASentence(nmeaSentence, &logError);
   sSerial.print(msg.raw());
 }
 

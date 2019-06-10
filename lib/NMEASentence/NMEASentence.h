@@ -18,13 +18,29 @@ communications between marine instrumentation.
 class NMEASentence
 {
 private:
+    // optional error logger
+    void (*logError)(String);
+
+    // called by the various constructors
+    void initFromRaw();
+
+    // raw nmea sentence data
     String _raw;
+    String _checkSum;
 
 public:
+    //
+    // Constructors and Destructor
+    //
     NMEASentence(String rawNMEASentence);
+    NMEASentence(String rawNMEASentence, void (*logError)(String));
     ~NMEASentence();
 
+    //
+    // Getters and Setters
+    //
     String raw();
+    String checkSum();
 };
 
 #endif
