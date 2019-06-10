@@ -46,8 +46,11 @@ void processNMEASentence(String nmeaSentence)
   NMEASentence msg = NMEASentence(nmeaSentence, &logError);
   if (msg.valid())
   {
-    sSerial.print("check sum: ");
-    sSerial.println(msg.checkSum());
+    sSerial.println(msg.talkerIdentifier() + " - " + msg.sentenceIdentifier() + " - " + msg.sentenceData());
+  }
+  else
+  {
+    logError("invalid message");
   }
   sSerial.print(msg.raw());
 }

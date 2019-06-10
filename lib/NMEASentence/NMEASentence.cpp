@@ -47,6 +47,11 @@ String NMEASentence::sentenceIdentifier()
     return _sentenceIdentifier;
 };
 
+String NMEASentence::sentenceData()
+{
+    return _sentenceData;
+};
+
 bool NMEASentence::valid()
 {
     return _valid;
@@ -82,7 +87,8 @@ void NMEASentence::_initFromRaw()
     }
 
     // check if this is a proprietary message
-    if (_raw.indexOf("$P") > -1)
+    // this is not supported right now
+    if (_raw.startsWith("$P"))
     {
         if (_logErr)
         {
@@ -94,7 +100,7 @@ void NMEASentence::_initFromRaw()
     String sentenceBody = _raw.substring(1, _raw.indexOf('\r'));
 
     // check for checksum
-    int checkSumIdx = sentenceBody.indexOf("*");
+    int checkSumIdx = sentenceBody.lastIndexOf("*");
     if (checkSumIdx > -1)
     {
         // confirm that sentence is long enough
@@ -112,18 +118,34 @@ void NMEASentence::_initFromRaw()
         sentenceBody = sentenceBody.substring(0, checkSumIdx);
     }
 
-    // // check that there is at least 1 comma
-    // if (_raw.indexOf(",") < 0)
-    // {
-    //     if (_logErr)
-    //     {
-    //         (*_logError)("NMEA Message init error, no comma separator found");
-    //         return;
-    //     }
-    // }
+    // check that there is at least 1 comma
+    if (_raw.indexOf(",") < 0)
+    {
+        if (_logErr)
+        {
+            (*_logError)("NMEA Message init error, no comma separator found");
+        }
+        return;
+    }
 
-    // // separate string into id and data parts
-    // String ids = _raw.substring(0, _raw.indexOf(","));
+    // separate string into id and data parts
+    String ids = _raw.substring(1, _raw.indexOf(","));
+    _sentenceData = _raw.substring(_raw.indexOf(",") + 1);
 
+    // confirm that identifier length is correct
+    if (ids.length() != 5)
+    {
+        if (_logErr)
+        {
+            (*_logError)("NMEA Message init error, ids string not long enough");
+        }
+        return;
+    }
+
+    // set talker and sentence identifier
+    _talkerIdentifier = ids.substring(0, 2);
+    _sentenceIdentifier = ids.substring(2);
+
+    // decoding complete, mark message valid
     _valid = true;
 };

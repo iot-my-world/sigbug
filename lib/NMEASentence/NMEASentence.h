@@ -31,6 +31,7 @@ private:
     String _checkSum;
     String _talkerIdentifier;
     String _sentenceIdentifier;
+    String _sentenceData;
 
     bool _valid;
 
@@ -49,6 +50,7 @@ public:
     String checkSum();
     String talkerIdentifier();
     String sentenceIdentifier();
+    String sentenceData();
     bool valid();
 };
 
