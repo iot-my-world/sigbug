@@ -44,9 +44,26 @@ bool NMEASentence::valid()
 
 void NMEASentence::_initFromRaw()
 {
-    // assume that the nmea sentence is invalid to start off with
+    // assume that the NMEA sentence is invalid to start off with
     _valid = false;
-    if (_raw.indexOf('$') != 0)
+
+    // confirm presence of standard NMEA start character
+    if (!_raw.startsWith("$"))
     {
+        if (_logErr)
+        {
+            (*_logError)("NMEA Message init error, input does not start with $");
+            return;
+        }
+    }
+
+    // confirm presence of standard NMEA end characters
+    if (!_raw.endsWith("\r\n"))
+    {
+        if (_logErr)
+        {
+            (*_logError)("NMEA Message init error, input does not end with <CR><LF>");
+            return;
+        }
     }
 };
