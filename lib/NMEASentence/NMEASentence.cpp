@@ -7,13 +7,14 @@
 NMEASentence::NMEASentence(String rawNMEASentence)
 {
     _raw = rawNMEASentence;
-    _raw.indexOf('$');
+    _initFromRaw();
 };
 
 NMEASentence::NMEASentence(String rawNMEASentence, void (*logError)(String))
 {
-    logError = logError;
-    (*logError)("Hello!");
+    _logError = logError;
+    _raw = rawNMEASentence;
+    _initFromRaw();
 };
 
 //
@@ -32,4 +33,8 @@ String NMEASentence::raw()
 String NMEASentence::checkSum()
 {
     return _checkSum;
+};
+
+void NMEASentence::_initFromRaw(){
+
 };

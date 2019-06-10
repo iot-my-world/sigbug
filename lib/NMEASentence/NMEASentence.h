@@ -19,10 +19,10 @@ class NMEASentence
 {
 private:
     // optional error logger
-    void (*logError)(String);
+    void (*_logError)(String);
 
     // called by the various constructors
-    void initFromRaw();
+    void _initFromRaw();
 
     // raw nmea sentence data
     String _raw;
