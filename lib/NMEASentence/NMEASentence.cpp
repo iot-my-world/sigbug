@@ -67,8 +67,8 @@ void NMEASentence::_initFromRaw()
         if (_logErr)
         {
             (*_logError)("NMEA Message init error, input does not start with $");
-            return;
         }
+        return;
     }
 
     // confirm presence of standard NMEA end characters
@@ -77,8 +77,8 @@ void NMEASentence::_initFromRaw()
         if (_logErr)
         {
             (*_logError)("NMEA Message init error, input does not end with <CR><LF>");
-            return;
         }
+        return;
     }
 
     // check if this is a proprietary message
@@ -87,20 +87,43 @@ void NMEASentence::_initFromRaw()
         if (_logErr)
         {
             (*_logError)("NMEA Message init error, unsupported proprietary message");
-            return;
         }
+        return;
     }
 
-    // check that there is at least 1 comma
-    if (_raw.indexOf(",") < 0)
+    String sentenceBody = _raw.substring(1, _raw.indexOf('\r'));
+
+    // check for checksum
+    int checkSumIdx = sentenceBody.indexOf("*");
+    if (checkSumIdx > -1)
     {
-        if (_logErr)
+        // confirm that sentence is long enough
+        if (sentenceBody.length() != (unsigned int)(checkSumIdx + 3))
         {
-            (*_logError)("NMEA Message init error, no comma separator found");
+            if (_logErr)
+            {
+                (*_logError)("NMEA Message init error, sentence body not long enough for checksum");
+            }
             return;
         }
+        // remove check sum
+        _checkSum = sentenceBody.substring(checkSumIdx + 1);
+        // update sentence body
+        sentenceBody = sentenceBody.substring(0, checkSumIdx);
     }
 
-    // separate string into id and data parts
-    String ids = _raw.substring(0, _raw.indexOf(","));
+    // // check that there is at least 1 comma
+    // if (_raw.indexOf(",") < 0)
+    // {
+    //     if (_logErr)
+    //     {
+    //         (*_logError)("NMEA Message init error, no comma separator found");
+    //         return;
+    //     }
+    // }
+
+    // // separate string into id and data parts
+    // String ids = _raw.substring(0, _raw.indexOf(","));
+
+    _valid = true;
 };
