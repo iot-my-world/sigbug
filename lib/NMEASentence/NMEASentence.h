@@ -26,9 +26,11 @@ private:
     // initialisation of the NMEA Message
     void _initFromRaw();
 
-    // raw nmea sentence data
+    // NMEA sentence data
     String _raw;
     String _checkSum;
+    String _talkerIdentifier;
+    String _sentenceIdentifier;
 
     bool _valid;
 
@@ -45,6 +47,8 @@ public:
     //
     String raw();
     String checkSum();
+    String talkerIdentifier();
+    String sentenceIdentifier();
     bool valid();
 };
 
