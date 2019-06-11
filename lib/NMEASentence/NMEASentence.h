@@ -52,6 +52,8 @@ public:
     String sentenceIdentifier();
     String sentenceData();
     bool valid();
+
+    char caluclatedCheckSum;
 };
 
 #endif

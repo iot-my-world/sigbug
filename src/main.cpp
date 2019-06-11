@@ -10,6 +10,7 @@
 SoftwareSerial sSerial = SoftwareSerial(rxPin, txPin, false);
 
 String nmeaSentence = ""; // a String to hold incoming data
+bool waitingForStart = true;
 
 void setup()
 {
@@ -37,21 +38,21 @@ void loop()
 
 void logError(String error)
 {
-  sSerial.print("Error: " + error);
+  sSerial.print("Error: ");
   sSerial.println(error);
 }
 
 void processNMEASentence(String nmeaSentence)
 {
-  NMEASentence msg = NMEASentence(nmeaSentence, &logError);
-  // NMEASentence msg = NMEASentence(nmeaSentence);
+  // NMEASentence msg = NMEASentence(nmeaSentence, &logError);
+  NMEASentence msg = NMEASentence(nmeaSentence);
   if (msg.valid())
   {
-    sSerial.println(msg.talkerIdentifier() + " - " + msg.sentenceIdentifier() + " - " + msg.sentenceData());
-  }
-  else
-  {
-    logError("invalid message:" + msg.raw());
+    sSerial.println(
+        msg.talkerIdentifier() + " - " +
+        msg.sentenceIdentifier() + " - " +
+        msg.sentenceData() + " - " +
+        msg.checkSum());
   }
 }
 
@@ -59,16 +60,30 @@ void serialEvent()
 {
   while (Serial.available())
   {
-    // get the new byte:
+    // get next byte from available input
     char inChar = (char)Serial.read();
-    // add it to the nmeaSentence:
-    nmeaSentence += inChar;
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\n')
+
+    if (waitingForStart)
     {
-      processNMEASentence(nmeaSentence);
-      nmeaSentence = "";
+      // if we are waiting for the start of a sentence
+      if (inChar == '$')
+      {
+        // if input is $ a sentence has started
+        nmeaSentence += inChar;
+        waitingForStart = false;
+      } // otherwise do nothing while waiting for start
+    }
+    else
+    {
+      // otherwise we are not waiting for a start
+      nmeaSentence += inChar; // consume next char of input
+      if (inChar == '\n')
+      {
+        // if the input is \n then this is the end of a sentence
+        processNMEASentence(nmeaSentence);
+        nmeaSentence = "";
+        waitingForStart = true;
+      }
     }
   }
 }

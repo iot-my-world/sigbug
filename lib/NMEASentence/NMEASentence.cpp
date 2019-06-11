@@ -116,6 +116,26 @@ void NMEASentence::_initFromRaw()
         _checkSum = sentenceBody.substring(checkSumIdx + 1);
         // update sentence body
         sentenceBody = sentenceBody.substring(0, checkSumIdx);
+
+        // calculate required checksum
+        caluclatedCheckSum = 0;
+        for (uint8_t i = 0; i < sentenceBody.length(); i++)
+        {
+            caluclatedCheckSum ^= sentenceBody.charAt(i);
+        }
+        String checkSumString = String(caluclatedCheckSum, HEX);
+        if (checkSumString.length() != 2)
+        {
+            checkSumString = "0" + checkSumString;
+        }
+        if (checkSumString != _checkSum)
+        {
+            if (_logErr)
+            {
+                (*_logError)("NMEA Message init error, checksum validation failed");
+            }
+            return;
+        }
     }
 
     // check that there is at least 1 comma
