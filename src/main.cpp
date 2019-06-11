@@ -37,23 +37,22 @@ void loop()
 
 void logError(String error)
 {
-  sSerial.print("Error: ");
+  sSerial.print("Error: " + error);
   sSerial.println(error);
 }
 
 void processNMEASentence(String nmeaSentence)
 {
-  // NMEASentence msg = NMEASentence(nmeaSentence, &logError);
-  NMEASentence msg = NMEASentence(nmeaSentence);
+  NMEASentence msg = NMEASentence(nmeaSentence, &logError);
+  // NMEASentence msg = NMEASentence(nmeaSentence);
   if (msg.valid())
   {
     sSerial.println(msg.talkerIdentifier() + " - " + msg.sentenceIdentifier() + " - " + msg.sentenceData());
   }
   else
   {
-    logError("invalid message");
+    logError("invalid message:" + msg.raw());
   }
-  sSerial.print(msg.raw());
 }
 
 void serialEvent()
