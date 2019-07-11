@@ -23,9 +23,44 @@ void setup()
 
   // set the data rate for the SoftwareSerial port
   sSerial.begin(9600);
-  sSerial.println("Software Serial Initialised");
+  // sSerial.println("Software Serial Initialised");
 
+  union {
+    float f;
+    unsigned char b[4];
+  } lat;
+
+  union {
+    float f;
+    unsigned char b[4];
+  } lon;
+
+  lat.f = -1 * (String("26").toFloat() + String("08.9986").toFloat() / 60.0);
+  lon.f = String("028").toFloat() + String("08.1069").toFloat() / 60.0;
+
+  for (int i = 0; i < 4; i++)
+  {
+    sSerial.print((char)lat.b[i]);
+  }
+  for (int i = 0; i < 4; i++)
+  {
+    sSerial.print((char)lon.b[i]);
+  }
+
+  // 200518.000,2608.9986,S,02808.1069,E,1,06,3.8,1640.3,M,0.0,M,, - 52
+  // -26.1499766667, 28.135115
   // initialize serial:
+
+  // 27 33 D1 C1
+  // B7 14 E1 41
+  // 27 33 d1 c1
+  // b7 14 e1 41
+  // 41542453463d2733d1c1b714e1a
+  // 41542453463d2733d1c1b714a
+  // 41542453463d2733d1a
+
+  // 0110 1011 1011 1010
+
   Serial.begin(9600);
 
   // reserve 200 bytes for the nmeaSentence:
@@ -58,6 +93,9 @@ void processNMEASentence(String nmeaSentence)
 
 void serialEvent()
 {
+
+  return;
+
   while (Serial.available())
   {
     // get next byte from available input
