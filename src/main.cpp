@@ -1,18 +1,35 @@
 #include <Arduino.h>
 #include <NMEASentence.h>
 
-// Sleep Counter
+// Sleep Management
 #define sleepCounterInitialisedValue 22
 #define sleepCounterMin 0
 #define sleepCounterMax 1
 int sleepCounter __attribute__((section(".noinit")));
 short sleepCounterInitialised __attribute__((section(".noinit")));
+bool goBackToSleep = true;
 
 #define ledPin 8
 
 // GPS NMEA Processing
 String nmeaSentence = ""; // a String to hold incoming data
 bool waitingForStart = true;
+
+// Program steps
+#define stepInitialising 0
+#define stepWaitingForGPSFix 1
+#define stepGotGPSFix 2
+#define stepFailedToGetFix 3
+#define stepTransmittingData 4
+#define stepGoBackToSleep 5
+
+void program();
+
+struct state
+{
+  int step;
+};
+state programState;
 
 void setup()
 {
@@ -39,16 +56,20 @@ void setup()
   // }
 
   Serial.begin(9600);
+  Serial.println("d");
 
   // reserve 200 bytes for the nmeaSentence:
   nmeaSentence.reserve(100);
 
   // enable watchdog timer with maximum prescaler
   WDTCSR |= (1 << WDE) | (1 << WDP3) | (1 << WDP0);
-}
 
-void loop()
-{
+  // unless the sleep counter has overflown
+  // default behaviour is to go back to sleep
+  goBackToSleep = true;
+
+  // this should only run once and is to initialise the
+  // sleep counter in ram
   if (sleepCounterInitialised != sleepCounterInitialisedValue)
   {
     // perform first initialisation of sleep counter
@@ -57,27 +78,77 @@ void loop()
     sleepCounterInitialised = sleepCounterInitialisedValue;
   }
 
-  if (sleepCounter < sleepCounterMin || sleepCounter > sleepCounterMax)
+  // this should never be true
+  if (sleepCounter < sleepCounterMin)
   {
-    // sleepConter is out of it's bounds and so
-    // the sleep is complete
-
-    // run the program
-    Serial.println("program run!");
-
-    // reset the sleep counter
     sleepCounter = sleepCounterMin;
+  }
+}
+
+void loop()
+{
+  Serial.println("asd");
+  // check if the sleep counter has overflown
+  if (sleepCounter > sleepCounterMax)
+  {
+    Serial.println("wake up!");
+    // if the sleep counter has overflown the device must wake up
+    goBackToSleep = false;
   }
   else
   {
-    // sleep counter is still between sleepCounterMin and sleepCounterMax
-    // and so the sleep is not over, do not allow the program to run
-    // increment sleep counter
+    Serial.println("increment");
+    // otherwise the device should still be sleeping
+    // increment the sleep counter and allow it to go back to sleep
     sleepCounter++;
   }
 
-  // set device to sleep in power down mode
-  PRR |= (1 << SE) | (1 << SM1);
+  if (goBackToSleep)
+  {
+    // reset the sleep counter
+    sleepCounter = sleepCounterMin;
+
+    // set device to sleep in power down mode
+    PRR |= (1 << SE) | (1 << SM1);
+  }
+  else
+  {
+    // device is awake, run the progrm
+    program();
+  }
+}
+
+void program()
+{
+  switch (programState.step)
+  {
+  case stepInitialising:
+    Serial.println("init");
+    programState.step = stepWaitingForGPSFix;
+    break;
+
+  case stepWaitingForGPSFix:
+    Serial.println("waiting for fix...");
+    programState.step = stepGotGPSFix;
+    break;
+
+  case stepGotGPSFix:
+    Serial.println("got fix!");
+    programState.step = stepTransmittingData;
+    break;
+
+  case stepTransmittingData:
+    Serial.println("transmit data");
+    programState.step = stepGoBackToSleep;
+    break;
+
+  case stepGoBackToSleep:
+    goBackToSleep = true;
+    break;
+
+  default:
+    break;
+  }
 }
 
 // ISR(TIMER1_OVF_vect)
@@ -103,6 +174,10 @@ void processNMEASentence(String nmeaSentence)
     //     msg.sentenceData() + " - " +
     //     msg.checkSum());
   }
+}
+
+void serialEvent()
+{
 }
 
 // void serialEvent()
