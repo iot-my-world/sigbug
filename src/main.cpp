@@ -1,57 +1,21 @@
 #include <Arduino.h>
-// #include <SoftwareSerial.h>
 #include <NMEASentence.h>
 
-/*
-  TODO:
-- disable watchdog counter
-- brown out detection on low voltage?
-*/
-
-// #define rxPin 7
-// #define txPin 8
-
-// Sleep counter definitions
+// Sleep Counter
 #define sleepCounterInitialisedValue 22
 #define sleepCounterMin 0
-#define sleepCounterMax 2
+#define sleepCounterMax 1
+int sleepCounter __attribute__((section(".noinit")));
+short sleepCounterInitialised __attribute__((section(".noinit")));
 
 #define ledPin 8
 
-// SoftwareSerial sSerial = SoftwareSerial(rxPin, txPin, false);
-
+// GPS NMEA Processing
 String nmeaSentence = ""; // a String to hold incoming data
 bool waitingForStart = true;
 
 void setup()
 {
-  // // disable all interrupts
-  // noInterrupts();
-
-  // // setup 16 bit timer to create maximum delay
-  // // Normal Mode of Operation
-  // TCCR1A &= ~((1 << WGM11) | (1 << WGM10));
-  // TCCR1B &= ~((1 << WGM13) | (1 << WGM12));
-  // // Internal clock with 1024 prescaler
-  // TCCR1B &= ~((1 << CS11));
-  // TCCR1B |= (1 << CS12) | (1 << CS10);
-  // // enable overflow interrupt
-  // TIMSK1 |= (1 << TOIE1);
-
-  // // setup timer for led toggling
-  // pinMode(ledPin, OUTPUT);
-
-  // // reenable interrupts
-  // interrupts();
-
-  // define pin modes for tx, rx pins:
-  // pinMode(rxPin, INPUT);
-  // pinMode(txPin, OUTPUT);
-
-  // set the data rate for the SoftwareSerial port
-  // sSerial.begin(9600);
-  // sSerial.println("Software Serial Initialised");
-
   // union {
   //   float f;
   //   unsigned char b[4];
@@ -74,20 +38,6 @@ void setup()
   //   sSerial.print((char)lon.b[i]);
   // }
 
-  // 200518.000,2608.9986,S,02808.1069,E,1,06,3.8,1640.3,M,0.0,M,, - 52
-  // -26.1499766667, 28.135115
-  // initialize serial:
-
-  // 27 33 D1 C1
-  // B7 14 E1 41
-  // 27 33 d1 c1
-  // b7 14 e1 41
-  // 41542453463d2733d1c1b714e1a
-  // 41542453463d2733d1c1b714a
-  // 41542453463d2733d1a
-
-  // 0110 1011 1011 1010
-
   Serial.begin(9600);
 
   // reserve 200 bytes for the nmeaSentence:
@@ -96,9 +46,6 @@ void setup()
   // enable watchdog timer with maximum prescaler
   WDTCSR |= (1 << WDE) | (1 << WDP3) | (1 << WDP0);
 }
-
-int sleepCounter __attribute__((section(".noinit")));
-short sleepCounterInitialised __attribute__((section(".noinit")));
 
 void loop()
 {
@@ -109,17 +56,25 @@ void loop()
     // indicate that sleep counter has been initialised
     sleepCounterInitialised = sleepCounterInitialisedValue;
   }
+
   if (sleepCounter < sleepCounterMin || sleepCounter > sleepCounterMax)
   {
-    // reset sleep counter
+    // sleepConter is out of it's bounds and so
+    // the sleep is complete
+
+    // run the program
+    Serial.println("program run!");
+
+    // reset the sleep counter
     sleepCounter = sleepCounterMin;
   }
-
-  // Do something
-  Serial.println(sleepCounter);
-
-  // increment sleep counter
-  sleepCounter++;
+  else
+  {
+    // sleep counter is still between sleepCounterMin and sleepCounterMax
+    // and so the sleep is not over, do not allow the program to run
+    // increment sleep counter
+    sleepCounter++;
+  }
 
   // set device to sleep in power down mode
   PRR |= (1 << SE) | (1 << SM1);
