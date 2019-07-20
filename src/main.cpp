@@ -2,8 +2,19 @@
 // #include <SoftwareSerial.h>
 #include <NMEASentence.h>
 
+/*
+  TODO:
+- disable watchdog counter
+- brown out detection on low voltage?
+*/
+
 // #define rxPin 7
 // #define txPin 8
+
+// Sleep counter definitions
+#define sleepCounterInitialisedValue 22
+#define sleepCounterMin 0
+#define sleepCounterMax 2
 
 #define ledPin 8
 
@@ -14,24 +25,24 @@ bool waitingForStart = true;
 
 void setup()
 {
-  // disable all interrupts
-  noInterrupts();
+  // // disable all interrupts
+  // noInterrupts();
 
-  // setup 16 bit timer to create maximum delay
-  // Normal Mode of Operation
-  TCCR1A &= ~((1 << WGM11) | (1 << WGM10));
-  TCCR1B &= ~((1 << WGM13) | (1 << WGM12));
-  // Internal clock with 1024 prescaler
-  TCCR1B &= ~((1 << CS11));
-  TCCR1B |= (1 << CS12) | (1 << CS10);
-  // enable overflow interrupt
-  TIMSK1 |= (1 << TOIE1);
+  // // setup 16 bit timer to create maximum delay
+  // // Normal Mode of Operation
+  // TCCR1A &= ~((1 << WGM11) | (1 << WGM10));
+  // TCCR1B &= ~((1 << WGM13) | (1 << WGM12));
+  // // Internal clock with 1024 prescaler
+  // TCCR1B &= ~((1 << CS11));
+  // TCCR1B |= (1 << CS12) | (1 << CS10);
+  // // enable overflow interrupt
+  // TIMSK1 |= (1 << TOIE1);
 
-  // setup timer for led toggling
-  pinMode(ledPin, OUTPUT);
+  // // setup timer for led toggling
+  // pinMode(ledPin, OUTPUT);
 
-  // reenable interrupts
-  interrupts();
+  // // reenable interrupts
+  // interrupts();
 
   // define pin modes for tx, rx pins:
   // pinMode(rxPin, INPUT);
@@ -81,16 +92,41 @@ void setup()
 
   // reserve 200 bytes for the nmeaSentence:
   nmeaSentence.reserve(100);
+
+  // enable watchdog timer with maximum prescaler
+  WDTCSR |= (1 << WDE) | (1 << WDP3) | (1 << WDP0);
 }
+
+int sleepCounter __attribute__((section(".noinit")));
+short sleepCounterInitialised __attribute__((section(".noinit")));
 
 void loop()
 {
+  if (sleepCounterInitialised != sleepCounterInitialisedValue)
+  {
+    // perform first initialisation of sleep counter
+    sleepCounter = sleepCounterMin;
+  }
+  if (sleepCounter < sleepCounterMin || sleepCounter > sleepCounterMax)
+  {
+    // reset sleep counter
+    sleepCounter = sleepCounterMin;
+  }
+
+  // Do something
+  Serial.println(sleepCounter);
+
+  // increment sleep counter
+  sleepCounter++;
+
+  // set device to sleep in power down mode
+  PRR |= (1 << SE) | (1 << SM1);
 }
 
-ISR(TIMER1_OVF_vect)
-{
-  Serial.println("hello!");
-}
+// ISR(TIMER1_OVF_vect)
+// {
+// Serial.println("hello!");
+// }
 
 void logError(String error)
 {
