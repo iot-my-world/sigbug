@@ -106,6 +106,8 @@ void loop()
   {
     // perform first initialisation of sleep counter
     sleepCounter = sleepCounterMin;
+    // indicate that sleep counter has been initialised
+    sleepCounterInitialised = sleepCounterInitialisedValue;
   }
   if (sleepCounter < sleepCounterMin || sleepCounter > sleepCounterMax)
   {
