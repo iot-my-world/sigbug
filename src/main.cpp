@@ -65,6 +65,7 @@ void setup()
 
   if (sleepCounterInitialised != sleepCounterInitialisedValue)
   {
+    Serial.println("I");
     // perform first initialisation of sleep counter
     sleepCounter = sleepCounterMin;
     // indicate that sleep counter has been initialised
@@ -74,6 +75,7 @@ void setup()
   if (sleepCounter < sleepCounterMin)
   {
     // this should never happen
+    Serial.println("!");
     sleepCounter = sleepCounterMin;
   }
 
@@ -89,13 +91,11 @@ void loop()
     goBackToSleep = false;
 
     program();
-
-    // reset the sleep counter
-    sleepCounter = sleepCounterMin;
   }
   else
   {
     Serial.println("+");
+    Serial.println(sleepCounter);
     // sleep counter is still between sleepCounterMin and sleepCounterMax
     // and so the sleep is not over, do not allow the program to run
     // increment sleep counter
@@ -105,6 +105,7 @@ void loop()
   if (goBackToSleep)
   {
     Serial.println("z");
+
     // set device to sleep in power down mode
     PRR |= (1 << SE) | (1 << SM1);
   }
@@ -137,18 +138,17 @@ void program(void)
 
   case stepTransmitting:
     Serial.println(4);
-    programState.activeStep = stepTransmitting;
+    programState.activeStep = stepGoBackToSleep;
     break;
 
   case stepGoBackToSleep:
+    sleepCounter = sleepCounterMin;
     goBackToSleep = true;
     break;
 
   default:
     break;
   }
-  Serial.println(5);
-  goBackToSleep = true;
 }
 
 // ISR(TIMER1_OVF_vect)
