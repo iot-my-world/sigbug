@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <NMEASentence.h>
+// #include <NMEASentence.h>
 
 // Sleep Management
 #define sleepCounterInitialisedValue 22
@@ -13,7 +13,7 @@ bool goBackToSleep;
 
 // GPS NMEA Processing
 String nmeaSentence = ""; // a String to hold incoming data
-bool waitingForStart = true;
+bool waitingForStart;
 
 // Program State
 #define stepSetup 'A'
@@ -24,14 +24,18 @@ bool waitingForStart = true;
 #define stepGoBackToSleep 'F'
 char activeProgramStep;
 
+// waiting for gps fix
+bool gpsFixDone = false;
+void checkSerial(HardwareSerial port);
+
 void runProgram(void);
 
 void setup()
 {
   Serial.begin(9600);
-
-  // watchdog timer always enabled with maximum prescaler
-  WDTCSR |= (1 << WDE) | (1 << WDP3) | (1 << WDP0);
+  Serial1.begin(9600);
+  Serial.print('}');
+  waitingForStart = true;
 
   // sleep counter initialisation in ram
   // this should only happen once
@@ -49,7 +53,6 @@ void setup()
   if (sleepCounter < sleepCounterMin)
   {
     // this should never happen
-    Serial.println("!");
     sleepCounter = sleepCounterMin;
   }
 
@@ -78,7 +81,9 @@ void loop()
 
   if (goBackToSleep)
   {
-    Serial.println("z");
+    Serial.print('z');
+    // watchdog timer always enabled with maximum prescaler
+    WDTCSR |= (1 << WDE) | (1 << WDP3) | (1 << WDP0);
     // set device to sleep in power down mode
     PRR |= (1 << SE) | (1 << SM1);
   }
@@ -86,7 +91,7 @@ void loop()
 
 void runProgram(void)
 {
-  Serial.println(activeProgramStep);
+  // Serial.print(activeProgramStep);
 
   switch (activeProgramStep)
   {
@@ -95,7 +100,11 @@ void runProgram(void)
     break;
 
   case stepWaitingForGPSFix:
-    activeProgramStep = stepGotGPSFix;
+    checkSerial(Serial);
+    if (gpsFixDone)
+    {
+      activeProgramStep = stepGotGPSFix;
+    }
     break;
 
   case stepGotGPSFix:
@@ -118,33 +127,69 @@ void runProgram(void)
   }
 }
 
-// ISR(TIMER1_OVF_vect)
-// {
-// Serial.println("hello!");
-// }
-
-void logError(String error)
+void checkSerial(HardwareSerial port)
 {
-  // sSerial.print("Error: ");
-  // sSerial.println(error);
-}
-
-void processNMEASentence(String nmeaSentence)
-{
-  // NMEASentence msg = NMEASentence(nmeaSentence, &logError);
-  NMEASentence msg = NMEASentence(nmeaSentence);
-  if (msg.valid())
+  // while there is data available at the given port
+  while (port.available())
   {
-    // sSerial.println(
-    //     msg.talkerIdentifier() + " - " +
-    //     msg.sentenceIdentifier() + " - " +
-    //     msg.sentenceData() + " - " +
-    //     msg.checkSum());
-  }
-}
+    // get next byte from available
+    char inChar = (char)port.read();
+    Serial.print("In ");
+    Serial.print(inChar);
+    bool start = inChar == '$';
+    bool end = inChar == '\n';
 
-void serialEvent()
-{
+    if (waitingForStart)
+    {
+      Serial.println('w');
+      if (start)
+      {
+        Serial.println('s');
+        // if input is $ a sentence has started
+        // nmeaSentence += inChar;
+        waitingForStart = false;
+      }
+    }
+    else
+    {
+      Serial.println('c');
+      // otherwise we are not waiting for a start
+      // nmeaSentence += inChar; // consume next char of input
+
+      if (end)
+      {
+        Serial.println('d');
+        gpsFixDone = true;
+        waitingForStart = true;
+      }
+    }
+
+    // if (waitingForStart)
+    // {
+    //   // if we are waiting for the start of a sentence
+    // if (inChar == '$')
+    // {
+    //   // if input is $ a sentence has started
+    // nmeaSentence += inChar;
+    //   waitingForStart = false;
+    // } // otherwise do nothing while waiting for start
+    // }
+    // else
+    // {
+    // // otherwise we are not waiting for a start
+    // nmeaSentence += inChar; // consume next char of input
+    //   if (inChar == '\n')
+    //   {
+    //     // if the input is \n then this is the end of a sentence
+    //     Serial.print("process: " + nmeaSentence);
+    //     gpsFixDone = true;
+    //     nmeaSentence = "";
+
+    //     // indicate that we are waiting for start again
+    //     waitingForStart = true;
+    //   }
+    // }
+  }
 }
 
 // void serialEvent()
@@ -154,31 +199,31 @@ void serialEvent()
 
 //   while (Serial.available())
 //   {
-//     // get next byte from available input
-//     char inChar = (char)Serial.read();
+// // get next byte from available input
+// char inChar = (char)Serial.read();
 
-//     if (waitingForStart)
-//     {
-//       // if we are waiting for the start of a sentence
-//       if (inChar == '$')
-//       {
-//         // if input is $ a sentence has started
-//         nmeaSentence += inChar;
-//         waitingForStart = false;
-//       } // otherwise do nothing while waiting for start
-//     }
-//     else
-//     {
-//       // otherwise we are not waiting for a start
-//       nmeaSentence += inChar; // consume next char of input
-//       if (inChar == '\n')
-//       {
-//         // if the input is \n then this is the end of a sentence
-//         processNMEASentence(nmeaSentence);
-//         nmeaSentence = "";
-//         waitingForStart = true;
-//       }
-//     }
+// if (waitingForStart)
+// {
+//   // if we are waiting for the start of a sentence
+//   if (inChar == '$')
+//   {
+//     // if input is $ a sentence has started
+//     nmeaSentence += inChar;
+//     waitingForStart = false;
+//   } // otherwise do nothing while waiting for start
+// }
+// else
+// {
+//   // otherwise we are not waiting for a start
+//   nmeaSentence += inChar; // consume next char of input
+//   if (inChar == '\n')
+//   {
+//     // if the input is \n then this is the end of a sentence
+//     processNMEASentence(nmeaSentence);
+//     nmeaSentence = "";
+//     waitingForStart = true;
+//   }
+// }
 //   }
 // }
 
@@ -206,3 +251,28 @@ void serialEvent()
 
 // reserve 200 bytes for the nmeaSentence:
 // nmeaSentence.reserve(100);
+
+// ISR(TIMER1_OVF_vect)
+// {
+// Serial.println("hello!");
+// }
+
+// void logError(String error)
+// {
+//   // sSerial.print("Error: ");
+//   // sSerial.println(error);
+// }
+
+// void processNMEASentence(String nmeaSentence)
+// {
+//   // NMEASentence msg = NMEASentence(nmeaSentence, &logError);
+//   NMEASentence msg = NMEASentence(nmeaSentence);
+//   if (msg.valid())
+//   {
+//     // sSerial.println(
+//     //     msg.talkerIdentifier() + " - " +
+//     //     msg.sentenceIdentifier() + " - " +
+//     //     msg.sentenceData() + " - " +
+//     //     msg.checkSum());
+//   }
+// }
