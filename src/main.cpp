@@ -7,7 +7,7 @@
 #define sleepCounterMax 1
 int sleepCounter __attribute__((section(".noinit")));
 short sleepCounterInitialised __attribute__((section(".noinit")));
-bool goBackToSleep = true;
+bool goBackToSleep;
 
 #define ledPin 8
 
@@ -60,18 +60,22 @@ void setup()
 
   Serial.begin(9600);
 
-  // enable watchdog timer with maximum prescaler
+  // watchdog timer always enabled with maximum prescaler
   WDTCSR |= (1 << WDE) | (1 << WDP3) | (1 << WDP0);
 
+  // sleep counter initialisation in ram
+  // this should only happen once
   if (sleepCounterInitialised != sleepCounterInitialisedValue)
   {
-    Serial.println("I");
+    Serial.println("I!");
     // perform first initialisation of sleep counter
     sleepCounter = sleepCounterMin;
     // indicate that sleep counter has been initialised
     sleepCounterInitialised = sleepCounterInitialisedValue;
   }
 
+  // this check is to ensure that sleepCounter
+  // never ends up below sleep counter min
   if (sleepCounter < sleepCounterMin)
   {
     // this should never happen
@@ -79,33 +83,35 @@ void setup()
     sleepCounter = sleepCounterMin;
   }
 
-  programState.activeStep = stepSetup;
+  // programState.activeStep = stepSetup;
 }
 
 void loop()
 {
   if (sleepCounter > sleepCounterMax)
   {
-    // sleepConter is out of it's bounds and so
-    // the sleep is complete, it's time to wake up!
+    // sleep counter has grown greater than sleepCounterMax
+    // the device should be awake and the program should run
     goBackToSleep = false;
 
-    program();
+    Serial.println("program runs...");
+
+    // reset sleep counter and set flag for retun to sleep
+    sleepCounter = sleepCounterMin;
+    goBackToSleep = true;
   }
   else
   {
     Serial.println("+");
-    Serial.println(sleepCounter);
-    // sleep counter is still between sleepCounterMin and sleepCounterMax
-    // and so the sleep is not over, do not allow the program to run
-    // increment sleep counter
+    // otherwise sleep counter is still below sleepCounterMax
+    // and so the device should continue to sleep
+    goBackToSleep = true;
     sleepCounter++;
   }
 
   if (goBackToSleep)
   {
     Serial.println("z");
-
     // set device to sleep in power down mode
     PRR |= (1 << SE) | (1 << SM1);
   }
