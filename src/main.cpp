@@ -15,21 +15,16 @@ bool goBackToSleep;
 String nmeaSentence = ""; // a String to hold incoming data
 bool waitingForStart = true;
 
-// Program state
-#define stepSetup 0
-#define stepWaitingForGPSFix 1
-#define stepGotGPSFix 2
-#define stepFailedToGetFix 3
-#define stepTransmitting 4
-#define stepGoBackToSleep 5
+// runProgram state
+#define stepSetup 'A'
+#define stepWaitingForGPSFix 'B'
+#define stepGotGPSFix 'C'
+#define stepFailedToGetFix 'D'
+#define stepTransmitting 'E'
+#define stepGoBackToSleep 'F'
+char activeProgramStep;
 
-struct state
-{
-  int activeStep;
-};
-state programState;
-
-void program(void);
+void runProgram(void);
 
 void setup()
 {
@@ -60,7 +55,7 @@ void setup()
 
   // initialise program state in case it is
   // time for the device to wake up
-  programState.activeStep = stepSetup;
+  activeProgramStep = stepSetup;
 }
 
 void loop()
@@ -71,7 +66,7 @@ void loop()
     // the device should be awake and the program should run
     goBackToSleep = false;
 
-    program();
+    runProgram();
   }
   else
   {
@@ -90,39 +85,51 @@ void loop()
   }
 }
 
-void program(void)
+void runProgram(void)
 {
-  Serial.println("p");
-  sleepCounter = sleepCounterMin;
-  goBackToSleep = true;
+  switch (activeProgramStep)
+  {
+  case stepSetup:
+    Serial.println(stepSetup);
+    activeProgramStep = stepGoBackToSleep;
+    break;
 
-  // switch (programState.activeStep)
+  case stepGoBackToSleep:
+    Serial.println(stepGoBackToSleep);
+    sleepCounter = sleepCounterMin;
+    break;
+
+  default:
+    break;
+  }
+
+  // switch (runProgramState.activeStep)
   // {
   // case stepSetup:
   //   Serial.println(0);
-  //   // programState.activeStep = stepWaitingForGPSFix;
-  //   programState.activeStep = stepGoBackToSleep;
+  //   // runProgramState.activeStep = stepWaitingForGPSFix;
+  //   runProgramState.activeStep = stepGoBackToSleep;
   //   break;
 
   // case stepWaitingForGPSFix:
   //   Serial.println(1);
-  //   // programState.activeStep = stepGotGPSFix;
-  //   programState.activeStep = stepGoBackToSleep;
+  //   // runProgramState.activeStep = stepGotGPSFix;
+  //   runProgramState.activeStep = stepGoBackToSleep;
   //   break;
 
   // case stepGotGPSFix:
   //   Serial.println(2);
-  //   programState.activeStep = stepTransmitting;
+  //   runProgramState.activeStep = stepTransmitting;
   //   break;
 
   // case stepFailedToGetFix:
   //   Serial.println(3);
-  //   programState.activeStep = stepWaitingForGPSFix;
+  //   runProgramState.activeStep = stepWaitingForGPSFix;
   //   break;
 
   // case stepTransmitting:
   //   Serial.println(4);
-  //   programState.activeStep = stepGoBackToSleep;
+  //   runProgramState.activeStep = stepGoBackToSleep;
   //   break;
 
   // case stepGoBackToSleep:
