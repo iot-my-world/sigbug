@@ -26,7 +26,7 @@ char activeProgramStep;
 
 // waiting for gps fix
 bool gpsFixDone = false;
-void checkSerial(HardwareSerial port);
+void checkSerial();
 
 void runProgram(void);
 
@@ -41,7 +41,7 @@ void setup()
   // this should only happen once
   if (sleepCounterInitialised != sleepCounterInitialisedValue)
   {
-    Serial.println("I");
+    Serial.println('I');
     // perform first initialisation of sleep counter
     sleepCounter = sleepCounterMin;
     // indicate that sleep counter has been initialised
@@ -68,7 +68,6 @@ void loop()
     // sleep counter has grown greater than sleepCounterMax
     // the device should be awake and the program should run
     goBackToSleep = false;
-
     runProgram();
   }
   else
@@ -92,6 +91,7 @@ void loop()
 void runProgram(void)
 {
   // Serial.print(activeProgramStep);
+  Serial.print('4');
 
   switch (activeProgramStep)
   {
@@ -100,7 +100,7 @@ void runProgram(void)
     break;
 
   case stepWaitingForGPSFix:
-    checkSerial(Serial);
+    checkSerial();
     if (gpsFixDone)
     {
       activeProgramStep = stepGotGPSFix;
@@ -125,15 +125,17 @@ void runProgram(void)
     sleepCounter = sleepCounterMin;
     break;
   }
+
+  return;
 }
 
-void checkSerial(HardwareSerial port)
+void checkSerial()
 {
   // while there is data available at the given port
-  while (port.available())
+  while (Serial.available())
   {
     // get next byte from available
-    char inChar = (char)port.read();
+    char inChar = (char)Serial.read();
     Serial.print("In ");
     Serial.print(inChar);
     bool start = inChar == '$';
