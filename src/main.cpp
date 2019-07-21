@@ -6,7 +6,7 @@
 #define sleepCounterMin 0
 #define sleepCounterMax 1
 int sleepCounter __attribute__((section(".noinit")));
-short sleepCounterInitialised __attribute__((section(".noinit")));
+int sleepCounterInitialised __attribute__((section(".noinit")));
 bool goBackToSleep;
 
 #define ledPin 8
@@ -33,31 +33,6 @@ void program(void);
 
 void setup()
 {
-  // union {
-  //   float f;
-  //   unsigned char b[4];
-  // } lat;
-
-  // union {
-  //   float f;
-  //   unsigned char b[4];
-  // } lon;
-
-  // lat.f = -1 * (String("26").toFloat() + String("08.9986").toFloat() / 60.0);
-  // lon.f = String("028").toFloat() + String("08.1069").toFloat() / 60.0;
-
-  // for (int i = 0; i < 4; i++)
-  // {
-  //   sSerial.print((char)lat.b[i]);
-  // }
-  // for (int i = 0; i < 4; i++)
-  // {
-  //   sSerial.print((char)lon.b[i]);
-  // }
-
-  // reserve 200 bytes for the nmeaSentence:
-  // nmeaSentence.reserve(100);
-
   Serial.begin(9600);
 
   // watchdog timer always enabled with maximum prescaler
@@ -83,7 +58,9 @@ void setup()
     sleepCounter = sleepCounterMin;
   }
 
-  // programState.activeStep = stepSetup;
+  // initialise program state in case it is
+  // time for the device to wake up
+  programState.activeStep = stepSetup;
 }
 
 void loop()
@@ -94,11 +71,7 @@ void loop()
     // the device should be awake and the program should run
     goBackToSleep = false;
 
-    Serial.println("program runs...");
-
-    // reset sleep counter and set flag for retun to sleep
-    sleepCounter = sleepCounterMin;
-    goBackToSleep = true;
+    program();
   }
   else
   {
@@ -120,41 +93,49 @@ void loop()
 void program(void)
 {
   Serial.println("p");
-  switch (programState.activeStep)
-  {
-  case stepSetup:
-    Serial.println(0);
-    programState.activeStep = stepWaitingForGPSFix;
-    break;
+  sleepCounter = sleepCounterMin;
+  goBackToSleep = true;
 
-  case stepWaitingForGPSFix:
-    Serial.println(1);
-    programState.activeStep = stepGotGPSFix;
-    break;
+  // switch (programState.activeStep)
+  // {
+  // case stepSetup:
+  //   Serial.println(0);
+  //   // programState.activeStep = stepWaitingForGPSFix;
+  //   programState.activeStep = stepGoBackToSleep;
+  //   break;
 
-  case stepGotGPSFix:
-    Serial.println(2);
-    programState.activeStep = stepTransmitting;
-    break;
+  // case stepWaitingForGPSFix:
+  //   Serial.println(1);
+  //   // programState.activeStep = stepGotGPSFix;
+  //   programState.activeStep = stepGoBackToSleep;
+  //   break;
 
-  case stepFailedToGetFix:
-    Serial.println(3);
-    programState.activeStep = stepWaitingForGPSFix;
-    break;
+  // case stepGotGPSFix:
+  //   Serial.println(2);
+  //   programState.activeStep = stepTransmitting;
+  //   break;
 
-  case stepTransmitting:
-    Serial.println(4);
-    programState.activeStep = stepGoBackToSleep;
-    break;
+  // case stepFailedToGetFix:
+  //   Serial.println(3);
+  //   programState.activeStep = stepWaitingForGPSFix;
+  //   break;
 
-  case stepGoBackToSleep:
-    sleepCounter = sleepCounterMin;
-    goBackToSleep = true;
-    break;
+  // case stepTransmitting:
+  //   Serial.println(4);
+  //   programState.activeStep = stepGoBackToSleep;
+  //   break;
 
-  default:
-    break;
-  }
+  // case stepGoBackToSleep:
+  //   sleepCounter = sleepCounterMin;
+  //   goBackToSleep = true;
+  //   break;
+
+  // default:
+  //   Serial.println("!!");
+  //   sleepCounter = sleepCounterMin;
+  //   goBackToSleep = true;
+  //   break;
+  // }
 }
 
 // ISR(TIMER1_OVF_vect)
@@ -220,3 +201,28 @@ void serialEvent()
 //     }
 //   }
 // }
+
+// union {
+//   float f;
+//   unsigned char b[4];
+// } lat;
+
+// union {
+//   float f;
+//   unsigned char b[4];
+// } lon;
+
+// lat.f = -1 * (String("26").toFloat() + String("08.9986").toFloat() / 60.0);
+// lon.f = String("028").toFloat() + String("08.1069").toFloat() / 60.0;
+
+// for (int i = 0; i < 4; i++)
+// {
+//   sSerial.print((char)lat.b[i]);
+// }
+// for (int i = 0; i < 4; i++)
+// {
+//   sSerial.print((char)lon.b[i]);
+// }
+
+// reserve 200 bytes for the nmeaSentence:
+// nmeaSentence.reserve(100);
