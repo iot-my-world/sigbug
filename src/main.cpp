@@ -15,7 +15,7 @@ bool goBackToSleep;
 String nmeaSentence = ""; // a String to hold incoming data
 bool waitingForStart = true;
 
-// runProgram state
+// Program State
 #define stepSetup 'A'
 #define stepWaitingForGPSFix 'B'
 #define stepGotGPSFix 'C'
@@ -37,7 +37,7 @@ void setup()
   // this should only happen once
   if (sleepCounterInitialised != sleepCounterInitialisedValue)
   {
-    Serial.println("I!");
+    Serial.println("I");
     // perform first initialisation of sleep counter
     sleepCounter = sleepCounterMin;
     // indicate that sleep counter has been initialised
@@ -70,7 +70,6 @@ void loop()
   }
   else
   {
-    Serial.println("+");
     // otherwise sleep counter is still below sleepCounterMax
     // and so the device should continue to sleep
     goBackToSleep = true;
@@ -87,62 +86,36 @@ void loop()
 
 void runProgram(void)
 {
+  Serial.println(activeProgramStep);
+
   switch (activeProgramStep)
   {
   case stepSetup:
-    Serial.println(stepSetup);
+    activeProgramStep = stepWaitingForGPSFix;
+    break;
+
+  case stepWaitingForGPSFix:
+    activeProgramStep = stepGotGPSFix;
+    break;
+
+  case stepGotGPSFix:
+    activeProgramStep = stepTransmitting;
+    break;
+
+  case stepFailedToGetFix:
+    activeProgramStep = stepGoBackToSleep;
+    break;
+
+  case stepTransmitting:
     activeProgramStep = stepGoBackToSleep;
     break;
 
   case stepGoBackToSleep:
-    Serial.println(stepGoBackToSleep);
+  default:
+    goBackToSleep = true;
     sleepCounter = sleepCounterMin;
     break;
-
-  default:
-    break;
   }
-
-  // switch (runProgramState.activeStep)
-  // {
-  // case stepSetup:
-  //   Serial.println(0);
-  //   // runProgramState.activeStep = stepWaitingForGPSFix;
-  //   runProgramState.activeStep = stepGoBackToSleep;
-  //   break;
-
-  // case stepWaitingForGPSFix:
-  //   Serial.println(1);
-  //   // runProgramState.activeStep = stepGotGPSFix;
-  //   runProgramState.activeStep = stepGoBackToSleep;
-  //   break;
-
-  // case stepGotGPSFix:
-  //   Serial.println(2);
-  //   runProgramState.activeStep = stepTransmitting;
-  //   break;
-
-  // case stepFailedToGetFix:
-  //   Serial.println(3);
-  //   runProgramState.activeStep = stepWaitingForGPSFix;
-  //   break;
-
-  // case stepTransmitting:
-  //   Serial.println(4);
-  //   runProgramState.activeStep = stepGoBackToSleep;
-  //   break;
-
-  // case stepGoBackToSleep:
-  //   sleepCounter = sleepCounterMin;
-  //   goBackToSleep = true;
-  //   break;
-
-  // default:
-  //   Serial.println("!!");
-  //   sleepCounter = sleepCounterMin;
-  //   goBackToSleep = true;
-  //   break;
-  // }
 }
 
 // ISR(TIMER1_OVF_vect)
