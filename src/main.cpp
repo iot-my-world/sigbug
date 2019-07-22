@@ -26,10 +26,22 @@ int main(void)
 
     while (1)
     {
-        goToSleep();
-        recurringSetup();
-        goToSleep();
-        recurringBreakdown();
+        if (sleepCounter <= sleepCounterMax)
+        {
+            // the device should go back to sleep
+            sleepCounter++;
+            goToSleep();
+        }
+        else
+        {
+            // the device should wake up and run the program
+            PORTB ^= (1 << PB2);
+            sleepCounter = sleepCounterMin;
+        }
+        // goToSleep();
+        // recurringSetup();
+        // goToSleep();
+        // recurringBreakdown();
     }
 
     return 0;
@@ -43,7 +55,8 @@ void goToSleep(void)
     sleep_enable();
 
     // enable watchdog timer with interrupt and maximum clock cycle
-    WDTCSR |= (1 << WDE) | (1 << WDIE) | (1 << WDP3) | (1 << WDP2) | (1 << WDP1) | (1 << WDP0);
+    // WDTCSR |= (1 << WDE) | (1 << WDIE) | (1 << WDP3) | (1 << WDP2) | (1 << WDP1) | (1 << WDP0); // 8.0 s
+    WDTCSR |= (1 << WDE) | (1 << WDIE) | (1 << WDP2) | (1 << WDP1) | (1 << WDP0); // 2.0 s
 
     sei(); // ensure interrupts enabled so that the device can wake up again
 
