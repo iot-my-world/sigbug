@@ -1,24 +1,27 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
+#include <util/delay.h>
 
-#define BAUD 9600
-#define UBRR ((F_CPU / (16UL * BAUD)) - 1)
-void USART_Init(unsigned int baud);
-void USART_Transmit(unsigned char data);
-
+// ********************* Sleep *********************
 void goToSleep(void);
-
-// https://www.microchip.com/webdoc/AVRLibcReferenceManual/mem_sections_1sec_dot_noinit.html
 char sleepCounterInitialised __attribute__((section(".noinit")));
 int sleepCounter __attribute__((section(".noinit")));
 #define sleepCounterInitialisedValue '!'
 #define sleepCounterMin 0
 #define sleepCounterMax 1
 
+// ********************* Setup/Teardown *********************
 void onceOffSetup(void);
 void recurringSetup(void);
-void recurringBreakdown(void);
+void recurringTeardown(void);
+
+// ********************* USART *********************
+#define BAUD 9600
+#define UBRR ((F_CPU / (16UL * BAUD)) - 1)
+void USART_Setup(unsigned int baud);
+void USART_Teardown();
+void USART_Transmit(unsigned char data);
 
 int main(void)
 {
@@ -35,18 +38,19 @@ int main(void)
         else
         {
             // the device should wake up and run the program
-            PORTB ^= (1 << PB2);
+            recurringSetup();
+            USART_Transmit('t');
+            USART_Transmit('t');
+            _delay_ms(1);
+            recurringTeardown();
             sleepCounter = sleepCounterMin;
         }
-        // goToSleep();
-        // recurringSetup();
-        // goToSleep();
-        // recurringBreakdown();
     }
 
     return 0;
 }
 
+// ********************* Sleep *********************
 void goToSleep(void)
 {
     // set sleep mode to complete power down
@@ -66,7 +70,11 @@ void goToSleep(void)
     // when processor wakes execution will continue from here
     sleep_disable();
 }
+ISR(WDT_vect)
+{
+}
 
+// ********************* Setup/Teardown *********************
 void onceOffSetup(void)
 {
     // check if the sleep counter has been initialised
@@ -83,27 +91,20 @@ void recurringSetup(void)
 {
     // turn led on to show device is on
     PORTB |= (1 << PB2);
+
+    USART_Setup(UBRR);
 }
 
-void recurringBreakdown(void)
+void recurringTeardown(void)
 {
     // turn led off to show device is off
     PORTB &= ~((1 << PB2));
+
+    USART_Teardown();
 }
 
-ISR(WDT_vect)
-{
-}
-
-ISR(USART0_RX_vect)
-{
-    /* Get and return received data from buffer */
-    char data = UDR0;
-    USART_Transmit(data);
-    PORTB ^= (1 << PB2);
-}
-
-void USART_Init(unsigned int ubrr)
+// ********************* USART *********************
+void USART_Setup(unsigned int ubrr)
 {
     // Set baud rate
     UBRR0H = (unsigned char)(ubrr >> 8);
@@ -114,6 +115,12 @@ void USART_Init(unsigned int ubrr)
     UCSR0C = (1 << USBS0) | (3 << UCSZ00);
 }
 
+void USART_Teardown(void)
+{
+    // Disable receiver and transmitter as well as RX complete interrupt
+    UCSR0B &= ~((1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0));
+}
+
 void USART_Transmit(unsigned char data)
 {
     // Wait for empty transmit buffer
@@ -122,4 +129,12 @@ void USART_Transmit(unsigned char data)
     }
     // Put data into buffer, sends the data
     UDR0 = data;
+}
+
+ISR(USART0_RX_vect)
+{
+    /* Get and return received data from buffer */
+    char data = UDR0;
+    USART_Transmit(data);
+    PORTB ^= (1 << PB2);
 }
