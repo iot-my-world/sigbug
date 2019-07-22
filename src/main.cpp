@@ -4,69 +4,32 @@
 
 #define BAUD 9600
 #define UBRR ((F_CPU / (16UL * BAUD)) - 1)
-
 void USART_Init(unsigned int baud);
 void USART_Transmit(unsigned char data);
 
-// https://www.microchip.com/webdoc/AVRLibcReferenceManual/mem_sections_1sec_dot_noinit.html
 void goToSleep(void);
+
+// https://www.microchip.com/webdoc/AVRLibcReferenceManual/mem_sections_1sec_dot_noinit.html
 char sleepCounterInitialised __attribute__((section(".noinit")));
 int sleepCounter __attribute__((section(".noinit")));
 #define sleepCounterInitialisedValue '!'
 #define sleepCounterMin 0
 #define sleepCounterMax 1
 
-#define programStepSetup 'a'
-#define programStepWaitingForGPSFix 'b'
-#define programStepGPSFixSuccess 'c'
-#define programStepTransmit 'd'
-#define programStepGoBackToSleep 'e'
-char programStep;
+void onceOffSetup(void);
+void recurringSetup(void);
+void recurringBreakdown(void);
 
 int main(void)
 {
-    // check if the sleep counter has been initialised
-    if (sleepCounterInitialised != sleepCounterInitialisedValue)
-    {
-        sleepCounter = sleepCounterMin;
-    }
-
-    // make the LED pin an output for PORTB5
-    DDRB |= (1 << PB2);
-
-    // // Setup 16 bit timer/counter 1
-    // // Normal Mode of Operation
-    // // Internal clock with 1024 prescaler
-    // // TCCR1B |= (1 << CS12) | (1 << CS10);
-    // // TCCR1B |= (1 << CS12);
-    // // // Enable overflow interrupt
-    // // TIMSK1 |= (1 << TOIE1);
-
-    // // initialise usart
-    // USART_Init(UBRR);
-
-    // sei();
+    onceOffSetup();
 
     while (1)
     {
         goToSleep();
-        // if (sleepCounter <= sleepCounterMax)
-        // {
-        //     sleepCounter++;
-        //     // device should go back to sleep
-        //     goToSleep();
-        //     // execution continues here after sleep
-        // }
-        // else
-        // {
-        //     // device should wake up
-
-        //     // do some stuff
-        // DDRB |= (1 << PB2);
-        // PORTB ^= (1 << PB2);
-
-        //     sleepCounter = sleepCounterMin;
-        // }
+        recurringSetup();
+        goToSleep();
+        recurringBreakdown();
     }
 
     return 0;
@@ -91,17 +54,33 @@ void goToSleep(void)
     sleep_disable();
 }
 
-ISR(WDT_vect)
+void onceOffSetup(void)
 {
+    // check if the sleep counter has been initialised
+    if (sleepCounterInitialised != sleepCounterInitialisedValue)
+    {
+        sleepCounter = sleepCounterMin;
+    }
+
+    // set up led pin as output
     DDRB |= (1 << PB2);
-    PORTB ^= (1 << PB2);
 }
 
-// ISR(TIMER1_OVF_vect)
-// {
-//     PORTB ^= (1 << PB2);
-//     USART_Transmit('!');
-// }
+void recurringSetup(void)
+{
+    // turn led on to show device is on
+    PORTB |= (1 << PB2);
+}
+
+void recurringBreakdown(void)
+{
+    // turn led off to show device is off
+    PORTB &= ~((1 << PB2));
+}
+
+ISR(WDT_vect)
+{
+}
 
 ISR(USART0_RX_vect)
 {
