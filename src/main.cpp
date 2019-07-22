@@ -41,7 +41,7 @@ int main(void)
             recurringSetup();
             USART_Transmit('t');
             USART_Transmit('t');
-            _delay_ms(1);
+            _delay_ms(1); // todo, find a way to remove this
             recurringTeardown();
             sleepCounter = sleepCounterMin;
         }
