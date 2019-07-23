@@ -13,13 +13,16 @@ int sleepCounter __attribute__((section(".noinit")));
 
 // ******************** Program Loop ********************
 void program(void);
-#define programStepWaitingForGPSFix 'a'
-#define programStepGPSFixSuccess 'b'
-#define programStepGPSFixFailure 'c'
-#define programStepTransmit 'd'
+bool runProgram;
+#define programStepStart 'a'
+#define programStepWaitingForGPSFix 'b'
+#define programStepGPSFixSuccess 'c'
+#define programStepGPSFixFailure 'd'
+#define programStepTransmit 'e'
+#define programStepDone 'f'
 char programStep;
 
-// ********************* Setup/Teardown *********************
+// ********************* Hardware Setup/Teardown *********************
 void onceOffSetup(void);
 void recurringHardwareSetup(void);
 void recurringHardwareTeardown(void);
@@ -47,20 +50,20 @@ int main(void)
         {
             // the device should wake up and run the program
             recurringHardwareSetup();
-            USART_Transmit('t');
-            USART_Transmit('t');
-            _delay_ms(1); // todo, find a way to remove this
+            runProgram = true;
+            programStep = programStepStart;
+            while (runProgram)
+            {
+                program();
+            }
+            // todo, find a way to remove this
+            _delay_ms(1);
             recurringHardwareTeardown();
             sleepCounter = sleepCounterMin;
         }
     }
 
     return 0;
-}
-
-// ******************** Program Loop ********************
-void program(void)
-{
 }
 
 // ********************* Sleep *********************
@@ -87,7 +90,37 @@ ISR(WDT_vect)
 {
 }
 
-// ********************* Setup/Teardown *********************
+// ******************** Program Loop ********************
+void program(void)
+{
+    USART_Transmit(programStep);
+    switch (programStep)
+    {
+    case programStepStart:
+        programStep = programStepWaitingForGPSFix;
+
+    case programStepWaitingForGPSFix:
+        programStep = programStepGPSFixSuccess;
+        break;
+
+    case programStepGPSFixSuccess:
+        programStep = programStepTransmit;
+        break;
+
+    case programStepTransmit:
+        programStep = programStepDone;
+        break;
+
+    case programStepDone:
+        runProgram = false;
+        break;
+
+    default:
+        break;
+    }
+}
+
+// ********************* Hardware Setup/Teardown *********************
 void onceOffSetup(void)
 {
     // check if the sleep counter has been initialised
