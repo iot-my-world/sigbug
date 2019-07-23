@@ -11,10 +11,18 @@ int sleepCounter __attribute__((section(".noinit")));
 #define sleepCounterMin 0
 #define sleepCounterMax 1
 
+// ******************** Program Loop ********************
+void program(void);
+#define programStepWaitingForGPSFix 'a'
+#define programStepGPSFixSuccess 'b'
+#define programStepGPSFixFailure 'c'
+#define programStepTransmit 'd'
+char programStep;
+
 // ********************* Setup/Teardown *********************
 void onceOffSetup(void);
-void recurringSetup(void);
-void recurringTeardown(void);
+void recurringHardwareSetup(void);
+void recurringHardwareTeardown(void);
 
 // ********************* USART *********************
 #define BAUD 9600
@@ -38,16 +46,21 @@ int main(void)
         else
         {
             // the device should wake up and run the program
-            recurringSetup();
+            recurringHardwareSetup();
             USART_Transmit('t');
             USART_Transmit('t');
             _delay_ms(1); // todo, find a way to remove this
-            recurringTeardown();
+            recurringHardwareTeardown();
             sleepCounter = sleepCounterMin;
         }
     }
 
     return 0;
+}
+
+// ******************** Program Loop ********************
+void program(void)
+{
 }
 
 // ********************* Sleep *********************
@@ -87,7 +100,7 @@ void onceOffSetup(void)
     DDRB |= (1 << PB2);
 }
 
-void recurringSetup(void)
+void recurringHardwareSetup(void)
 {
     // turn led on to show device is on
     PORTB |= (1 << PB2);
@@ -95,7 +108,7 @@ void recurringSetup(void)
     USART_Setup(UBRR);
 }
 
-void recurringTeardown(void)
+void recurringHardwareTeardown(void)
 {
     // turn led off to show device is off
     PORTB &= ~((1 << PB2));
