@@ -4,6 +4,8 @@
 #include <util/delay.h>
 
 // ********************* Sleep *********************
+void enableWDT(void);
+void disableWDT(void);
 void goToSleep(void);
 char sleepCounterInitialised __attribute__((section(".noinit")));
 int sleepCounter __attribute__((section(".noinit")));
@@ -16,6 +18,7 @@ void program(void);
 bool runProgram;
 #define programStepStart 'a'
 #define programStepWaitingForGPSFix 'b'
+bool gpsFixDone;
 #define programStepGPSFixSuccess 'c'
 #define programStepGPSFixFailure 'd'
 #define programStepTransmit 'e'
@@ -33,6 +36,7 @@ void recurringHardwareTeardown(void);
 void USART_Setup(unsigned int baud);
 void USART_Teardown();
 void USART_Transmit(unsigned char data);
+void USART_Flush(void);
 
 int main(void)
 {
@@ -52,12 +56,14 @@ int main(void)
             recurringHardwareSetup();
             runProgram = true;
             programStep = programStepStart;
+            sei();
             while (runProgram)
             {
                 program();
             }
+            cli();
             // todo, find a way to remove this
-            _delay_ms(1);
+            _delay_ms(100);
             recurringHardwareTeardown();
             sleepCounter = sleepCounterMin;
         }
@@ -69,14 +75,14 @@ int main(void)
 // ********************* Sleep *********************
 void goToSleep(void)
 {
+    cli();
+
     // set sleep mode to complete power down
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
     // enable sleep mode
     sleep_enable();
 
-    // enable watchdog timer with interrupt and maximum clock cycle
-    // WDTCSR |= (1 << WDE) | (1 << WDIE) | (1 << WDP3) | (1 << WDP2) | (1 << WDP1) | (1 << WDP0); // 8.0 s
-    WDTCSR |= (1 << WDE) | (1 << WDIE) | (1 << WDP2) | (1 << WDP1) | (1 << WDP0); // 2.0 s
+    enableWDT();
 
     sei(); // ensure interrupts enabled so that the device can wake up again
 
@@ -85,7 +91,28 @@ void goToSleep(void)
 
     // when processor wakes execution will continue from here
     sleep_disable();
+
+    disableWDT();
+
+    cli();
 }
+
+void enableWDT(void)
+{
+    // enable watchdog timer with interrupt and maximum clock cycle
+    WDTCSR |= ((1 << WDE) | (1 << WDIE));
+}
+
+void disableWDT(void)
+{
+    // clear WDRF in MCUSR
+    MCUSR &= ~(1 << WDRF);
+    // write signature for change enable of protected IO register
+    CCP = 0xD8;
+    // within four instruction cycles turn off WDT
+    WDTCSR &= ~((1 << WDE) | (1 << WDIE));
+}
+
 ISR(WDT_vect)
 {
 }
@@ -93,14 +120,18 @@ ISR(WDT_vect)
 // ******************** Program Loop ********************
 void program(void)
 {
-    USART_Transmit(programStep);
     switch (programStep)
     {
     case programStepStart:
         programStep = programStepWaitingForGPSFix;
+        gpsFixDone = false;
 
     case programStepWaitingForGPSFix:
-        programStep = programStepGPSFixSuccess;
+        if (gpsFixDone)
+        {
+            USART_Flush();
+            programStep = programStepGPSFixSuccess;
+        }
         break;
 
     case programStepGPSFixSuccess:
@@ -123,7 +154,11 @@ void program(void)
 // ********************* Hardware Setup/Teardown *********************
 void onceOffSetup(void)
 {
-    // check if the sleep counter has been initialised
+    // Set up watchdog timer prescaler
+    // WDTCSR |= ((1 << WDP3) | (1 << WDP2) | (1 << WDP1) | (1 << WDP0)); // 8.0 s
+    WDTCSR |= ((1 << WDP2) | (1 << WDP1) | (1 << WDP0)); // 2.0 s
+
+    // initialise sleep counter if it hasn't been yet
     if (sleepCounterInitialised != sleepCounterInitialisedValue)
     {
         sleepCounter = sleepCounterMin;
@@ -145,7 +180,6 @@ void recurringHardwareTeardown(void)
 {
     // turn led off to show device is off
     PORTB &= ~((1 << PB2));
-
     USART_Teardown();
 }
 
@@ -179,8 +213,21 @@ void USART_Transmit(unsigned char data)
 
 ISR(USART0_RX_vect)
 {
+    cli();
     /* Get and return received data from buffer */
     char data = UDR0;
-    USART_Transmit(data);
-    PORTB ^= (1 << PB2);
+    if (data == '$')
+    {
+        gpsFixDone = true;
+    }
+    sei();
+}
+
+void USART_Flush(void)
+{
+    unsigned char dummy;
+    while (UCSR0A & (1 << RXC0))
+    {
+        dummy = UDR0;
+    }
 }
