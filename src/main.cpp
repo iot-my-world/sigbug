@@ -4,6 +4,7 @@
 #include <util/delay.h>
 #include <USART.h>
 #include <WDT.h>
+#include <string.h>
 
 // ********************* Sleep *********************
 void goToSleep(void);
@@ -17,11 +18,13 @@ int sleepCounter __attribute__((section(".noinit")));
 void program(void);
 bool runProgram;
 #define programStepStart 'a'
+
 #define programStepWaitingForGPSFix 'b'
 bool gpsFixDone;
 bool waitingForStartOfNMEAWord;
 #define programStepGPSFixSuccess 'c'
 #define programStepGPSFixFailure 'd'
+
 #define programStepTransmit 'e'
 #define programStepDone 'f'
 char programStep;
@@ -155,8 +158,6 @@ void recurringHardwareSetup(void)
     PORTB |= (1 << PB2);
 
     USART0.Start();
-
-    USART0.Transmit("aweh");
 }
 
 void recurringHardwareTeardown(void)
