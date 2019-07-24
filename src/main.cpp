@@ -3,10 +3,9 @@
 #include <avr/sleep.h>
 #include <util/delay.h>
 #include <USART.h>
+#include <WDT.h>
 
 // ********************* Sleep *********************
-void enableWDT(void);
-void disableWDT(void);
 void goToSleep(void);
 char sleepCounterInitialised __attribute__((section(".noinit")));
 int sleepCounter __attribute__((section(".noinit")));
@@ -76,6 +75,7 @@ void goToSleep(void)
 
     // set sleep mode to complete power down
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+
     // enable sleep mode
     sleep_enable();
 
@@ -92,22 +92,6 @@ void goToSleep(void)
     disableWDT();
 
     cli();
-}
-
-void enableWDT(void)
-{
-    // enable watchdog timer with interrupt and maximum clock cycle
-    WDTCSR |= ((1 << WDE) | (1 << WDIE));
-}
-
-void disableWDT(void)
-{
-    // clear WDRF in MCUSR
-    MCUSR &= ~(1 << WDRF);
-    // write signature for change enable of protected IO register
-    CCP = 0xD8;
-    // within four instruction cycles turn off WDT
-    WDTCSR &= ~((1 << WDE) | (1 << WDIE));
 }
 
 ISR(WDT_vect)
@@ -151,9 +135,7 @@ void program(void)
 // ********************* Hardware Setup/Teardown *********************
 void onceOffSetup(void)
 {
-    // Set up watchdog timer prescaler
-    // WDTCSR |= ((1 << WDP3) | (1 << WDP2) | (1 << WDP1) | (1 << WDP0)); // 8.0 s
-    WDTCSR |= ((1 << WDP2) | (1 << WDP1) | (1 << WDP0)); // 2.0 s
+    setupWDT();
 
     // initialise sleep counter if it hasn't been yet
     if (sleepCounterInitialised != sleepCounterInitialisedValue)
