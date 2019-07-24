@@ -33,10 +33,10 @@ void recurringHardwareTeardown(void);
 // ********************* USART *********************
 #define BAUD 9600
 #define UBRR ((F_CPU / (16UL * BAUD)) - 1)
-void USART_Setup(unsigned int baud);
-void USART_Teardown();
-void USART_Transmit(unsigned char data);
-void USART_Flush(void);
+void USART0_Setup(unsigned int baud);
+void USART0_Teardown();
+void USART0_Transmit(unsigned char data);
+void USART0_Flush(void);
 
 int main(void)
 {
@@ -129,7 +129,7 @@ void program(void)
     case programStepWaitingForGPSFix:
         if (gpsFixDone)
         {
-            USART_Flush();
+            USART0_Flush();
             programStep = programStepGPSFixSuccess;
         }
         break;
@@ -173,18 +173,18 @@ void recurringHardwareSetup(void)
     // turn led on to show device is on
     PORTB |= (1 << PB2);
 
-    USART_Setup(UBRR);
+    USART0_Setup(UBRR);
 }
 
 void recurringHardwareTeardown(void)
 {
     // turn led off to show device is off
     PORTB &= ~((1 << PB2));
-    USART_Teardown();
+    USART0_Teardown();
 }
 
 // ********************* USART *********************
-void USART_Setup(unsigned int ubrr)
+void USART0_Setup(unsigned int ubrr)
 {
     // Set baud rate
     UBRR0H = (unsigned char)(ubrr >> 8);
@@ -195,13 +195,13 @@ void USART_Setup(unsigned int ubrr)
     UCSR0C = (1 << USBS0) | (3 << UCSZ00);
 }
 
-void USART_Teardown(void)
+void USART0_Teardown(void)
 {
     // Disable receiver and transmitter as well as RX complete interrupt
     UCSR0B &= ~((1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0));
 }
 
-void USART_Transmit(unsigned char data)
+void USART0_Transmit(unsigned char data)
 {
     // Wait for empty transmit buffer
     while (!(UCSR0A & (1 << UDRE0)))
@@ -220,10 +220,9 @@ ISR(USART0_RX_vect)
     {
         gpsFixDone = true;
     }
-    sei();
 }
 
-void USART_Flush(void)
+void USART0_Flush(void)
 {
     unsigned char dummy;
     while (UCSR0A & (1 << RXC0))
