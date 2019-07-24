@@ -19,6 +19,7 @@ bool runProgram;
 #define programStepStart 'a'
 #define programStepWaitingForGPSFix 'b'
 bool gpsFixDone;
+bool waitingForStartOfNMEAWord;
 #define programStepGPSFixSuccess 'c'
 #define programStepGPSFixFailure 'd'
 #define programStepTransmit 'e'
@@ -106,6 +107,7 @@ void program(void)
     case programStepStart:
         programStep = programStepWaitingForGPSFix;
         gpsFixDone = false;
+        waitingForStartOfNMEAWord = true;
 
     case programStepWaitingForGPSFix:
         if (gpsFixDone)
@@ -153,6 +155,8 @@ void recurringHardwareSetup(void)
     PORTB |= (1 << PB2);
 
     USART0.Start();
+
+    USART0.Transmit("aweh");
 }
 
 void recurringHardwareTeardown(void)
@@ -166,11 +170,29 @@ void recurringHardwareTeardown(void)
 ISR(USART0_RX_vect)
 {
     cli();
-    /* Get and return received data from buffer */
     char data = UDR0;
-    USART0.Transmit(data);
-    if (data == '$')
+
+    if (waitingForStartOfNMEAWord)
     {
-        gpsFixDone = true;
+        // we are waiting for '$' which is the first character of an nmea word
+        if (data == '$')
+        {
+            // this is the start of a word, mark that we are no longer waiting
+            waitingForStartOfNMEAWord = false;
+
+            // consume first char here
+        }
+    }
+    else
+    {
+        // we are not waiting for the start of an NMEA word and so are busy consuming
+
+        // consume next char here
+
+        if (data == '\n')
+        {
+            // new line character indicates end of NMEA word
+            gpsFixDone = true;
+        }
     }
 }

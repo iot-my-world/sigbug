@@ -1,5 +1,6 @@
 #include <USART.h>
 #include <avr/io.h>
+#include <string.h>
 
 //
 // Constructors
@@ -114,16 +115,22 @@ void USART::flush1(void)
     }
 };
 
-void USART::Transmit(char data)
+void USART::Transmit(char *data)
 {
     switch (_usartNo)
     {
     case '0':
-        transmit0(data);
+        for (int i = 0; i < strlen(data); i++)
+        {
+            transmit0(data[i]);
+        }
         break;
 
     case '1':
-        transmit1(data);
+        for (int i = 0; i < strlen(data); i++)
+        {
+            transmit1(data[i]);
+        }
         break;
 
     default:

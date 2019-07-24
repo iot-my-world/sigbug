@@ -34,7 +34,7 @@ public:
     void Start(void);
     void Stop(void);
     void Flush(void);
-    void Transmit(char data);
+    void Transmit(char *data);
 };
 
 #endif
