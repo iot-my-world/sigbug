@@ -5,6 +5,7 @@
 #include <USART.h>
 #include <WDT.h>
 #include <string.h>
+#include <String.h>
 
 // ********************* Sleep *********************
 void goToSleep(void);
@@ -18,7 +19,7 @@ int sleepCounter __attribute__((section(".noinit")));
 void program(void);
 bool runProgram;
 #define programStepStart 'a'
-
+String nmeaString = String(20);
 #define programStepWaitingForGPSFix 'b'
 bool gpsFixDone;
 bool waitingForStartOfNMEAWord;
@@ -111,6 +112,7 @@ void program(void)
         programStep = programStepWaitingForGPSFix;
         gpsFixDone = false;
         waitingForStartOfNMEAWord = true;
+        nmeaString.Clear();
 
     case programStepWaitingForGPSFix:
         if (gpsFixDone)
@@ -182,6 +184,7 @@ ISR(USART0_RX_vect)
             waitingForStartOfNMEAWord = false;
 
             // consume first char here
+            nmeaString.Add(data);
         }
     }
     else
@@ -189,11 +192,13 @@ ISR(USART0_RX_vect)
         // we are not waiting for the start of an NMEA word and so are busy consuming
 
         // consume next char here
+        nmeaString.Add(data);
 
         if (data == '\n')
         {
             // new line character indicates end of NMEA word
             gpsFixDone = true;
+            USART0.Transmit(nmeaString.Value());
         }
     }
 }
