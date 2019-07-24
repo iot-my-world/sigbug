@@ -16,7 +16,7 @@ String::~String(){
 
 };
 
-void String::Add(char a)
+void String::operator+=(char a)
 {
     if (_used == _reservedSize)
     {

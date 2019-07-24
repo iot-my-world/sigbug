@@ -15,9 +15,10 @@ public:
     String(int initialSize);
     ~String();
 
-    void Add(char a);
     void Free(void);
     void Clear(void);
+
+    void operator+=(char a);
 
     char *Value(void);
 };

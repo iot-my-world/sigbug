@@ -184,7 +184,7 @@ ISR(USART0_RX_vect)
             waitingForStartOfNMEAWord = false;
 
             // consume first char here
-            nmeaString.Add(data);
+            nmeaString += data;
         }
     }
     else
@@ -192,7 +192,7 @@ ISR(USART0_RX_vect)
         // we are not waiting for the start of an NMEA word and so are busy consuming
 
         // consume next char here
-        nmeaString.Add(data);
+        nmeaString += data;
 
         if (data == '\n')
         {
