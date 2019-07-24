@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include <util/delay.h>
+#include <USART.h>
 
 // ********************* Sleep *********************
 void enableWDT(void);
@@ -31,12 +32,8 @@ void recurringHardwareSetup(void);
 void recurringHardwareTeardown(void);
 
 // ********************* USART *********************
-#define BAUD 9600
-#define UBRR ((F_CPU / (16UL * BAUD)) - 1)
-void USART0_Setup(unsigned int baud);
-void USART0_Teardown();
-void USART0_Transmit(unsigned char data);
-void USART0_Flush(void);
+USART USART0(9600, '0');
+USART USART1(9600, '1');
 
 int main(void)
 {
@@ -129,7 +126,7 @@ void program(void)
     case programStepWaitingForGPSFix:
         if (gpsFixDone)
         {
-            USART0_Flush();
+            USART0.Flush();
             programStep = programStepGPSFixSuccess;
         }
         break;
@@ -173,42 +170,15 @@ void recurringHardwareSetup(void)
     // turn led on to show device is on
     PORTB |= (1 << PB2);
 
-    USART0_Setup(UBRR);
+    USART0.Start();
 }
 
 void recurringHardwareTeardown(void)
 {
     // turn led off to show device is off
     PORTB &= ~((1 << PB2));
-    USART0_Teardown();
-}
 
-// ********************* USART *********************
-void USART0_Setup(unsigned int ubrr)
-{
-    // Set baud rate
-    UBRR0H = (unsigned char)(ubrr >> 8);
-    UBRR0L = (unsigned char)ubrr;
-    // Enable receiver and transmitter as well as RX complete interrupt
-    UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
-    // Set frame format: 8data, 2stop bit
-    UCSR0C = (1 << USBS0) | (3 << UCSZ00);
-}
-
-void USART0_Teardown(void)
-{
-    // Disable receiver and transmitter as well as RX complete interrupt
-    UCSR0B &= ~((1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0));
-}
-
-void USART0_Transmit(unsigned char data)
-{
-    // Wait for empty transmit buffer
-    while (!(UCSR0A & (1 << UDRE0)))
-    {
-    }
-    // Put data into buffer, sends the data
-    UDR0 = data;
+    USART0.Stop();
 }
 
 ISR(USART0_RX_vect)
@@ -216,17 +186,9 @@ ISR(USART0_RX_vect)
     cli();
     /* Get and return received data from buffer */
     char data = UDR0;
+    USART0.Transmit(data);
     if (data == '$')
     {
         gpsFixDone = true;
-    }
-}
-
-void USART0_Flush(void)
-{
-    unsigned char dummy;
-    while (UCSR0A & (1 << RXC0))
-    {
-        dummy = UDR0;
     }
 }
