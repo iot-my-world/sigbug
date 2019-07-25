@@ -19,7 +19,7 @@ int sleepCounter __attribute__((section(".noinit")));
 void program(void);
 bool runProgram;
 #define programStepStart 'a'
-String nmeaString = String(20);
+String nmeaString = String(75);
 #define programStepWaitingForGPSFix 'b'
 bool gpsFixDone;
 bool waitingForStartOfNMEAWord;
@@ -184,21 +184,31 @@ ISR(USART0_RX_vect)
             waitingForStartOfNMEAWord = false;
 
             // consume first char here
-            nmeaString += data;
+            if (nmeaString.SpaceLeft())
+            {
+                nmeaString += data;
+            }
         }
     }
     else
     {
+        // TODO:
+        // deal noNewLine error
+        // deal with spaceNotLeft error
         // we are not waiting for the start of an NMEA word and so are busy consuming
-
-        // consume next char here
-        nmeaString += data;
-
         if (data == '\n')
         {
             // new line character indicates end of NMEA word
             gpsFixDone = true;
             USART0.Transmit(nmeaString.Value());
+        }
+        else
+        {
+            // consume next char here if there is space left
+            if (nmeaString.SpaceLeft())
+            {
+                nmeaString += data;
+            }
         }
     }
 }

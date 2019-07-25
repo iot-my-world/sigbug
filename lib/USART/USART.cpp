@@ -51,6 +51,8 @@ void USART::start1(void){
 
 };
 
+// 200502.000,2608.9983,S,02808.1067,E,1,06,3.8,1640.3,M,0.0,M,,
+
 void USART::Stop()
 {
     switch (_usartNo)

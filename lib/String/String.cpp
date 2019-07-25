@@ -23,8 +23,8 @@ void String::operator+=(char a)
         return;
     }
     _array[_used] = a;
-    _array[_used + 1] = '\0';
     _used++;
+    _array[_used] = '\0';
 };
 
 void String::Free(void)
@@ -32,6 +32,11 @@ void String::Free(void)
     free(_array);
     _array = NULL;
     _used = 0;
+};
+
+bool String::SpaceLeft(void)
+{
+    return _used != _reservedSize;
 };
 
 void String::Clear(void)

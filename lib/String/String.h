@@ -17,6 +17,7 @@ public:
 
     void Free(void);
     void Clear(void);
+    bool SpaceLeft(void);
 
     void operator+=(char a);
 
