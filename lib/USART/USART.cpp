@@ -47,8 +47,15 @@ void USART::start0(void)
     UCSR0C = (1 << USBS0) | (3 << UCSZ00);
 };
 
-void USART::start1(void){
-
+void USART::start1(void)
+{
+    // Set baud rate
+    UBRR1H = (unsigned char)(((F_CPU / (16UL * _baud)) - 1) >> 8);
+    UBRR1L = (unsigned char)((F_CPU / (16UL * _baud)) - 1);
+    // Enable receiver and transmitter as well as RX complete interrupt
+    UCSR1B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
+    // Set frame format: 8data, 2stop bit
+    UCSR1C = (1 << USBS0) | (3 << UCSZ00);
 };
 
 // 200502.000,2608.9983,S,02808.1067,E,1,06,3.8,1640.3,M,0.0,M,,

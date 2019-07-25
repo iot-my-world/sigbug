@@ -118,6 +118,7 @@ void program(void)
         if (gpsFixDone)
         {
             USART0.Flush();
+            USART1.Flush();
             programStep = programStepGPSFixSuccess;
         }
         break;
@@ -160,6 +161,7 @@ void recurringHardwareSetup(void)
     PORTB |= (1 << PB2);
 
     USART0.Start();
+    USART1.Start();
 }
 
 void recurringHardwareTeardown(void)
@@ -168,16 +170,16 @@ void recurringHardwareTeardown(void)
     PORTB &= ~((1 << PB2));
 
     USART0.Stop();
+    USART1.Stop();
 }
 
-ISR(USART0_RX_vect)
+ISR(USART1_RX_vect)
 {
     cli();
-    char data = UDR0;
+    char data = UDR1;
 
     if (waitingForStartOfNMEAWord)
     {
-        // we are waiting for '$' which is the first character of an nmea word
         if (data == '$')
         {
             // this is the start of a word, mark that we are no longer waiting
@@ -211,4 +213,86 @@ ISR(USART0_RX_vect)
             }
         }
     }
+
+    // if (waitingForStartOfNMEAWord)
+    // {
+    //     // we are waiting for '$' which is the first character of an nmea word
+    //     if (data == '$')
+    //     {
+    // this is the start of a word, mark that we are no longer waiting
+    // waitingForStartOfNMEAWord = false;
+
+    // // consume first char here
+    // if (nmeaString.SpaceLeft())
+    // {
+    //     nmeaString += data;
+    // }
+    //     }
+    // }
+    // else
+    // {
+    // TODO:
+    // deal noNewLine error
+    // deal with spaceNotLeft error
+    // we are not waiting for the start of an NMEA word and so are busy consuming
+    //     if (data == '\n')
+    //     {
+    //         // new line character indicates end of NMEA word
+    // gpsFixDone = true;
+    //         USART0.Transmit(nmeaString.Value());
+    //     }
+    //     else
+    //     {
+    //         // consume next char here if there is space left
+    //         if (nmeaString.SpaceLeft())
+    //         {
+    //             nmeaString += data;
+    //         }
+    //     }
+    // }
+}
+
+ISR(USART0_RX_vect)
+{
+    cli();
+    char data = UDR0;
+
+    // char data = UDR0;
+
+    // if (waitingForStartOfNMEAWord)
+    // {
+    //     // we are waiting for '$' which is the first character of an nmea word
+    //     if (data == '$')
+    //     {
+    //         // this is the start of a word, mark that we are no longer waiting
+    //         waitingForStartOfNMEAWord = false;
+
+    //         // consume first char here
+    //         if (nmeaString.SpaceLeft())
+    //         {
+    //             nmeaString += data;
+    //         }
+    //     }
+    // }
+    // else
+    // {
+    //     // TODO:
+    //     // deal noNewLine error
+    //     // deal with spaceNotLeft error
+    //     // we are not waiting for the start of an NMEA word and so are busy consuming
+    //     if (data == '\n')
+    //     {
+    //         // new line character indicates end of NMEA word
+    //         gpsFixDone = true;
+    //         USART0.Transmit(nmeaString.Value());
+    //     }
+    //     else
+    //     {
+    //         // consume next char here if there is space left
+    //         if (nmeaString.SpaceLeft())
+    //         {
+    //             nmeaString += data;
+    //         }
+    //     }
+    // }
 }
