@@ -34,10 +34,6 @@ void onceOffSetup(void);
 void recurringHardwareSetup(void);
 void recurringHardwareTeardown(void);
 
-// ********************* USART *********************
-USART USART0(9600, '0');
-USART USART1(9600, '1');
-
 // ********************* Pin Definitions *********************
 #define awakeLedPin PB2
 #define gpsSwitchPin PA7
@@ -120,8 +116,8 @@ void program(void)
     case programStepWaitingForGPSFix:
         if (gpsFixDone)
         {
-            USART0.Flush();
-            USART1.Flush();
+            flushSigfoxUSART();
+            flushGPSUSART();
             programStep = programStepGPSFixSuccess;
         }
         break;
@@ -168,8 +164,8 @@ void recurringHardwareSetup(void)
     // turn gps on
     PORTA |= (1 << gpsSwitchPin);
 
-    USART0.Start();
-    USART1.Start();
+    startSigfoxUSART();
+    startGPSUSART();
 }
 
 void recurringHardwareTeardown(void)
@@ -180,8 +176,8 @@ void recurringHardwareTeardown(void)
     // turn gps off
     PORTA &= ~((1 << gpsSwitchPin));
 
-    USART0.Stop();
-    USART1.Stop();
+    stopSigfoxUSART();
+    startGPSUSART();
 }
 
 ISR(USART1_RX_vect)
@@ -213,7 +209,7 @@ ISR(USART1_RX_vect)
         {
             // new line character indicates end of NMEA word
             gpsFixDone = true;
-            USART0.Transmit(nmeaString.Value());
+            transmitStringSigfoxUSART(nmeaString.Value());
         }
         else
         {

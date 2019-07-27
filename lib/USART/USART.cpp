@@ -2,120 +2,29 @@
 #include <avr/io.h>
 #include <string.h>
 
-//
-// Constructors
-//
-USART::USART(int baud, char usartNo)
+// ******************** GPS USART ********************
+void initGPSUSART(void)
 {
-    _baud = baud;
-    _usartNo = usartNo;
-};
+}
 
-//
-// Destructor
-//
-USART::~USART(){};
-
-//
-// Other Methods
-//
-void USART::Start()
-{
-    switch (_usartNo)
-    {
-    case '0':
-        start0();
-        break;
-
-    case '1':
-        start1();
-        break;
-
-    default:
-        break;
-    }
-};
-
-void USART::start0(void)
+void startGPSUSART(void)
 {
     // Set baud rate
-    UBRR0H = (unsigned char)(((F_CPU / (16UL * _baud)) - 1) >> 8);
-    UBRR0L = (unsigned char)((F_CPU / (16UL * _baud)) - 1);
-    // Enable receiver and transmitter as well as RX complete interrupt
-    UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
-    // Set frame format: 8data, 2stop bit
-    UCSR0C = (1 << USBS0) | (3 << UCSZ00);
-};
-
-void USART::start1(void)
-{
-    // Set baud rate
-    UBRR1H = (unsigned char)(((F_CPU / (16UL * _baud)) - 1) >> 8);
-    UBRR1L = (unsigned char)((F_CPU / (16UL * _baud)) - 1);
+    UBRR1H = (unsigned char)(((F_CPU / (16UL * 9600)) - 1) >> 8);
+    UBRR1L = (unsigned char)((F_CPU / (16UL * 9600)) - 1);
     // Enable receiver and RX complete interrupt
     UCSR1B = (1 << RXEN0) | (1 << RXCIE0);
     // Set frame format: 8data, 1 stop bit
     UCSR1C = (3 << UCSZ10);
-};
+}
 
-// 200502.000,2608.9983,S,02808.1067,E,1,06,3.8,1640.3,M,0.0,M,,
-
-void USART::Stop()
-{
-    switch (_usartNo)
-    {
-    case '0':
-        stop0();
-        break;
-
-    case '1':
-        stop1();
-        break;
-
-    default:
-        break;
-    }
-};
-
-void USART::stop0(void)
-{
-    // Disable receiver and transmitter as well as RX complete interrupt
-    UCSR0B &= ~((1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0));
-};
-
-void USART::stop1(void)
+void stopGPSUSART(void)
 {
     // Disable receiver and transmitter as well as RX complete interrupt
     UCSR1B &= ~((1 << RXEN1) | (1 << TXEN1) | (1 << RXCIE1));
-};
+}
 
-void USART::Flush(void)
-{
-    switch (_usartNo)
-    {
-    case '0':
-        flush0();
-        break;
-
-    case '1':
-        flush1();
-        break;
-
-    default:
-        break;
-    }
-};
-
-void USART::flush0(void)
-{
-    unsigned char dummy;
-    while (UCSR0A & (1 << RXC0))
-    {
-        dummy = UDR0;
-    }
-};
-
-void USART::flush1(void)
+void flushGPSUSART(void)
 {
     unsigned char dummy;
     while (UCSR1A & (1 << RXC1))
@@ -124,30 +33,46 @@ void USART::flush1(void)
     }
 };
 
-void USART::Transmit(char *data)
+// ******************** Sigfox USART ********************
+void initSigfoxUSART(void)
 {
-    switch (_usartNo)
+}
+
+void startSigfoxUSART(void)
+{
+    // Set baud rate
+    UBRR0H = (unsigned char)(((F_CPU / (16UL * 9600)) - 1) >> 8);
+    UBRR0L = (unsigned char)((F_CPU / (16UL * 9600)) - 1);
+    // Enable receiver and transmitter as well as RX complete interrupt
+    UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
+    // Set frame format: 8data, 2stop bit
+    UCSR0C = (1 << USBS0) | (3 << UCSZ00);
+}
+
+void stopSigfoxUSART(void)
+{
+    // Disable receiver and transmitter as well as RX complete interrupt
+    UCSR0B &= ~((1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0));
+}
+
+void flushSigfoxUSART(void)
+{
+    unsigned char dummy;
+    while (UCSR0A & (1 << RXC0))
     {
-    case '0':
-        for (int i = 0; i < strlen(data); i++)
-        {
-            transmit0(data[i]);
-        }
-        break;
-
-    case '1':
-        for (int i = 0; i < strlen(data); i++)
-        {
-            transmit1(data[i]);
-        }
-        break;
-
-    default:
-        break;
+        dummy = UDR0;
     }
 };
 
-void USART::transmit0(char data)
+void transmitStringSigfoxUSART(char *data)
+{
+    for (int i = 0; i < strlen(data); i++)
+    {
+        transmitCharSigfoxUSART(data[i]);
+    }
+}
+
+void transmitCharSigfoxUSART(char data)
 {
     // Wait for empty transmit buffer
     while (!(UCSR0A & (1 << UDRE0)))
@@ -155,14 +80,4 @@ void USART::transmit0(char data)
     }
     // Put data into buffer, sends the data
     UDR0 = data;
-};
-
-void USART::transmit1(char data)
-{
-    // Wait for empty transmit buffer
-    while (!(UCSR1A & (1 << UDRE1)))
-    {
-    }
-    // Put data into buffer, sends the data
-    UDR1 = data;
 };

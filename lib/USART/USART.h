@@ -10,31 +10,18 @@
 #define F_CPU 1000000UL
 #endif
 
-class USART
-{
-private:
-    char _usartNo;
-    int _baud;
-    void start0(void);
-    void stop0(void);
-    void start1(void);
-    void stop1(void);
-    void flush0(void);
-    void flush1(void);
-    void transmit0(char data);
-    void transmit1(char data);
+// ******************** GPS USART ********************
+void initGPSUSART(void);
+void startGPSUSART(void);
+void stopGPSUSART(void);
+void flushGPSUSART(void);
 
-public:
-    //
-    // Constructors and Destructor
-    //
-    USART(int baud, char usartNo);
-    ~USART();
-
-    void Start(void);
-    void Stop(void);
-    void Flush(void);
-    void Transmit(char *data);
-};
+// ******************** Sigfox USART ********************
+void initSigfoxUSART(void);
+void startSigfoxUSART(void);
+void stopSigfoxUSART(void);
+void flushSigfoxUSART(void);
+void transmitStringSigfoxUSART(char *data);
+void transmitCharSigfoxUSART(char data);
 
 #endif
