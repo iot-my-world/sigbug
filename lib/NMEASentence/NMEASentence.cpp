@@ -116,8 +116,12 @@ void NMEASentence::readChar(char c)
             return;
         }
 
-        // add the new character to the sentence string
-        _addSentenceStringChar(c);
+        if (!(c == '\n' | c == '\r'))
+        {
+            // if the new character is not an end of sentence marker
+            // add the new character to the sentence string
+            _addSentenceStringChar(c);
+        }
 
         if (c == '\n')
         {
@@ -156,24 +160,65 @@ void NMEASentence::readChar(char c)
 void NMEASentence::_parse(void)
 {
     // check for minimum length
-    if (strlen(_sentenceString) < 11)
+    if (strlen(_sentenceString) < 9)
     {
-        _errorCode = NMEASentenceErr_ParseError;
+        _errorCode = NMEASentenceErr_ParseError_SentenceNotLongEnough;
         return;
     }
 
-    // get a pointer to the checksum
-    char *checksumPtr = strchr(_sentenceString, '*');
-    if (checksumPtr == nullptr)
+    // get a pointer to start of the checksum
+    char *prtToChecksumStart = strchr(_sentenceString, '*');
+    if (prtToChecksumStart == nullptr)
     {
-        _errorCode = NMEASentenceErr_ParseError;
+        _errorCode = NMEASentenceErr_ParseError_ChecksumNotFound;
         return;
     }
 
     // confirm that the checksum is 2 characters long and at end of string
-    if ((checksumPtr - _sentenceString) != (strlen(_sentenceString) - 5))
+    if ((prtToChecksumStart - _sentenceString) != (strlen(_sentenceString) - 3))
     {
-        _errorCode = NMEASentenceErr_ParseError;
+        _errorCode = NMEASentenceErr_ParseError_ChecksumNotLongEnough;
         return;
     }
 }
+
+/**
+
+  union {
+    float f;
+    unsigned char b[4];
+  } lat;
+
+  union {
+    float f;
+    unsigned char b[4];
+  } lon;
+
+  lat.f = -1 * (String("26").toFloat() + String("08.9986").toFloat() / 60.0);
+  lon.f = String("028").toFloat() + String("08.1069").toFloat() / 60.0;
+
+  for (int i = 0; i < 4; i++)
+  {
+    sSerial.print((char)lat.b[i]);
+  }
+  for (int i = 0; i < 4; i++)
+  {
+    sSerial.print((char)lon.b[i]);
+  }
+
+  // 200518.000,2608.9986,S,02808.1069,E,1,06,3.8,1640.3,M,0.0,M,, - 52
+  // -26.1499766667, 28.135115
+  // initialize serial:
+
+  // 27 33 D1 C1
+  // B7 14 E1 41
+  // 27 33 d1 c1
+  // b7 14 e1 41
+  // 41542453463d2733d1c1b714e1a
+  // 41542453463d2733d1c1b714a
+  // 41542453463d2733d1a
+
+  // 0110 1011 1011 1010
+
+
+ */

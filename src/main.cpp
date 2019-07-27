@@ -200,6 +200,7 @@ ISR(USART1_RX_vect)
     if (nmeaSentence.readingComplete())
     {
         transmitStringSigfoxUSART(nmeaSentence.string());
+        transmitCharSigfoxUSART('\n');
         stopGPSUSART();
         flushGPSUSART();
         gpsFixDone = true;

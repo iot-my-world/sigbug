@@ -18,7 +18,9 @@ communications between marine instrumentation.
 #define NMEASentenceErr_NoError '0'
 #define NMEASentenceErr_StringOutOfMemory '1'
 #define NMEASentenceErr_MessageDidntEnd '2'
-#define NMEASentenceErr_ParseError '3'
+#define NMEASentenceErr_ParseError_SentenceNotLongEnough '3'
+#define NMEASentenceErr_ParseError_ChecksumNotFound '4'
+#define NMEASentenceErr_ParseError_ChecksumNotLongEnough '5'
 
 class NMEASentence
 {
