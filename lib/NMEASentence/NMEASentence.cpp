@@ -1,25 +1,79 @@
-/*
-NMEASentence.h
+#include <NMEASentence.h>
 
-A library to process and manipulate NMEA Sentences as defined by the
-The NMEA 0183 Protocol.
-
-The National Marine Electronics Association (NMEA) is a non-profit association of manufacturers,
-distributors, dealers, educational institutions, and others interested in peripheral marine electronics
-occupations. The NMEA 0183 standard defines an electrical interface and data protocol for
-communications between marine instrumentation.
- */
-
-#ifndef NMEASentence_h
-#define NMEASentence_h
-
-class NMEASentence
+//
+// Constructors and Destructor
+//
+NMEASentence::NMEASentence(void)
 {
-    //
-    // Constructors and Destructor
-    //
-    NMEASentence();
-    ~NMEASentence();
-};
+    // initialise processing variables
+    _readingStarted = false;
+    _readingComplete = false;
+}
 
-#endif
+NMEASentence::~NMEASentence(void)
+{
+    // clear memory occupied by string
+    _string.Free();
+}
+
+//
+// Getters and Setters
+//
+String NMEASentence::string(void)
+{
+    return _string;
+}
+bool NMEASentence::readingStarted(void)
+{
+    return _readingStarted;
+}
+
+bool NMEASentence::readingComplete(void)
+{
+    return _readingComplete;
+}
+
+//
+// Other Methods
+//
+void NMEASentence::reset(void)
+{
+    _string.Clear();
+    _readingStarted = false;
+    _readingComplete = false;
+}
+
+void NMEASentence::readChar(char c)
+{
+    // if reading is already complete, do not do anything
+    // the sentence needs to be reset before more reading can take place
+    if (_readingComplete)
+    {
+        return;
+    }
+
+    if (_readingStarted)
+    {
+        // if reading has already started
+        // add the new character to the sentence string
+        _string += c;
+
+        // check if this is the end of the sentence
+        if (c == '\n')
+        {
+            _readingComplete = true;
+        }
+    }
+    else
+    {
+        // otherwise reading has not yet started,
+        // if this is the sentence start character...
+        if (c == '$')
+        {
+            // ...mark that reading has started
+            _readingStarted = true;
+            _string += c;
+        }
+        // ...otherwise do nothing
+    }
+}

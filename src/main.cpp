@@ -5,6 +5,7 @@
 #include <USART.h>
 #include <WDT.h>
 #include <String.h>
+#include <NMEASentence.h>
 
 // ********************* Sleep *********************
 void goToSleep(void);
@@ -18,13 +19,12 @@ int sleepCounter __attribute__((section(".noinit")));
 void program(void);
 bool runProgram;
 #define programStepStart 'a'
-String nmeaString = String(75);
+NMEASentence nmeaSentence = NMEASentence();
 #define programStepWaitingForGPSFix 'b'
 bool gpsFixDone;
 bool waitingForStartOfNMEAWord;
 #define programStepGPSFixSuccess 'c'
 #define programStepGPSFixFailure 'd'
-
 #define programStepTransmit 'e'
 #define programStepDone 'f'
 char programStep;
@@ -111,7 +111,7 @@ void program(void)
         programStep = programStepWaitingForGPSFix;
         gpsFixDone = false;
         waitingForStartOfNMEAWord = true;
-        nmeaString.Clear();
+        nmeaSentence.reset();
 
     case programStepWaitingForGPSFix:
         if (gpsFixDone)
@@ -166,6 +166,7 @@ void recurringHardwareSetup(void)
     // turn gps on
     PORTA |= (1 << gpsSwitchPin);
 
+    // start USARTs
     startSigfoxUSART();
     startGPSUSART();
 }
@@ -178,6 +179,7 @@ void recurringHardwareTeardown(void)
     // turn gps off
     PORTA &= ~((1 << gpsSwitchPin));
 
+    // stop USARTs
     stopSigfoxUSART();
     startGPSUSART();
 }
@@ -185,42 +187,11 @@ void recurringHardwareTeardown(void)
 ISR(USART1_RX_vect)
 {
     cli();
-    char data = UDR1;
-
-    if (waitingForStartOfNMEAWord)
+    nmeaSentence.readChar(UDR1);
+    if (nmeaSentence.readingComplete())
     {
-        if (data == '$')
-        {
-            // this is the start of a word, mark that we are no longer waiting
-            waitingForStartOfNMEAWord = false;
-
-            // consume first char here
-            if (nmeaString.SpaceLeft())
-            {
-                nmeaString += data;
-            }
-        }
-    }
-    else
-    {
-        // TODO:
-        // deal noNewLine error
-        // deal with spaceNotLeft error
-        // we are not waiting for the start of an NMEA word and so are busy consuming
-        if (data == '\n')
-        {
-            // new line character indicates end of NMEA word
-            gpsFixDone = true;
-            transmitStringSigfoxUSART(nmeaString.Value());
-        }
-        else
-        {
-            // consume next char here if there is space left
-            if (nmeaString.SpaceLeft())
-            {
-                nmeaString += data;
-            }
-        }
+        transmitStringSigfoxUSART(nmeaSentence.string().Value());
+        gpsFixDone = true;
     }
 }
 
