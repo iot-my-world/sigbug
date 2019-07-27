@@ -162,9 +162,16 @@ void NMEASentence::_parse(void)
         return;
     }
 
-    // perform checksum
-    char *checksumIdx = strchr(_sentenceString, '*');
-    if (checksumIdx == nullptr)
+    // get a pointer to the checksum
+    char *checksumPtr = strchr(_sentenceString, '*');
+    if (checksumPtr == nullptr)
+    {
+        _errorCode = NMEASentenceErr_ParseError;
+        return;
+    }
+
+    // confirm that the checksum is 2 characters long and at end of string
+    if ((checksumPtr - _sentenceString) != (strlen(_sentenceString) - 3))
     {
         _errorCode = NMEASentenceErr_ParseError;
         return;
