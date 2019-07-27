@@ -28,7 +28,7 @@ private:
     void _freeSentenceString(void);
     void _initialiseSentenceString(void);
     void _addSentenceStringChar(char c);
-    bool _sentenceStringSpaceLeft(void);
+    bool _sentenceStringNoSpaceLeft(void);
 
     bool _readingStarted;
     bool _readingComplete;
