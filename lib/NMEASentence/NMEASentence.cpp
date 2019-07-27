@@ -1,10 +1,14 @@
 #include <NMEASentence.h>
+#include <stdlib.h>
+#include <string.h>
 
 //
 // Constructors and Destructor
 //
 NMEASentence::NMEASentence(void)
 {
+    _initialiseSentenceString();
+
     // initialise processing variables
     _readingStarted = false;
     _readingComplete = false;
@@ -15,16 +19,50 @@ NMEASentence::NMEASentence(void)
 
 NMEASentence::~NMEASentence(void)
 {
+    _freeSentenceString();
+}
+
+//
+// Private Methods
+//
+void NMEASentence::_freeSentenceString(void)
+{
     // clear memory occupied by string
-    _string.Free();
+    free(_sentenceString);
+    _sentenceString = NULL;
+    _sentenceStringUsedSize = 0;
+}
+
+void NMEASentence::_initialiseSentenceString(void)
+{
+    // initialise string data
+    _sentenceString = (char *)malloc(maxSentenceStringSize * sizeof(char));
+    _sentenceString[0] = '\0';
+    _sentenceStringUsedSize = 0;
+}
+
+void NMEASentence::_addSentenceStringChar(char c)
+{
+    if (_sentenceStringUsedSize == maxSentenceStringSize)
+    {
+        return;
+    }
+    _sentenceString[_sentenceStringUsedSize] = c;
+    _sentenceStringUsedSize++;
+    _sentenceString[_sentenceStringUsedSize] = '\0';
+}
+
+bool NMEASentence::_sentenceStringSpaceLeft(void)
+{
+    return _sentenceStringUsedSize != maxSentenceStringSize;
 }
 
 //
 // Getters and Setters
 //
-String NMEASentence::string(void)
+char *NMEASentence::string(void)
 {
-    return _string;
+    return _sentenceString;
 }
 bool NMEASentence::readingStarted(void)
 {
@@ -46,7 +84,9 @@ char NMEASentence::errorCode(void)
 //
 void NMEASentence::reset(void)
 {
-    _string.Clear();
+    _freeSentenceString();
+    _initialiseSentenceString();
+
     _readingStarted = false;
     _readingComplete = false;
     _errorCode = NMEASentenceErr_NoError;
@@ -66,7 +106,7 @@ void NMEASentence::readChar(char c)
         // if reading has already started
 
         // check that there is space left in the string
-        if (!_string.SpaceLeft())
+        if (!_sentenceStringSpaceLeft())
         {
             // if there is no space left at this point,
             // then we have run out of space while the
@@ -77,7 +117,7 @@ void NMEASentence::readChar(char c)
         }
 
         // add the new character to the sentence string
-        _string += c;
+        _addSentenceStringChar(c);
 
         if (c == '\n')
         {
@@ -95,7 +135,7 @@ void NMEASentence::readChar(char c)
         if (c == '$')
         {
             // check that there is space left in the string
-            if (!_string.SpaceLeft())
+            if (!_sentenceStringSpaceLeft())
             {
                 // if there is no space in the string at this point
                 // then the reading cannot start
@@ -108,7 +148,7 @@ void NMEASentence::readChar(char c)
             _readingStarted = true;
 
             // add new character to string
-            _string += c;
+            _addSentenceStringChar(c);
         }
     }
 }
@@ -116,7 +156,7 @@ void NMEASentence::readChar(char c)
 void NMEASentence::_parse(void)
 {
     // check for minimum length
-    if (_string.len() < 11)
+    if (strlen(_sentenceString) < 11)
     {
         _errorCode = NMEASentenceErr_ParseError;
         return;

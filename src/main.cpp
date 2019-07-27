@@ -4,7 +4,6 @@
 #include <util/delay.h>
 #include <USART.h>
 #include <WDT.h>
-#include <String.h>
 #include <NMEASentence.h>
 
 // ********************* Sleep *********************
@@ -200,7 +199,7 @@ ISR(USART1_RX_vect)
 
     if (nmeaSentence.readingComplete())
     {
-        transmitStringSigfoxUSART(nmeaSentence.string().Value());
+        transmitStringSigfoxUSART(nmeaSentence.string());
         stopGPSUSART();
         flushGPSUSART();
         gpsFixDone = true;

@@ -13,7 +13,7 @@ communications between marine instrumentation.
 #ifndef NMEASentence_h
 #define NMEASentence_h
 
-#include <String.h>
+#define maxSentenceStringSize 75
 
 #define NMEASentenceErr_NoError '0'
 #define NMEASentenceErr_StringOutOfMemory '1'
@@ -23,7 +23,13 @@ communications between marine instrumentation.
 class NMEASentence
 {
 private:
-    String _string = String(75);
+    char *_sentenceString;
+    int _sentenceStringUsedSize;
+    void _freeSentenceString(void);
+    void _initialiseSentenceString(void);
+    void _addSentenceStringChar(char c);
+    bool _sentenceStringSpaceLeft(void);
+
     bool _readingStarted;
     bool _readingComplete;
     char _errorCode;
@@ -39,7 +45,7 @@ public:
     //
     // Getters and Setters
     //
-    String string(void);
+    char *string(void);
     bool readingStarted(void);
     bool readingComplete(void);
     char errorCode(void);
