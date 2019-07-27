@@ -143,6 +143,8 @@ void program(void)
 void onceOffSetup(void)
 {
     setupWDT();
+    initGPSUSART();
+    initSigfoxUSART();
 
     // initialise sleep counter if it hasn't been yet
     if (sleepCounterInitialised != sleepCounterInitialisedValue)
