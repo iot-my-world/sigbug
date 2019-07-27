@@ -171,7 +171,7 @@ void NMEASentence::_parse(void)
     }
 
     // confirm that the checksum is 2 characters long and at end of string
-    if ((checksumPtr - _sentenceString) != (strlen(_sentenceString) - 3))
+    if ((checksumPtr - _sentenceString) != (strlen(_sentenceString) - 5))
     {
         _errorCode = NMEASentenceErr_ParseError;
         return;
