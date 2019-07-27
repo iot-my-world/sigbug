@@ -180,6 +180,23 @@ void NMEASentence::_parse(void)
         _errorCode = NMEASentenceErr_ParseError_ChecksumNotLongEnough;
         return;
     }
+
+    // increment prtToChecksumStart to point at first checksum char
+    prtToChecksumStart++;
+
+    // calculate checksum
+    int calculatedChecksum = 0;
+    for (int i = 1; i < strlen(_sentenceString) - 3; i++)
+    {
+        calculatedChecksum ^= _sentenceString[i];
+    }
+
+    // compare checksum
+    if (calculatedChecksum != (int)strtol(prtToChecksumStart, NULL, 16))
+    {
+        _errorCode = NMEASentenceErr_ParseError_ChecksumIncorrect;
+        return;
+    }
 }
 
 /**
