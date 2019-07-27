@@ -186,33 +186,57 @@ void recurringHardwareTeardown(void)
 ISR(USART1_RX_vect)
 {
     cli();
-    nmeaSentence.readChar(UDR1);
 
-    // check for error in sentence
-    if ((nmeaSentence.errorCode()) != NMEASentenceErr_NoError)
-    {
-        // TODO: deal with error
-        transmitCharSigfoxUSART(nmeaSentence.errorCode());
-        transmitCharSigfoxUSART('\n');
-        gpsFixDone = true;
-        return;
-    }
+    // read the new data into the nmeaSentence
+    nmeaSentence.readChar(UDR1);
 
     if (nmeaSentence.readingComplete())
     {
-        transmitStringSigfoxUSART(nmeaSentence.string());
-        transmitCharSigfoxUSART('\n');
+        // if a reading has been completed
+
+        // increment the number of sentences read
         noNMEASentencesRead++;
-        if ((strcmp(nmeaSentence.talkerIdentifier(), "GP") == 0) &&
-            (strcmp(nmeaSentence.sentenceIdentifier(), "GGA") == 0))
+
+        if (
+            (strcmp(nmeaSentence.talkerIdentifier(), "GN") == 0) &&
+            (strcmp(nmeaSentence.sentenceIdentifier(), "GGA") == 0) &&
+            (nmeaSentence.errorCode() == NMEASentenceErr_NoError))
         {
+            transmitStringSigfoxUSART(nmeaSentence.string());
+            transmitCharSigfoxUSART('\n');
         }
-        else
+
+        // reset the sentence
+        nmeaSentence.reset();
+
+        if (noNMEASentencesRead == 250)
         {
-            nmeaSentence.reset();
+            // after 10 sentences we are done
+            stopGPSUSART();
+            flushGPSUSART();
+            gpsFixDone = true;
         }
-        if (noNMEASentencesRead == 10)
+
+        return;
+    }
+
+    if (nmeaSentence.readingStarted() &&
+        (nmeaSentence.errorCode() != NMEASentenceErr_NoError))
+    {
+        // if a reading has started and there is an error
+
+        // increment the number of sentences read
+        noNMEASentencesRead++;
+
+        // reset the sentence
+        nmeaSentence.reset();
+
+        // transmitCharSigfoxUSART(nmeaSentence.errorCode());
+        // transmitCharSigfoxUSART('\n');
+
+        if (noNMEASentencesRead == 250)
         {
+            // after 10 sentences we are done
             stopGPSUSART();
             flushGPSUSART();
             gpsFixDone = true;
