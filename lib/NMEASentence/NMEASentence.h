@@ -15,12 +15,17 @@ communications between marine instrumentation.
 
 #include <String.h>
 
+#define NMEASentenceErr_NoError '0'
+#define NMEASentenceErr_StringOutOfMemory '1'
+#define NMEASentenceErr_MessageDidntEnd '2'
+
 class NMEASentence
 {
 private:
     String _string = String(75);
     bool _readingStarted;
     bool _readingComplete;
+    char _errorCode;
 
 public:
     //
@@ -35,6 +40,7 @@ public:
     String string(void);
     bool readingStarted(void);
     bool readingComplete(void);
+    char errorCode(void);
 
     //
     // Other Methods

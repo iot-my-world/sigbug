@@ -161,7 +161,6 @@ void NMEASentence::_initFromRaw()
         }
         return;
     }
-
     // set talker and sentence identifier
     _talkerIdentifier = ids.substring(0, 2);
     _sentenceIdentifier = ids.substring(2);
