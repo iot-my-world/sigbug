@@ -117,7 +117,6 @@ void program(void)
         if (gpsFixDone)
         {
             flushSigfoxUSART();
-            flushGPSUSART();
             programStep = programStepGPSFixSuccess;
         }
         break;
@@ -191,6 +190,8 @@ ISR(USART1_RX_vect)
     if (nmeaSentence.readingComplete())
     {
         transmitStringSigfoxUSART(nmeaSentence.string().Value());
+        stopGPSUSART();
+        flushGPSUSART();
         gpsFixDone = true;
     }
 }
