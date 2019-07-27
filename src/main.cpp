@@ -38,6 +38,10 @@ void recurringHardwareTeardown(void);
 USART USART0(9600, '0');
 USART USART1(9600, '1');
 
+// ********************* Pin Definitions *********************
+#define awakeLedPin PB2
+#define gpsSwitchPin PA7
+
 int main(void)
 {
     onceOffSetup();
@@ -151,13 +155,18 @@ void onceOffSetup(void)
     }
 
     // set up led pin as output
-    DDRB |= (1 << PB2);
+    DDRB |= (1 << awakeLedPin);
+    // set gps switch pin as output
+    DDRA |= (1 << gpsSwitchPin);
 }
 
 void recurringHardwareSetup(void)
 {
     // turn led on to show device is on
-    PORTB |= (1 << PB2);
+    PORTB |= (1 << awakeLedPin);
+
+    // turn gps on
+    PORTA |= (1 << gpsSwitchPin);
 
     USART0.Start();
     USART1.Start();
@@ -166,7 +175,10 @@ void recurringHardwareSetup(void)
 void recurringHardwareTeardown(void)
 {
     // turn led off to show device is off
-    PORTB &= ~((1 << PB2));
+    PORTB &= ~((1 << awakeLedPin));
+
+    // turn gps off
+    PORTA &= ~((1 << gpsSwitchPin));
 
     USART0.Stop();
     USART1.Stop();
