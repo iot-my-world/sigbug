@@ -4,7 +4,6 @@
 #include <util/delay.h>
 #include <USART.h>
 #include <WDT.h>
-#include <string.h>
 #include <String.h>
 
 // ********************* Sleep *********************
