@@ -161,4 +161,12 @@ void NMEASentence::_parse(void)
         _errorCode = NMEASentenceErr_ParseError;
         return;
     }
+
+    // perform checksum
+    char *checksumIdx = strchr(_sentenceString, '*');
+    if (checksumIdx == nullptr)
+    {
+        _errorCode = NMEASentenceErr_ParseError;
+        return;
+    }
 }
