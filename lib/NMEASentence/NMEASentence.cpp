@@ -79,6 +79,15 @@ char NMEASentence::errorCode(void)
     return _errorCode;
 }
 
+char *NMEASentence::talkerIdentifier(void)
+{
+    return _talkerIdentifier;
+};
+char *NMEASentence::sentenceIdentifier(void)
+{
+    return _sentenceIdentifier;
+};
+
 //
 // Other Methods
 //
@@ -212,6 +221,15 @@ void NMEASentence::_parse(void)
         _errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
         return;
     }
+
+    // set talker and sentence identifiers
+    _talkerIdentifier[0] = _sentenceString[1];
+    _talkerIdentifier[1] = _sentenceString[2];
+    _talkerIdentifier[2] = '\0';
+    _sentenceIdentifier[0] = _sentenceString[3];
+    _sentenceIdentifier[1] = _sentenceString[4];
+    _sentenceIdentifier[2] = _sentenceString[5];
+    _sentenceIdentifier[3] = '\0';
 }
 
 /**

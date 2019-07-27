@@ -33,6 +33,8 @@ private:
     void _initialiseSentenceString(void);
     void _addSentenceStringChar(char c);
     bool _sentenceStringNoSpaceLeft(void);
+    char _talkerIdentifier[3];
+    char _sentenceIdentifier[4];
 
     bool _readingStarted;
     bool _readingComplete;
@@ -53,6 +55,8 @@ public:
     bool readingStarted(void);
     bool readingComplete(void);
     char errorCode(void);
+    char *talkerIdentifier(void);
+    char *sentenceIdentifier(void);
 
     //
     // Other Methods

@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include <util/delay.h>
+#include <string.h>
 #include <USART.h>
 #include <WDT.h>
 #include <NMEASentence.h>
@@ -20,8 +21,8 @@ bool runProgram;
 #define programStepStart 'a'
 NMEASentence nmeaSentence = NMEASentence();
 #define programStepWaitingForGPSFix 'b'
+int noNMEASentencesRead;
 bool gpsFixDone;
-bool waitingForStartOfNMEAWord;
 #define programStepGPSFixSuccess 'c'
 #define programStepGPSFixFailure 'd'
 #define programStepTransmit 'e'
@@ -109,7 +110,7 @@ void program(void)
     case programStepStart:
         programStep = programStepWaitingForGPSFix;
         gpsFixDone = false;
-        waitingForStartOfNMEAWord = true;
+        noNMEASentencesRead = 0;
         nmeaSentence.reset();
 
     case programStepWaitingForGPSFix:
@@ -201,9 +202,21 @@ ISR(USART1_RX_vect)
     {
         transmitStringSigfoxUSART(nmeaSentence.string());
         transmitCharSigfoxUSART('\n');
-        stopGPSUSART();
-        flushGPSUSART();
-        gpsFixDone = true;
+        noNMEASentencesRead++;
+        if ((strcmp(nmeaSentence.talkerIdentifier(), "GP") == 0) &&
+            (strcmp(nmeaSentence.sentenceIdentifier(), "GGA") == 0))
+        {
+        }
+        else
+        {
+            nmeaSentence.reset();
+        }
+        if (noNMEASentencesRead == 10)
+        {
+            stopGPSUSART();
+            flushGPSUSART();
+            gpsFixDone = true;
+        }
     }
 }
 
