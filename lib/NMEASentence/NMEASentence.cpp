@@ -197,6 +197,21 @@ void NMEASentence::_parse(void)
         _errorCode = NMEASentenceErr_ParseError_ChecksumIncorrect;
         return;
     }
+
+    // get pointer to first separator
+    char *ptrToFirstSeparator = strchr(_sentenceString, ',');
+    if (ptrToFirstSeparator == nullptr)
+    {
+        _errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
+        return;
+    }
+
+    // check talker length
+    if ((ptrToFirstSeparator - _sentenceString) != 6)
+    {
+        _errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
+        return;
+    }
 }
 
 /**

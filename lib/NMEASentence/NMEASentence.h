@@ -22,6 +22,7 @@ communications between marine instrumentation.
 #define NMEASentenceErr_ParseError_ChecksumNotFound '4'
 #define NMEASentenceErr_ParseError_ChecksumNotLongEnough '5'
 #define NMEASentenceErr_ParseError_ChecksumIncorrect '6'
+#define NMEASentenceErr_ParseError_TalkerDecoding '7'
 
 class NMEASentence
 {
