@@ -13,7 +13,7 @@ char sleepCounterInitialised __attribute__((section(".noinit")));
 int sleepCounter __attribute__((section(".noinit")));
 #define sleepCounterInitialisedValue '!'
 #define sleepCounterMin 0
-#define sleepCounterMax 1
+#define sleepCounterMax 2
 
 // ******************** Program Loop ********************
 void program(void);
@@ -209,7 +209,7 @@ ISR(USART1_RX_vect)
         // reset the sentence
         nmeaSentence.reset();
 
-        if (noNMEASentencesRead == 250)
+        if (noNMEASentencesRead == 150)
         {
             // after 10 sentences we are done
             stopGPSUSART();
@@ -234,7 +234,7 @@ ISR(USART1_RX_vect)
         // transmitCharSigfoxUSART(nmeaSentence.errorCode());
         // transmitCharSigfoxUSART('\n');
 
-        if (noNMEASentencesRead == 250)
+        if (noNMEASentencesRead == 150)
         {
             // after 10 sentences we are done
             stopGPSUSART();
