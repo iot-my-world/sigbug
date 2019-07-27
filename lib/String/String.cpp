@@ -1,5 +1,6 @@
 #include <String.h>
 #include <stdlib.h>
+#include <string.h>
 
 //
 // Constructors and Destructor
@@ -15,6 +16,11 @@ String::String(int reservedSize)
 String::~String(){
 
 };
+
+int String::len(void)
+{
+    return strlen(_array);
+}
 
 void String::operator+=(char a)
 {

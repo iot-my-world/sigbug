@@ -187,6 +187,17 @@ ISR(USART1_RX_vect)
 {
     cli();
     nmeaSentence.readChar(UDR1);
+
+    // check for error in sentence
+    if ((nmeaSentence.errorCode()) != NMEASentenceErr_NoError)
+    {
+        // TODO: deal with error
+        transmitCharSigfoxUSART(nmeaSentence.errorCode());
+        transmitCharSigfoxUSART('\n');
+        gpsFixDone = true;
+        return;
+    }
+
     if (nmeaSentence.readingComplete())
     {
         transmitStringSigfoxUSART(nmeaSentence.string().Value());

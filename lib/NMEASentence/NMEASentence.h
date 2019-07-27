@@ -18,6 +18,7 @@ communications between marine instrumentation.
 #define NMEASentenceErr_NoError '0'
 #define NMEASentenceErr_StringOutOfMemory '1'
 #define NMEASentenceErr_MessageDidntEnd '2'
+#define NMEASentenceErr_ParseError '3'
 
 class NMEASentence
 {
@@ -26,6 +27,7 @@ private:
     bool _readingStarted;
     bool _readingComplete;
     char _errorCode;
+    void _parse(void);
 
 public:
     //

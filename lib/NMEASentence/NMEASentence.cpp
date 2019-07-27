@@ -83,6 +83,9 @@ void NMEASentence::readChar(char c)
         {
             // mark if this is the end of the sentence
             _readingComplete = true;
+
+            // parse the read sentence
+            _parse();
         }
     }
     else
@@ -107,5 +110,15 @@ void NMEASentence::readChar(char c)
             // add new character to string
             _string += c;
         }
+    }
+}
+
+void NMEASentence::_parse(void)
+{
+    // check for minimum length
+    if (_string.len() < 11)
+    {
+        _errorCode = NMEASentenceErr_ParseError;
+        return;
     }
 }
