@@ -13,21 +13,21 @@ char sleepCounterInitialised __attribute__((section(".noinit")));
 int sleepCounter __attribute__((section(".noinit")));
 #define sleepCounterInitialisedValue '!'
 #define sleepCounterMin 0
-#define sleepCounterMax 2
+#define sleepCounterMax 1
 
 // ******************** Program Loop ********************
 void program(void);
 bool runProgram;
+char programStep;
 #define programStepStart 'a'
-NMEASentence nmeaSentence = NMEASentence();
 #define programStepWaitingForGPSFix 'b'
+NMEASentence nmeaSentence = NMEASentence();
 int noNMEASentencesRead;
 bool gpsFixDone;
 #define programStepGPSFixSuccess 'c'
 #define programStepGPSFixFailure 'd'
 #define programStepTransmit 'e'
 #define programStepDone 'f'
-char programStep;
 
 // ********************* Hardware Setup/Teardown *********************
 void onceOffSetup(void);
@@ -37,6 +37,7 @@ void recurringHardwareTeardown(void);
 // ********************* Pin Definitions *********************
 #define awakeLedPin PB2
 #define gpsSwitchPin PA7
+#define debugLedPin PA3
 
 int main(void)
 {
@@ -108,16 +109,16 @@ void program(void)
     switch (programStep)
     {
     case programStepStart:
-        programStep = programStepWaitingForGPSFix;
+        startGPSUSART();
         gpsFixDone = false;
+        programStep = programStepWaitingForGPSFix;
         noNMEASentencesRead = 0;
         nmeaSentence.reset();
 
     case programStepWaitingForGPSFix:
         if (gpsFixDone)
         {
-            flushSigfoxUSART();
-            programStep = programStepGPSFixSuccess;
+            programStep = programStepTransmit;
         }
         break;
 
@@ -125,7 +126,14 @@ void program(void)
         programStep = programStepTransmit;
         break;
 
+    case programStepGPSFixFailure:
+        programStep = programStepTransmit;
+        break;
+
     case programStepTransmit:
+        startSigfoxUSART();
+        transmitStringSigfoxUSART(nmeaSentence.string());
+        stopSigfoxUSART();
         programStep = programStepDone;
         break;
 
@@ -155,6 +163,7 @@ void onceOffSetup(void)
     DDRB |= (1 << awakeLedPin);
     // set gps switch pin as output
     DDRA |= (1 << gpsSwitchPin);
+    DDRA |= (1 << debugLedPin);
 }
 
 void recurringHardwareSetup(void)
@@ -164,10 +173,6 @@ void recurringHardwareSetup(void)
 
     // turn gps on
     PORTA |= (1 << gpsSwitchPin);
-
-    // start USARTs
-    startSigfoxUSART();
-    startGPSUSART();
 }
 
 void recurringHardwareTeardown(void)
@@ -177,70 +182,63 @@ void recurringHardwareTeardown(void)
 
     // turn gps off
     PORTA &= ~((1 << gpsSwitchPin));
-
-    // stop USARTs
-    stopSigfoxUSART();
-    startGPSUSART();
 }
 
-ISR(USART1_RX_vect)
+// on receipt of new character from gps chip
+ISR(GPS_USART_RX_INT)
 {
+    // disable interrupts while this routine executes
     cli();
 
-    // read the new data into the nmeaSentence
+    // read the new char into the nmeaSentence
     nmeaSentence.readChar(UDR1);
 
-    if (nmeaSentence.readingComplete())
+    // check if any errors arose from reading the next char
+    if (nmeaSentence.errorCode() != NMEASentenceErr_NoError)
     {
-        // if a reading has been completed
+        // if there is an error
 
-        // increment the number of sentences read
+        // increase the number of sentences read
         noNMEASentencesRead++;
-
-        if (
-            (strcmp(nmeaSentence.talkerIdentifier(), "GN") == 0) &&
-            (strcmp(nmeaSentence.sentenceIdentifier(), "GGA") == 0) &&
-            (nmeaSentence.errorCode() == NMEASentenceErr_NoError))
-        {
-            transmitStringSigfoxUSART(nmeaSentence.string());
-            transmitCharSigfoxUSART('\n');
-        }
-
-        // reset the sentence
+        // reset the nmea sentence
         nmeaSentence.reset();
+    }
+    else
+    {
+        // otherwise no error has arisen from reading the new char
 
-        if (noNMEASentencesRead == 150)
+        // check if the reading is complete
+        if (nmeaSentence.readingComplete())
         {
-            // after 10 sentences we are done
-            stopGPSUSART();
-            flushGPSUSART();
-            gpsFixDone = true;
-        }
+            // if the reading is complete
 
-        return;
+            // process reading
+            if ((strcmp(nmeaSentence.talkerIdentifier(), "GN") == 0) &&
+                (strcmp(nmeaSentence.sentenceIdentifier(), "GGA") == 0))
+            {
+                // done - yes
+                gpsFixDone = true;
+            }
+            else
+            {
+                // done - no
+
+                // increase the number of sentences read
+                noNMEASentencesRead++;
+                // reset the nmea sentence
+                nmeaSentence.reset();
+            }
+        }
     }
 
-    if (nmeaSentence.readingStarted() &&
-        (nmeaSentence.errorCode() != NMEASentenceErr_NoError))
+    if (noNMEASentencesRead == 20)
     {
-        // if a reading has started and there is an error
+        gpsFixDone = true;
+    }
 
-        // increment the number of sentences read
-        noNMEASentencesRead++;
-
-        // reset the sentence
-        nmeaSentence.reset();
-
-        // transmitCharSigfoxUSART(nmeaSentence.errorCode());
-        // transmitCharSigfoxUSART('\n');
-
-        if (noNMEASentencesRead == 150)
-        {
-            // after 10 sentences we are done
-            stopGPSUSART();
-            flushGPSUSART();
-            gpsFixDone = true;
-        }
+    if (gpsFixDone)
+    {
+        stopGPSUSART();
     }
 }
 
@@ -248,4 +246,5 @@ ISR(USART0_RX_vect)
 {
     cli();
     char data = UDR0;
+    transmitCharSigfoxUSART('#');
 }

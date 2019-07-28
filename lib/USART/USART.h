@@ -1,5 +1,6 @@
 #ifndef USART_h
 #define USART_h
+#define GPS_USART_RX_INT USART1_RX_vect
 
 #ifndef F_CPU
 /* prevent compiler error by supplying a default */
