@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include <util/delay.h>
+#include <avr/cpufunc.h>
 #include <string.h>
 #include <USART.h>
 #include <WDT.h>
@@ -124,10 +125,7 @@ void program(void)
         break;
 
     case programStepWaitingForGPSFix:
-        if (gpsFixDone)
-        {
-            nextProgramStep = programStepTransmit;
-        }
+        _NOP();
         break;
 
     case programStepGPSFixSuccess:
@@ -225,7 +223,8 @@ ISR(GPS_USART_RX_INT)
                 (strcmp(nmeaSentence.sentenceIdentifier(), "GGA") == 0))
             {
                 // done - yes
-                gpsFixDone = true;
+                // gpsFixDone = true;
+                nextProgramStep = programStepTransmit;
             }
             else
             {
@@ -241,10 +240,12 @@ ISR(GPS_USART_RX_INT)
 
     if (noNMEASentencesRead == 20)
     {
-        gpsFixDone = true;
+        // gpsFixDone = true;
+        nextProgramStep = programStepTransmit;
     }
 
-    if (gpsFixDone)
+    // if (gpsFixDone)
+    if (nextProgramStep != programStepWaitingForGPSFix)
     {
         stopGPSUSART();
     }
