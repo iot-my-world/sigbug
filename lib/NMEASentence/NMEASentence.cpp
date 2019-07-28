@@ -230,6 +230,8 @@ gpsReading process_GNRMC_NMEASentence(NMEASentence &sentence)
 {
     gpsReading reading;
     reading.error = NMEASentenceErr_processGPSNMEASentence_NoError;
+    reading.lat.f = 0;
+    reading.lon.f = 0;
 
     char *nextCommaPointer;
 
