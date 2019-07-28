@@ -214,9 +214,24 @@ ISR(GPS_USART_RX_INT)
             if ((strcmp(nmeaSentence.talkerIdentifier(), "GN") == 0) &&
                 (strcmp(nmeaSentence.sentenceIdentifier(), "GGA") == 0))
             {
+                // process the reading sententence
                 gpsReading reading = processGPSNMEASentence(nmeaSentence);
-                // done - yes
-                programStep = programStepTransmit;
+
+                // check for an error in the reading returned
+                if (reading.error == NMEASentenceErr_processGPSNMEASentence_NoError)
+                {
+                    // if there is no error, this step is done
+                    programStep = programStepTransmit;
+                }
+                else
+                {
+                    // if there is an error
+
+                    // increase the number of sentences read
+                    noNMEASentencesRead++;
+                    // reset the nmea sentence
+                    nmeaSentence.reset();
+                }
             }
             else
             {
@@ -230,13 +245,14 @@ ISR(GPS_USART_RX_INT)
         }
     }
 
-    if (noNMEASentencesRead == 20)
+    if (noNMEASentencesRead == 100)
     {
         programStep = programStepTransmit;
     }
 
     if (programStep != programStepWaitingForGPSFix)
     {
+        noNMEASentencesRead = 0;
         stopGPSUSART();
     }
 }
@@ -245,5 +261,5 @@ ISR(USART0_RX_vect)
 {
     cli();
     char data = UDR0;
-    transmitCharSigfoxUSART('#');
+    // transmitCharSigfoxUSART('#');
 }

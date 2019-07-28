@@ -24,6 +24,9 @@ communications between marine instrumentation.
 #define NMEASentenceErr_ParseError_ChecksumIncorrect '6'
 #define NMEASentenceErr_ParseError_TalkerDecoding '7'
 
+#define NMEASentenceErr_processGPSNMEASentence_NoError '8'
+#define NMEASentenceErr_processGPSNMEASentence_BlankReading '9'
+
 class NMEASentence
 {
 private:

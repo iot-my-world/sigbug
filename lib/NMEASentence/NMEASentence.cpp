@@ -235,6 +235,9 @@ void NMEASentence::_parse(void)
 gpsReading processGPSNMEASentence(NMEASentence &sentence)
 {
     gpsReading reading;
+    reading.error = NMEASentenceErr_processGPSNMEASentence_NoError;
+
+    // reading.error = NMEASentenceErr_processGPSNMEASentence_BlankReading;
 
     return reading;
 }
