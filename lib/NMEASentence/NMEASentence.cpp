@@ -223,12 +223,14 @@ void NMEASentence::_parse(void)
 
 // Typical sentence format:
 // $GNGGA,112738.000,2608.9935,S,02808.1064,E,1,06,1.7,1640.8,M,0.0,M,,*51
-gpsReading processGPSNMEASentence(NMEASentence &sentence)
+gpsReading processGPSNMEASentence(NMEASentence &sentence, void (*log)(char *data))
 {
     gpsReading reading;
     reading.error = NMEASentenceErr_processGPSNMEASentence_NoError;
 
     char *nextCommaPointer;
+
+    log("awe");
 
     nextCommaPointer = strtok(sentence.string(), ",");
     int idx = 0;

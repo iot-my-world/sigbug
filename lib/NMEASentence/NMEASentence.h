@@ -82,6 +82,6 @@ struct gpsReading
     char error;
 };
 
-gpsReading processGPSNMEASentence(NMEASentence &inputSentence);
+gpsReading processGPSNMEASentence(NMEASentence &sentence, void (*log)(char *data));
 
 #endif
