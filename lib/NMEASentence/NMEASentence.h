@@ -30,9 +30,8 @@ communications between marine instrumentation.
 class NMEASentence
 {
 private:
-    char *_sentenceString;
+    char _sentenceString[70];
     int _sentenceStringUsedSize;
-    void _freeSentenceString(void);
     void _initialiseSentenceString(void);
     void _addSentenceStringChar(char c);
     bool _sentenceStringNoSpaceLeft(void);

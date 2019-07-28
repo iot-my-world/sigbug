@@ -19,24 +19,14 @@ NMEASentence::NMEASentence(void)
 
 NMEASentence::~NMEASentence(void)
 {
-    _freeSentenceString();
 }
 
 //
 // Private Methods
 //
-void NMEASentence::_freeSentenceString(void)
-{
-    // clear memory occupied by string
-    free(_sentenceString);
-    _sentenceString = NULL;
-    _sentenceStringUsedSize = 0;
-}
-
 void NMEASentence::_initialiseSentenceString(void)
 {
     // initialise string data
-    _sentenceString = (char *)malloc(maxSentenceStringSize * sizeof(char));
     _sentenceString[0] = '\0';
     _sentenceStringUsedSize = 0;
 }
@@ -93,7 +83,6 @@ char *NMEASentence::sentenceIdentifier(void)
 //
 void NMEASentence::reset(void)
 {
-    _freeSentenceString();
     _initialiseSentenceString();
 
     _readingStarted = false;
