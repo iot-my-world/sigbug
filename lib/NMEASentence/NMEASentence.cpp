@@ -222,9 +222,12 @@ void NMEASentence::_parse(void)
     _sentenceIdentifier[3] = '\0';
 }
 
-// Typical sentence format:
-// $GNGGA,112738.000,2608.9935,S,02808.1064,E,1,06,1.7,1640.8,M,0.0,M,,*51
-gpsReading processGPSNMEASentence(NMEASentence &sentence)
+/*
+    process_GNRMC_NMEASentence processes sentences with the following format:
+    $GNRMC,160830.000,V,2608.9781,S,02808.0972,E,0.00,0.00,,,,A*73
+    returns a gpsReading
+*/
+gpsReading process_GNRMC_NMEASentence(NMEASentence &sentence)
 {
     gpsReading reading;
     reading.error = NMEASentenceErr_processGPSNMEASentence_NoError;

@@ -212,14 +212,18 @@ ISR(GPS_USART_RX_INT)
         // check if the reading is complete
         if (nmeaSentence.readingComplete())
         {
+
             // if the reading is complete
 
             // process reading
             if ((strcmp(nmeaSentence.talkerIdentifier(), "GN") == 0) &&
-                (strcmp(nmeaSentence.sentenceIdentifier(), "GGA") == 0))
+                (strcmp(nmeaSentence.sentenceIdentifier(), "RMC") == 0))
             {
+                transmitStringSigfoxUSART(nmeaSentence.string());
+                transmitCharSigfoxUSART('\n');
+
                 // process the reading sententence
-                gpsReading reading = processGPSNMEASentence(nmeaSentence);
+                // gpsReading reading = processGPSNMEASentence(nmeaSentence);
 
                 // // check for an error in the reading returned
                 // if (reading.error == NMEASentenceErr_processGPSNMEASentence_NoError)
