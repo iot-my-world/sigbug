@@ -1,6 +1,7 @@
 #include <NMEASentence.h>
 #include <stdlib.h>
 #include <string.h>
+#include <USART.h>
 
 //
 // Constructors and Destructor
@@ -228,41 +229,43 @@ gpsReading processGPSNMEASentence(NMEASentence &sentence)
     gpsReading reading;
     reading.error = NMEASentenceErr_processGPSNMEASentence_NoError;
 
-    char *nextCommaPointer;
+    transmitStringSigfoxUSART(sentence.string());
+    transmitCharSigfoxUSART('\n');
+    // char *nextCommaPointer;
 
-    nextCommaPointer = strtok(sentence.string(), ",");
-    int idx = 0;
-    while (nextCommaPointer != NULL)
-    {
-        switch (idx)
-        {
-        case 2:
-            reading.lat.f = atof(nextCommaPointer);
-            break;
+    // nextCommaPointer = strtok(sentence.string(), ",");
+    // int idx = 0;
+    // while (nextCommaPointer != NULL)
+    // {
+    //     switch (idx)
+    //     {
+    //     case 2:
+    //         reading.lat.f = atof(nextCommaPointer);
+    //         break;
 
-        case 3:
-            reading.latDirection = nextCommaPointer[0];
-            break;
+    //     case 3:
+    //         reading.latDirection = nextCommaPointer[0];
+    //         break;
 
-        case 4:
-            reading.lon.f = atof(nextCommaPointer);
-            break;
+    //     case 4:
+    //         reading.lon.f = atof(nextCommaPointer);
+    //         break;
 
-        case 5:
-            reading.lonDirection = nextCommaPointer[0];
-            break;
+    //     case 5:
+    //         reading.lonDirection = nextCommaPointer[0];
+    //         break;
 
-        default:
-            break;
-        }
-        idx++;
-        nextCommaPointer = strtok(NULL, ",");
-    }
+    //     default:
+    //         break;
+    //     }
+    //     idx++;
+    //     nextCommaPointer = strtok(NULL, ",");
+    // }
 
-    if ((reading.lat.f == 0) || (reading.lon.f == 0))
-    {
-        reading.error = NMEASentenceErr_processGPSNMEASentence_BlankReading;
-    }
+    // if ((reading.lat.f == 0) || (reading.lon.f == 0))
+    // {
+    //     reading.error = NMEASentenceErr_processGPSNMEASentence_BlankReading;
+    // }
 
     return reading;
 }

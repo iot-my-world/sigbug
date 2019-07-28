@@ -46,7 +46,8 @@ void initSigfoxUSART(void)
 void startSigfoxUSART(void)
 {
     // Enable receiver and transmitter as well as RX complete interrupt
-    UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
+    // UCSR0B = (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
+    UCSR0B = (1 << TXEN0);
 }
 
 void stopSigfoxUSART(void)
