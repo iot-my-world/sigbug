@@ -265,6 +265,17 @@ gpsReading process_GNRMC_NMEASentence(NMEASentence &sentence)
     if ((reading.lat.f == 0) || (reading.lon.f == 0))
     {
         reading.error = NMEASentenceErr_processGPSNMEASentence_BlankReading;
+        return reading;
+    }
+
+    if (reading.latDirection == 'S')
+    {
+        reading.lat.f *= -1;
+    }
+
+    if (reading.lonDirection == 'W')
+    {
+        reading.lon.f *= -1;
     }
 
     return reading;
