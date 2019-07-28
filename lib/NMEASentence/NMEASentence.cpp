@@ -234,11 +234,35 @@ gpsReading processGPSNMEASentence(NMEASentence &sentence)
     int idx = 0;
     while (nextCommaPointer != NULL)
     {
+        switch (idx)
+        {
+        case 2:
+            reading.lat.f = atof(nextCommaPointer);
+            break;
+
+        case 3:
+            reading.latDirection = nextCommaPointer[0];
+            break;
+
+        case 4:
+            reading.lon.f = atof(nextCommaPointer);
+            break;
+
+        case 5:
+            reading.lonDirection = nextCommaPointer[0];
+            break;
+
+        default:
+            break;
+        }
         idx++;
         nextCommaPointer = strtok(NULL, ",");
     }
 
-    // reading.error = NMEASentenceErr_processGPSNMEASentence_BlankReading;
+    if ((reading.lat.f == 0) || (reading.lon.f == 0))
+    {
+        reading.error = NMEASentenceErr_processGPSNMEASentence_BlankReading;
+    }
 
     return reading;
 }

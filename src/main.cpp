@@ -245,7 +245,7 @@ ISR(GPS_USART_RX_INT)
         }
     }
 
-    if (noNMEASentencesRead == 100)
+    if (noNMEASentencesRead == 200)
     {
         programStep = programStepTransmit;
     }

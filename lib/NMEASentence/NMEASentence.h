@@ -73,10 +73,12 @@ struct gpsReading
         float f;
         unsigned char b[4];
     } lat;
+    char latDirection;
     union {
         float f;
         unsigned char b[4];
     } lon;
+    char lonDirection;
     char error;
 };
 
