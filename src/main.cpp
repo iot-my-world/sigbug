@@ -1,8 +1,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
-#include <util/delay.h>
 #include <avr/cpufunc.h>
+#include <util/delay.h>
 #include <string.h>
 #include <USART.h>
 #include <WDT.h>
@@ -19,13 +19,11 @@ int sleepCounter __attribute__((section(".noinit")));
 // ******************** Program Loop ********************
 void program(void);
 bool runProgram;
-char currentProgramStep;
-char nextProgramStep;
+char programStep;
 #define programStepStart 'a'
 #define programStepWaitingForGPSFix 'b'
 NMEASentence nmeaSentence = NMEASentence();
 int noNMEASentencesRead;
-bool gpsFixDone;
 #define programStepGPSFixSuccess 'c'
 #define programStepGPSFixFailure 'd'
 #define programStepTransmit 'e'
@@ -58,8 +56,7 @@ int main(void)
             // the device should wake up and run the program
             recurringHardwareSetup();
             runProgram = true;
-            currentProgramStep = programStepStart;
-            nextProgramStep = programStepStart;
+            programStep = programStepStart;
             sei();
             while (runProgram)
             {
@@ -109,19 +106,13 @@ ISR(WDT_vect)
 // ******************** Program Loop ********************
 void program(void)
 {
-    if (currentProgramStep != nextProgramStep)
-    {
-        currentProgramStep = nextProgramStep;
-    }
-
-    switch (currentProgramStep)
+    switch (programStep)
     {
     case programStepStart:
         startGPSUSART();
-        gpsFixDone = false;
-        nextProgramStep = programStepWaitingForGPSFix;
         noNMEASentencesRead = 0;
         nmeaSentence.reset();
+        programStep = programStepWaitingForGPSFix;
         break;
 
     case programStepWaitingForGPSFix:
@@ -129,18 +120,18 @@ void program(void)
         break;
 
     case programStepGPSFixSuccess:
-        nextProgramStep = programStepTransmit;
+        programStep = programStepTransmit;
         break;
 
     case programStepGPSFixFailure:
-        nextProgramStep = programStepTransmit;
+        programStep = programStepTransmit;
         break;
 
     case programStepTransmit:
         startSigfoxUSART();
         transmitStringSigfoxUSART(nmeaSentence.string());
         stopSigfoxUSART();
-        nextProgramStep = programStepDone;
+        programStep = programStepDone;
         break;
 
     case programStepDone:
@@ -224,7 +215,7 @@ ISR(GPS_USART_RX_INT)
             {
                 // done - yes
                 // gpsFixDone = true;
-                nextProgramStep = programStepTransmit;
+                programStep = programStepTransmit;
             }
             else
             {
@@ -240,12 +231,10 @@ ISR(GPS_USART_RX_INT)
 
     if (noNMEASentencesRead == 20)
     {
-        // gpsFixDone = true;
-        nextProgramStep = programStepTransmit;
+        programStep = programStepTransmit;
     }
 
-    // if (gpsFixDone)
-    if (nextProgramStep != programStepWaitingForGPSFix)
+    if (programStep != programStepWaitingForGPSFix)
     {
         stopGPSUSART();
     }
