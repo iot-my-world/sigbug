@@ -120,7 +120,14 @@ void program(void)
 
     case programStepTransmit:
         startSigfoxUSART();
-        transmitStringSigfoxUSART("Success!");
+        if (readingToTransmit.error == NMEASentenceErr_processGPSNMEASentence_NoError)
+        {
+            transmitStringSigfoxUSART("!");
+        }
+        else
+        {
+            transmitCharSigfoxUSART('F');
+        }
         transmitCharSigfoxUSART('\n');
         stopSigfoxUSART();
         programStep = programStepDone;
