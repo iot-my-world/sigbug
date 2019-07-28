@@ -128,10 +128,10 @@ void program(void)
         break;
 
     case programStepTransmit:
-        // startSigfoxUSART();
-        // transmitStringSigfoxUSART(nmeaSentence.string());
-        // transmitCharSigfoxUSART('\n');
-        // stopSigfoxUSART();
+        startSigfoxUSART();
+        transmitStringSigfoxUSART("done!");
+        transmitCharSigfoxUSART('\n');
+        stopSigfoxUSART();
         programStep = programStepDone;
         break;
 
@@ -171,8 +171,6 @@ void recurringHardwareSetup(void)
 
     // turn gps on
     PORTA |= (1 << gpsSwitchPin);
-
-    startSigfoxUSART();
 }
 
 void recurringHardwareTeardown(void)
@@ -182,8 +180,6 @@ void recurringHardwareTeardown(void)
 
     // turn gps off
     PORTA &= ~((1 << gpsSwitchPin));
-
-    stopSigfoxUSART();
 }
 
 // on receipt of new character from gps chip
@@ -219,27 +215,24 @@ ISR(GPS_USART_RX_INT)
             if ((strcmp(nmeaSentence.talkerIdentifier(), "GN") == 0) &&
                 (strcmp(nmeaSentence.sentenceIdentifier(), "RMC") == 0))
             {
-                transmitStringSigfoxUSART(nmeaSentence.string());
-                transmitCharSigfoxUSART('\n');
-
                 // process the reading sententence
-                // gpsReading reading = processGPSNMEASentence(nmeaSentence);
+                gpsReading reading = process_GNRMC_NMEASentence(nmeaSentence);
 
-                // // check for an error in the reading returned
-                // if (reading.error == NMEASentenceErr_processGPSNMEASentence_NoError)
-                // {
-                //     // if there is no error, this step is done
-                //     programStep = programStepTransmit;
-                // }
-                // else
-                // {
-                //     // if there is an error
+                // check for an error in the reading returned
+                if (reading.error == NMEASentenceErr_processGPSNMEASentence_NoError)
+                {
+                    // if there is no error, this step is done
+                    programStep = programStepTransmit;
+                }
+                else
+                {
+                    // if there is an error
 
-                //     // increase the number of sentences read
-                //     noNMEASentencesRead++;
-                //     // reset the nmea sentence
-                //     nmeaSentence.reset();
-                // }
+                    // increase the number of sentences read
+                    noNMEASentencesRead++;
+                    // reset the nmea sentence
+                    nmeaSentence.reset();
+                }
 
                 // increase the number of sentences read
                 noNMEASentencesRead++;
