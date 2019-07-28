@@ -25,6 +25,7 @@ char programStep;
 NMEASentence nmeaSentence = NMEASentence();
 int noNMEASentencesRead;
 gpsReading readingToTransmit;
+char sigfoxMessage[11];
 #define programStepTransmit 'c'
 #define programStepDone 'd'
 
@@ -122,13 +123,24 @@ void program(void)
         startSigfoxUSART();
         if (readingToTransmit.error == NMEASentenceErr_processGPSNMEASentence_NoError)
         {
-            transmitStringSigfoxUSART("!");
+            for (int i = 0; i < 4; i++)
+            {
+                sigfoxMessage[i] = readingToTransmit.lat.b[i];
+            }
+            for (int i = 4; i < 8; i++)
+            {
+                sigfoxMessage[i] = readingToTransmit.lon.b[i - 4];
+            }
+            sigfoxMessage[8] = '\r';
+            sigfoxMessage[9] = '\n';
+            sigfoxMessage[10] = '\0';
+            transmitStringSigfoxUSART(sigfoxMessage);
         }
         else
         {
             transmitCharSigfoxUSART('F');
+            transmitCharSigfoxUSART('\n');
         }
-        transmitCharSigfoxUSART('\n');
         stopSigfoxUSART();
         programStep = programStepDone;
         break;
