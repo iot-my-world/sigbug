@@ -228,6 +228,16 @@ gpsReading processGPSNMEASentence(NMEASentence &sentence)
     gpsReading reading;
     reading.error = NMEASentenceErr_processGPSNMEASentence_NoError;
 
+    char *nextCommaPointer;
+
+    nextCommaPointer = strtok(sentence.string(), ",");
+    int idx = 0;
+    while (nextCommaPointer != NULL)
+    {
+        idx++;
+        nextCommaPointer = strtok(NULL, ",");
+    }
+
     // reading.error = NMEASentenceErr_processGPSNMEASentence_BlankReading;
 
     return reading;
@@ -270,6 +280,4 @@ gpsReading processGPSNMEASentence(NMEASentence &sentence)
   // 41542453463d2733d1a
 
   // 0110 1011 1011 1010
-
-
  */
