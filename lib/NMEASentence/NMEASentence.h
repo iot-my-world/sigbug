@@ -65,4 +65,19 @@ public:
     void readChar(char c);
 };
 
+struct gpsReading
+{
+    union {
+        float f;
+        unsigned char b[4];
+    } lat;
+    union {
+        float f;
+        unsigned char b[4];
+    } lon;
+    char error;
+};
+
+gpsReading processGPSNMEASentence(NMEASentence &sentence);
+
 #endif

@@ -130,6 +130,7 @@ void program(void)
     case programStepTransmit:
         startSigfoxUSART();
         transmitStringSigfoxUSART(nmeaSentence.string());
+        transmitCharSigfoxUSART('\n');
         stopSigfoxUSART();
         programStep = programStepDone;
         break;
@@ -213,8 +214,8 @@ ISR(GPS_USART_RX_INT)
             if ((strcmp(nmeaSentence.talkerIdentifier(), "GN") == 0) &&
                 (strcmp(nmeaSentence.sentenceIdentifier(), "GGA") == 0))
             {
+                gpsReading reading = processGPSNMEASentence(nmeaSentence);
                 // done - yes
-                // gpsFixDone = true;
                 programStep = programStepTransmit;
             }
             else

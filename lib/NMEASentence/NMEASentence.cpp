@@ -232,6 +232,13 @@ void NMEASentence::_parse(void)
     _sentenceIdentifier[3] = '\0';
 }
 
+gpsReading processGPSNMEASentence(NMEASentence &sentence)
+{
+    gpsReading reading;
+
+    return reading;
+}
+
 /**
 
   union {
