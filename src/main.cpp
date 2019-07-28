@@ -215,9 +215,7 @@ ISR(GPS_USART_RX_INT)
                 (strcmp(nmeaSentence.sentenceIdentifier(), "GGA") == 0))
             {
                 // process the reading sententence
-                startSigfoxUSART();
-                gpsReading reading = processGPSNMEASentence(nmeaSentence, transmitStringSigfoxUSART);
-                stopSigfoxUSART();
+                gpsReading reading = processGPSNMEASentence(nmeaSentence);
 
                 // check for an error in the reading returned
                 if (reading.error == NMEASentenceErr_processGPSNMEASentence_NoError)
