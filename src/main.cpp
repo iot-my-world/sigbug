@@ -18,7 +18,8 @@ int sleepCounter __attribute__((section(".noinit")));
 // ******************** Program Loop ********************
 void program(void);
 bool runProgram;
-char programStep;
+char currentProgramStep;
+char nextProgramStep;
 #define programStepStart 'a'
 #define programStepWaitingForGPSFix 'b'
 NMEASentence nmeaSentence = NMEASentence();
@@ -56,7 +57,8 @@ int main(void)
             // the device should wake up and run the program
             recurringHardwareSetup();
             runProgram = true;
-            programStep = programStepStart;
+            currentProgramStep = programStepStart;
+            nextProgramStep = programStepStart;
             sei();
             while (runProgram)
             {
@@ -106,35 +108,40 @@ ISR(WDT_vect)
 // ******************** Program Loop ********************
 void program(void)
 {
-    switch (programStep)
+    if (currentProgramStep != nextProgramStep)
+    {
+        currentProgramStep = nextProgramStep;
+    }
+
+    switch (currentProgramStep)
     {
     case programStepStart:
         startGPSUSART();
         gpsFixDone = false;
-        programStep = programStepWaitingForGPSFix;
+        nextProgramStep = programStepWaitingForGPSFix;
         noNMEASentencesRead = 0;
         nmeaSentence.reset();
 
     case programStepWaitingForGPSFix:
         if (gpsFixDone)
         {
-            programStep = programStepTransmit;
+            nextProgramStep = programStepTransmit;
         }
         break;
 
     case programStepGPSFixSuccess:
-        programStep = programStepTransmit;
+        nextProgramStep = programStepTransmit;
         break;
 
     case programStepGPSFixFailure:
-        programStep = programStepTransmit;
+        nextProgramStep = programStepTransmit;
         break;
 
     case programStepTransmit:
         startSigfoxUSART();
         transmitStringSigfoxUSART(nmeaSentence.string());
         stopSigfoxUSART();
-        programStep = programStepDone;
+        nextProgramStep = programStepDone;
         break;
 
     case programStepDone:
