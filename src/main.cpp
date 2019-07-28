@@ -121,6 +121,7 @@ void program(void)
         nextProgramStep = programStepWaitingForGPSFix;
         noNMEASentencesRead = 0;
         nmeaSentence.reset();
+        break;
 
     case programStepWaitingForGPSFix:
         if (gpsFixDone)
