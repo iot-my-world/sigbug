@@ -24,10 +24,9 @@ char programStep;
 #define programStepWaitingForGPSFix 'b'
 NMEASentence nmeaSentence = NMEASentence();
 int noNMEASentencesRead;
-#define programStepGPSFixSuccess 'c'
-#define programStepGPSFixFailure 'd'
-#define programStepTransmit 'e'
-#define programStepDone 'f'
+gpsReading readingToTransmit;
+#define programStepTransmit 'c'
+#define programStepDone 'd'
 
 // ********************* Hardware Setup/Teardown *********************
 void onceOffSetup(void);
@@ -119,17 +118,9 @@ void program(void)
         _NOP();
         break;
 
-    case programStepGPSFixSuccess:
-        programStep = programStepTransmit;
-        break;
-
-    case programStepGPSFixFailure:
-        programStep = programStepTransmit;
-        break;
-
     case programStepTransmit:
         startSigfoxUSART();
-        transmitStringSigfoxUSART("done!");
+        transmitStringSigfoxUSART("Success!");
         transmitCharSigfoxUSART('\n');
         stopSigfoxUSART();
         programStep = programStepDone;
@@ -216,10 +207,10 @@ ISR(GPS_USART_RX_INT)
                 (strcmp(nmeaSentence.sentenceIdentifier(), "RMC") == 0))
             {
                 // process the reading sententence
-                gpsReading reading = process_GNRMC_NMEASentence(nmeaSentence);
+                readingToTransmit = process_GNRMC_NMEASentence(nmeaSentence);
 
                 // check for an error in the reading returned
-                if (reading.error == NMEASentenceErr_processGPSNMEASentence_NoError)
+                if (readingToTransmit.error == NMEASentenceErr_processGPSNMEASentence_NoError)
                 {
                     // if there is no error, this step is done
                     programStep = programStepTransmit;
