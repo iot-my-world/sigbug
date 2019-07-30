@@ -7,14 +7,14 @@
 //
 NMEASentence::NMEASentence(void)
 {
-    _initialiseSentenceString();
+    initialiseSentenceString();
 
     // initialise processing variables
-    _readingStarted = false;
-    _readingComplete = false;
+    readingStarted = false;
+    readingComplete = false;
 
     // initialise error code
-    _errorCode = NMEASentenceErr_NoError;
+    errorCode = NMEASentenceErr_NoError;
 }
 
 NMEASentence::~NMEASentence(void)
@@ -24,27 +24,27 @@ NMEASentence::~NMEASentence(void)
 //
 // Private Methods
 //
-void NMEASentence::_initialiseSentenceString(void)
+void NMEASentence::initialiseSentenceString(void)
 {
     // initialise string data
-    _sentenceString[0] = '\0';
-    _sentenceStringUsedSize = 0;
+    sentenceString[0] = '\0';
+    sentenceStringUsedSize = 0;
 }
 
-void NMEASentence::_addSentenceStringChar(char c)
+void NMEASentence::addSentenceStringChar(char c)
 {
-    if (_sentenceStringNoSpaceLeft())
+    if (sentenceStringNoSpaceLeft())
     {
         return;
     }
-    _sentenceString[_sentenceStringUsedSize] = c;
-    _sentenceStringUsedSize++;
-    _sentenceString[_sentenceStringUsedSize] = '\0';
+    sentenceString[sentenceStringUsedSize] = c;
+    sentenceStringUsedSize++;
+    sentenceString[sentenceStringUsedSize] = '\0';
 }
 
-bool NMEASentence::_sentenceStringNoSpaceLeft(void)
+bool NMEASentence::sentenceStringNoSpaceLeft(void)
 {
-    return _sentenceStringUsedSize == maxSentenceStringSize;
+    return sentenceStringUsedSize == maxSentenceStringSize;
 }
 
 //
@@ -52,65 +52,42 @@ bool NMEASentence::_sentenceStringNoSpaceLeft(void)
 //
 char *NMEASentence::string(void)
 {
-    return _sentenceString;
+    return sentenceString;
 }
-bool NMEASentence::readingStarted(void)
-{
-    return _readingStarted;
-}
-
-bool NMEASentence::readingComplete(void)
-{
-    return _readingComplete;
-}
-
-char NMEASentence::errorCode(void)
-{
-    return _errorCode;
-}
-
-char *NMEASentence::talkerIdentifier(void)
-{
-    return _talkerIdentifier;
-};
-char *NMEASentence::sentenceIdentifier(void)
-{
-    return _sentenceIdentifier;
-};
 
 //
 // Other Methods
 //
 void NMEASentence::reset(void)
 {
-    _initialiseSentenceString();
+    initialiseSentenceString();
 
-    _readingStarted = false;
-    _readingComplete = false;
-    _errorCode = NMEASentenceErr_NoError;
+    readingStarted = false;
+    readingComplete = false;
+    errorCode = NMEASentenceErr_NoError;
 }
 
 void NMEASentence::readChar(char c)
 {
-    if (_readingComplete)
+    if (readingComplete)
     {
         // if reading is already complete, do not do anything
         // the sentence needs to be reset before more reading can take place
         return;
     }
 
-    if (_readingStarted)
+    if (readingStarted)
     {
         // if reading has already started
 
         // check that there is space left in the string
-        if (_sentenceStringNoSpaceLeft())
+        if (sentenceStringNoSpaceLeft())
         {
             // if there is no space left at this point,
             // then we have run out of space while the
             // message is being read and so the message didn't
             // end in the alloted memory of 75 bytes
-            _errorCode = NMEASentenceErr_MessageDidntEnd;
+            errorCode = NMEASentenceErr_MessageDidntEnd;
             return;
         }
 
@@ -118,16 +95,16 @@ void NMEASentence::readChar(char c)
         {
             // if the new character is not an end of sentence marker
             // add the new character to the sentence string
-            _addSentenceStringChar(c);
+            addSentenceStringChar(c);
         }
 
         if (c == '\n')
         {
             // mark if this is the end of the sentence
-            _readingComplete = true;
+            readingComplete = true;
 
             // parse the read sentence
-            _parse();
+            parse();
         }
     }
     else
@@ -137,45 +114,45 @@ void NMEASentence::readChar(char c)
         if (c == '$')
         {
             // check that there is space left in the string
-            if (_sentenceStringNoSpaceLeft())
+            if (sentenceStringNoSpaceLeft())
             {
                 // if there is no space in the string at this point
                 // then the reading cannot start
-                _errorCode = NMEASentenceErr_StringOutOfMemory;
+                errorCode = NMEASentenceErr_StringOutOfMemory;
                 return;
             }
 
             // if this is the sentence start character
             // mark that reading has started
-            _readingStarted = true;
+            readingStarted = true;
 
             // add new character to string
-            _addSentenceStringChar(c);
+            addSentenceStringChar(c);
         }
     }
 }
 
-void NMEASentence::_parse(void)
+void NMEASentence::parse(void)
 {
     // check for minimum length
-    if (strlen(_sentenceString) < 9)
+    if (strlen(sentenceString) < 9)
     {
-        _errorCode = NMEASentenceErr_ParseError_SentenceNotLongEnough;
+        errorCode = NMEASentenceErr_ParseError_SentenceNotLongEnough;
         return;
     }
 
     // get a pointer to start of the checksum
-    char *prtToChecksumStart = strchr(_sentenceString, '*');
+    char *prtToChecksumStart = strchr(sentenceString, '*');
     if (prtToChecksumStart == nullptr)
     {
-        _errorCode = NMEASentenceErr_ParseError_ChecksumNotFound;
+        errorCode = NMEASentenceErr_ParseError_ChecksumNotFound;
         return;
     }
 
     // confirm that the checksum is 2 characters long and at end of string
-    if ((prtToChecksumStart - _sentenceString) != (strlen(_sentenceString) - 3))
+    if ((prtToChecksumStart - sentenceString) != (strlen(sentenceString) - 3))
     {
-        _errorCode = NMEASentenceErr_ParseError_ChecksumNotLongEnough;
+        errorCode = NMEASentenceErr_ParseError_ChecksumNotLongEnough;
         return;
     }
 
@@ -184,41 +161,41 @@ void NMEASentence::_parse(void)
 
     // calculate checksum
     int calculatedChecksum = 0;
-    for (int i = 1; i < strlen(_sentenceString) - 3; i++)
+    for (int i = 1; i < strlen(sentenceString) - 3; i++)
     {
-        calculatedChecksum ^= _sentenceString[i];
+        calculatedChecksum ^= sentenceString[i];
     }
 
     // compare checksum
     if (calculatedChecksum != (int)strtol(prtToChecksumStart, NULL, 16))
     {
-        _errorCode = NMEASentenceErr_ParseError_ChecksumIncorrect;
+        errorCode = NMEASentenceErr_ParseError_ChecksumIncorrect;
         return;
     }
 
     // get pointer to first separator
-    char *ptrToFirstSeparator = strchr(_sentenceString, ',');
+    char *ptrToFirstSeparator = strchr(sentenceString, ',');
     if (ptrToFirstSeparator == nullptr)
     {
-        _errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
+        errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
         return;
     }
 
     // check talker length
-    if ((ptrToFirstSeparator - _sentenceString) != 6)
+    if ((ptrToFirstSeparator - sentenceString) != 6)
     {
-        _errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
+        errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
         return;
     }
 
     // set talker and sentence identifiers
-    _talkerIdentifier[0] = _sentenceString[1];
-    _talkerIdentifier[1] = _sentenceString[2];
-    _talkerIdentifier[2] = '\0';
-    _sentenceIdentifier[0] = _sentenceString[3];
-    _sentenceIdentifier[1] = _sentenceString[4];
-    _sentenceIdentifier[2] = _sentenceString[5];
-    _sentenceIdentifier[3] = '\0';
+    talkerIdentifier[0] = sentenceString[1];
+    talkerIdentifier[1] = sentenceString[2];
+    talkerIdentifier[2] = '\0';
+    sentenceIdentifier[0] = sentenceString[3];
+    sentenceIdentifier[1] = sentenceString[4];
+    sentenceIdentifier[2] = sentenceString[5];
+    sentenceIdentifier[3] = '\0';
 }
 
 /*

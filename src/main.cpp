@@ -202,7 +202,7 @@ ISR(GPS_USART_RX_INT)
     nmeaSentence.readChar(UDR1);
 
     // check if any errors arose from reading the next char
-    if (nmeaSentence.errorCode() != NMEASentenceErr_NoError)
+    if (nmeaSentence.errorCode != NMEASentenceErr_NoError)
     {
         // if there is an error
 
@@ -216,14 +216,14 @@ ISR(GPS_USART_RX_INT)
         // otherwise no error has arisen from reading the new char
 
         // check if the reading is complete
-        if (nmeaSentence.readingComplete())
+        if (nmeaSentence.readingComplete)
         {
 
             // if the reading is complete
 
             // process reading
-            if ((strcmp(nmeaSentence.talkerIdentifier(), "GN") == 0) &&
-                (strcmp(nmeaSentence.sentenceIdentifier(), "RMC") == 0))
+            if ((strcmp(nmeaSentence.talkerIdentifier, "GN") == 0) &&
+                (strcmp(nmeaSentence.sentenceIdentifier, "RMC") == 0))
             {
                 // process the reading sententence
                 readingToTransmit = process_GNRMC_NMEASentence(nmeaSentence);

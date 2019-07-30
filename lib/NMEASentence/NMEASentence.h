@@ -30,20 +30,20 @@ communications between marine instrumentation.
 class NMEASentence
 {
 private:
-    char _sentenceString[70];
-    int _sentenceStringUsedSize;
-    void _initialiseSentenceString(void);
-    void _addSentenceStringChar(char c);
-    bool _sentenceStringNoSpaceLeft(void);
-    char _talkerIdentifier[3];
-    char _sentenceIdentifier[4];
-
-    bool _readingStarted;
-    bool _readingComplete;
-    char _errorCode;
-    void _parse(void);
-
 public:
+    char sentenceString[70];
+    int sentenceStringUsedSize;
+    void initialiseSentenceString(void);
+    void addSentenceStringChar(char c);
+    bool sentenceStringNoSpaceLeft(void);
+    char talkerIdentifier[3];
+    char sentenceIdentifier[4];
+
+    bool readingStarted;
+    bool readingComplete;
+    char errorCode;
+    void parse(void);
+
     //
     // Constructors and Destructor
     //
@@ -54,11 +54,6 @@ public:
     // Getters and Setters
     //
     char *string(void);
-    bool readingStarted(void);
-    bool readingComplete(void);
-    char errorCode(void);
-    char *talkerIdentifier(void);
-    char *sentenceIdentifier(void);
 
     //
     // Other Methods
