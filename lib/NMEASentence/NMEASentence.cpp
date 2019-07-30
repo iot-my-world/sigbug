@@ -11,6 +11,17 @@ void resetNMEASentence(NMEASentence *sentence)
     (*sentence).errorCode = NMEASentenceErr_NoError;
 }
 
+void addCharToNMEASentence(NMEASentence *sentence, char c)
+{
+    if ((*sentence).sentenceStringUsedSize == maxSentenceStringSize)
+    {
+        return;
+    }
+    (*sentence).sentenceString[(*sentence).sentenceStringUsedSize] = c;
+    (*sentence).sentenceStringUsedSize++;
+    (*sentence).sentenceString[(*sentence).sentenceStringUsedSize] = '\0';
+}
+
 //
 // Constructors and Destructor
 //
@@ -38,17 +49,6 @@ void NMEASentence::initialiseSentenceString(void)
     // initialise string data
     sentenceString[0] = '\0';
     sentenceStringUsedSize = 0;
-}
-
-void NMEASentence::addSentenceStringChar(char c)
-{
-    if (sentenceStringNoSpaceLeft())
-    {
-        return;
-    }
-    sentenceString[sentenceStringUsedSize] = c;
-    sentenceStringUsedSize++;
-    sentenceString[sentenceStringUsedSize] = '\0';
 }
 
 bool NMEASentence::sentenceStringNoSpaceLeft(void)
@@ -88,7 +88,7 @@ void NMEASentence::readChar(char c)
         {
             // if the new character is not an end of sentence marker
             // add the new character to the sentence string
-            addSentenceStringChar(c);
+            addCharToNMEASentence(this, c);
         }
 
         if (c == '\n')
@@ -120,7 +120,7 @@ void NMEASentence::readChar(char c)
             readingStarted = true;
 
             // add new character to string
-            addSentenceStringChar(c);
+            addCharToNMEASentence(this, c);
         }
     }
 }
