@@ -2,13 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-void resetNMEASentence(NMEASentence *sentence)
+void initialiseNMEASentence(NMEASentence *nmeaSentence)
 {
-    (*sentence).sentenceIdentifier[0] = '\0';
-    (*sentence).sentenceStringUsedSize = 0;
-    (*sentence).readingStarted = false;
-    (*sentence).readingComplete = false;
-    (*sentence).errorCode = NMEASentenceErr_NoError;
+    // initialise processing variables
+    (*nmeaSentence).readingStarted = false;
+    (*nmeaSentence).readingComplete = false;
+
+    // initialise error code
+    (*nmeaSentence).errorCode = NMEASentenceErr_NoError;
+
+    // initialise string data
+    (*nmeaSentence).sentenceString[0] = '\0';
+    (*nmeaSentence).sentenceStringUsedSize = 0;
+
+    (*nmeaSentence).sentenceIdentifier[0] = '\0';
 }
 
 void addCharToNMEASentence(NMEASentence *sentence, char c)
@@ -158,33 +165,11 @@ void parseNMEASentence(NMEASentence *sentence)
 //
 NMEASentence::NMEASentence(void)
 {
-    initialiseSentenceString();
-
-    // initialise processing variables
-    readingStarted = false;
-    readingComplete = false;
-
-    // initialise error code
-    errorCode = NMEASentenceErr_NoError;
 }
 
 NMEASentence::~NMEASentence(void)
 {
 }
-
-//
-// Private Methods
-//
-void NMEASentence::initialiseSentenceString(void)
-{
-    // initialise string data
-    sentenceString[0] = '\0';
-    sentenceStringUsedSize = 0;
-}
-
-//
-// Other Methods
-//
 
 /*
     process_GNRMC_NMEASentence processes sentences with the following format:

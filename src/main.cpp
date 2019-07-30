@@ -111,7 +111,7 @@ void program(void)
     case programStepStart:
         startGPSUSART();
         noNMEASentencesRead = 0;
-        resetNMEASentence(&nmeaSentence);
+        initialiseNMEASentence(&nmeaSentence);
         programStep = programStepWaitingForGPSFix;
         break;
 
@@ -209,7 +209,7 @@ ISR(GPS_USART_RX_INT)
         // increase the number of sentences read
         noNMEASentencesRead++;
         // reset the nmea sentence
-        resetNMEASentence(&nmeaSentence);
+        initialiseNMEASentence(&nmeaSentence);
     }
     else
     {
@@ -241,13 +241,13 @@ ISR(GPS_USART_RX_INT)
                     // increase the number of sentences read
                     noNMEASentencesRead++;
                     // reset the nmea sentence
-                    resetNMEASentence(&nmeaSentence);
+                    initialiseNMEASentence(&nmeaSentence);
                 }
 
                 // increase the number of sentences read
                 noNMEASentencesRead++;
                 // reset the nmea sentence
-                resetNMEASentence(&nmeaSentence);
+                initialiseNMEASentence(&nmeaSentence);
             }
             else
             {
@@ -256,7 +256,7 @@ ISR(GPS_USART_RX_INT)
                 // increase the number of sentences read
                 noNMEASentencesRead++;
                 // reset the nmea sentence
-                resetNMEASentence(&nmeaSentence);
+                initialiseNMEASentence(&nmeaSentence);
             }
         }
     }
