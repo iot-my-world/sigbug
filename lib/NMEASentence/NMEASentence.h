@@ -51,11 +51,6 @@ public:
     ~NMEASentence(void);
 
     //
-    // Getters and Setters
-    //
-    char *string(void);
-
-    //
     // Other Methods
     //
     void reset(void);

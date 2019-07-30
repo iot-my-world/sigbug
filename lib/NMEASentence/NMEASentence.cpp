@@ -48,14 +48,6 @@ bool NMEASentence::sentenceStringNoSpaceLeft(void)
 }
 
 //
-// Getters and Setters
-//
-char *NMEASentence::string(void)
-{
-    return sentenceString;
-}
-
-//
 // Other Methods
 //
 void NMEASentence::reset(void)
@@ -212,7 +204,7 @@ gpsReading process_GNRMC_NMEASentence(NMEASentence &sentence)
 
     char *nextCommaPointer;
 
-    nextCommaPointer = strtok(sentence.string(), ",");
+    nextCommaPointer = strtok(sentence.sentenceString, ",");
     int idx = 0;
     while (nextCommaPointer != NULL)
     {
