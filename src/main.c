@@ -1,4 +1,5 @@
 #include <avr/io.h>
+#include <stdbool.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include <avr/cpufunc.h>
@@ -226,7 +227,7 @@ ISR(GPS_USART_RX_INT)
                 (strcmp(nmeaSentence.sentenceIdentifier, "RMC") == 0))
             {
                 // process the reading sententence
-                readingToTransmit = process_GNRMC_NMEASentence(nmeaSentence);
+                readingToTransmit = process_GNRMC_NMEASentence(&nmeaSentence);
 
                 // check for an error in the reading returned
                 if (readingToTransmit.error == NMEASentenceErr_processGPSNMEASentence_NoError)

@@ -105,7 +105,7 @@ void parseNMEASentence(NMEASentence *sentence)
 
     // get a pointer to start of the checksum
     char *prtToChecksumStart = strchr((*sentence).sentenceString, '*');
-    if (prtToChecksumStart == nullptr)
+    if (prtToChecksumStart == NULL)
     {
         (*sentence).errorCode = NMEASentenceErr_ParseError_ChecksumNotFound;
         return;
@@ -137,7 +137,7 @@ void parseNMEASentence(NMEASentence *sentence)
 
     // get pointer to first separator
     char *ptrToFirstSeparator = strchr((*sentence).sentenceString, ',');
-    if (ptrToFirstSeparator == nullptr)
+    if (ptrToFirstSeparator == NULL)
     {
         (*sentence).errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
         return;
@@ -165,7 +165,7 @@ void parseNMEASentence(NMEASentence *sentence)
     $GNRMC,160830.000,V,2608.9781,S,02808.0972,E,0.00,0.00,,,,A*73
     returns a gpsReading
 */
-gpsReading process_GNRMC_NMEASentence(NMEASentence &sentence)
+gpsReading process_GNRMC_NMEASentence(NMEASentence *sentence)
 {
     gpsReading reading;
     reading.error = NMEASentenceErr_processGPSNMEASentence_NoError;
@@ -174,7 +174,7 @@ gpsReading process_GNRMC_NMEASentence(NMEASentence &sentence)
 
     char *nextCommaPointer;
 
-    nextCommaPointer = strtok(sentence.sentenceString, ",");
+    nextCommaPointer = strtok((*sentence).sentenceString, ",");
     int idx = 0;
     while (nextCommaPointer != NULL)
     {

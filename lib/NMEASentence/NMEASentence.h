@@ -9,6 +9,7 @@ distributors, dealers, educational institutions, and others interested in periph
 occupations. The NMEA 0183 standard defines an electrical interface and data protocol for
 communications between marine instrumentation.
  */
+#include <stdbool.h>
 
 #ifndef NMEASentence_h
 #define NMEASentence_h
@@ -27,7 +28,7 @@ communications between marine instrumentation.
 #define NMEASentenceErr_processGPSNMEASentence_NoError '8'
 #define NMEASentenceErr_processGPSNMEASentence_BlankReading '9'
 
-struct NMEASentence
+typedef struct NMEASentence
 {
     char sentenceString[70];
     int sentenceStringUsedSize;
@@ -37,14 +38,14 @@ struct NMEASentence
     bool readingStarted;
     bool readingComplete;
     char errorCode;
-};
+} NMEASentence;
 
 void initialiseNMEASentence(NMEASentence *nmeaSentence);
 void addCharToNMEASentence(NMEASentence *sentence, char c);
 void readCharForNMEASentence(NMEASentence *sentence, char c);
 void parseNMEASentence(NMEASentence *sentence);
 
-struct gpsReading
+typedef struct gpsReading
 {
     union {
         float f;
@@ -57,8 +58,8 @@ struct gpsReading
     } lon;
     char lonDirection;
     char error;
-};
+} gpsReading;
 
-gpsReading process_GNRMC_NMEASentence(NMEASentence &inputSentence);
+gpsReading process_GNRMC_NMEASentence(NMEASentence *inputSentence);
 
 #endif
