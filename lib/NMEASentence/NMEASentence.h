@@ -34,7 +34,6 @@ public:
     char sentenceString[70];
     int sentenceStringUsedSize;
     void initialiseSentenceString(void);
-    bool sentenceStringNoSpaceLeft(void);
     char talkerIdentifier[3];
     char sentenceIdentifier[4];
 
@@ -57,6 +56,7 @@ public:
 
 void resetNMEASentence(NMEASentence *sentence);
 void addCharToNMEASentence(NMEASentence *sentence, char c);
+void readCharForNMEASentence(NMEASentence *sentence, char c);
 
 struct gpsReading
 {

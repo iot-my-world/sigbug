@@ -51,11 +51,6 @@ void NMEASentence::initialiseSentenceString(void)
     sentenceStringUsedSize = 0;
 }
 
-bool NMEASentence::sentenceStringNoSpaceLeft(void)
-{
-    return sentenceStringUsedSize == maxSentenceStringSize;
-}
-
 //
 // Other Methods
 //
@@ -74,7 +69,7 @@ void NMEASentence::readChar(char c)
         // if reading has already started
 
         // check that there is space left in the string
-        if (sentenceStringNoSpaceLeft())
+        if (sentenceStringUsedSize == maxSentenceStringSize)
         {
             // if there is no space left at this point,
             // then we have run out of space while the
@@ -107,7 +102,7 @@ void NMEASentence::readChar(char c)
         if (c == '$')
         {
             // check that there is space left in the string
-            if (sentenceStringNoSpaceLeft())
+            if (sentenceStringUsedSize == maxSentenceStringSize)
             {
                 // if there is no space in the string at this point
                 // then the reading cannot start
