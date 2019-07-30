@@ -160,17 +160,6 @@ void parseNMEASentence(NMEASentence *sentence)
     (*sentence).sentenceIdentifier[3] = '\0';
 }
 
-//
-// Constructors and Destructor
-//
-NMEASentence::NMEASentence(void)
-{
-}
-
-NMEASentence::~NMEASentence(void)
-{
-}
-
 /*
     process_GNRMC_NMEASentence processes sentences with the following format:
     $GNRMC,160830.000,V,2608.9781,S,02808.0972,E,0.00,0.00,,,,A*73

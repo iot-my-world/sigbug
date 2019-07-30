@@ -22,7 +22,7 @@ bool runProgram;
 char programStep;
 #define programStepStart 'a'
 #define programStepWaitingForGPSFix 'b'
-NMEASentence nmeaSentence = NMEASentence();
+NMEASentence nmeaSentence;
 int noNMEASentencesRead;
 gpsReading readingToTransmit;
 char sigfoxMessage[11];

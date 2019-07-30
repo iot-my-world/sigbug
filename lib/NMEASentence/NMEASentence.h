@@ -27,10 +27,8 @@ communications between marine instrumentation.
 #define NMEASentenceErr_processGPSNMEASentence_NoError '8'
 #define NMEASentenceErr_processGPSNMEASentence_BlankReading '9'
 
-class NMEASentence
+struct NMEASentence
 {
-private:
-public:
     char sentenceString[70];
     int sentenceStringUsedSize;
     char talkerIdentifier[3];
@@ -39,16 +37,6 @@ public:
     bool readingStarted;
     bool readingComplete;
     char errorCode;
-
-    //
-    // Constructors and Destructor
-    //
-    NMEASentence(void);
-    ~NMEASentence(void);
-
-    //
-    // Other Methods
-    //
 };
 
 void initialiseNMEASentence(NMEASentence *nmeaSentence);
