@@ -199,7 +199,7 @@ ISR(GPS_USART_RX_INT)
     cli();
 
     // read the new char into the nmeaSentence
-    nmeaSentence.readChar(UDR1);
+    readCharForNMEASentence(&nmeaSentence, UDR1);
 
     // check if any errors arose from reading the next char
     if (nmeaSentence.errorCode != NMEASentenceErr_NoError)

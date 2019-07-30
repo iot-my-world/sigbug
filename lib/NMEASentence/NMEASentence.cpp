@@ -22,6 +22,71 @@ void addCharToNMEASentence(NMEASentence *sentence, char c)
     (*sentence).sentenceString[(*sentence).sentenceStringUsedSize] = '\0';
 }
 
+void readCharForNMEASentence(NMEASentence *sentence, char c)
+{
+    if ((*sentence).readingComplete)
+    {
+        // if reading is already complete, do not do anything
+        // the sentence needs to be reset before more reading can take place
+        return;
+    }
+
+    if ((*sentence).readingStarted)
+    {
+        // if reading has already started
+
+        // check that there is space left in the string
+        if ((*sentence).sentenceStringUsedSize == maxSentenceStringSize)
+        {
+            // if there is no space left at this point,
+            // then we have run out of space while the
+            // message is being read and so the message didn't
+            // end in the alloted memory of 75 bytes
+            (*sentence).errorCode = NMEASentenceErr_MessageDidntEnd;
+            return;
+        }
+
+        if (!(c == '\n' | c == '\r'))
+        {
+            // if the new character is not an end of sentence marker
+            // add the new character to the sentence string
+            addCharToNMEASentence(sentence, c);
+        }
+
+        if (c == '\n')
+        {
+            // mark if this is the end of the sentence
+            (*sentence).readingComplete = true;
+
+            // parse the read sentence
+            (*sentence).parse();
+        }
+    }
+    else
+    {
+        // otherwise reading has not yet started,
+        // check for the start string character
+        if (c == '$')
+        {
+            // check that there is space left in the string
+            if ((*sentence).sentenceStringUsedSize == maxSentenceStringSize)
+            {
+                // if there is no space in the string at this point
+                // then the reading cannot start
+                (*sentence).errorCode = NMEASentenceErr_StringOutOfMemory;
+                return;
+            }
+
+            // if this is the sentence start character
+            // mark that reading has started
+            (*sentence).readingStarted = true;
+
+            // add new character to string
+            addCharToNMEASentence(sentence, c);
+        }
+    }
+}
+
 //
 // Constructors and Destructor
 //
@@ -54,71 +119,6 @@ void NMEASentence::initialiseSentenceString(void)
 //
 // Other Methods
 //
-
-void NMEASentence::readChar(char c)
-{
-    if (readingComplete)
-    {
-        // if reading is already complete, do not do anything
-        // the sentence needs to be reset before more reading can take place
-        return;
-    }
-
-    if (readingStarted)
-    {
-        // if reading has already started
-
-        // check that there is space left in the string
-        if (sentenceStringUsedSize == maxSentenceStringSize)
-        {
-            // if there is no space left at this point,
-            // then we have run out of space while the
-            // message is being read and so the message didn't
-            // end in the alloted memory of 75 bytes
-            errorCode = NMEASentenceErr_MessageDidntEnd;
-            return;
-        }
-
-        if (!(c == '\n' | c == '\r'))
-        {
-            // if the new character is not an end of sentence marker
-            // add the new character to the sentence string
-            addCharToNMEASentence(this, c);
-        }
-
-        if (c == '\n')
-        {
-            // mark if this is the end of the sentence
-            readingComplete = true;
-
-            // parse the read sentence
-            parse();
-        }
-    }
-    else
-    {
-        // otherwise reading has not yet started,
-        // check for the start string character
-        if (c == '$')
-        {
-            // check that there is space left in the string
-            if (sentenceStringUsedSize == maxSentenceStringSize)
-            {
-                // if there is no space in the string at this point
-                // then the reading cannot start
-                errorCode = NMEASentenceErr_StringOutOfMemory;
-                return;
-            }
-
-            // if this is the sentence start character
-            // mark that reading has started
-            readingStarted = true;
-
-            // add new character to string
-            addCharToNMEASentence(this, c);
-        }
-    }
-}
 
 void NMEASentence::parse(void)
 {

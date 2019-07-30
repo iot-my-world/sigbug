@@ -51,7 +51,6 @@ public:
     //
     // Other Methods
     //
-    void readChar(char c);
 };
 
 void resetNMEASentence(NMEASentence *sentence);
