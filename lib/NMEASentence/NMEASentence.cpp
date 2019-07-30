@@ -59,7 +59,7 @@ void readCharForNMEASentence(NMEASentence *sentence, char c)
             (*sentence).readingComplete = true;
 
             // parse the read sentence
-            (*sentence).parse();
+            parseNMEASentence(sentence);
         }
     }
     else
@@ -85,6 +85,72 @@ void readCharForNMEASentence(NMEASentence *sentence, char c)
             addCharToNMEASentence(sentence, c);
         }
     }
+}
+
+void parseNMEASentence(NMEASentence *sentence)
+{
+    // check for minimum length
+    if (strlen((*sentence).sentenceString) < 9)
+    {
+        (*sentence).errorCode = NMEASentenceErr_ParseError_SentenceNotLongEnough;
+        return;
+    }
+
+    // get a pointer to start of the checksum
+    char *prtToChecksumStart = strchr((*sentence).sentenceString, '*');
+    if (prtToChecksumStart == nullptr)
+    {
+        (*sentence).errorCode = NMEASentenceErr_ParseError_ChecksumNotFound;
+        return;
+    }
+
+    // confirm that the checksum is 2 characters long and at end of string
+    if ((prtToChecksumStart - (*sentence).sentenceString) != (strlen((*sentence).sentenceString) - 3))
+    {
+        (*sentence).errorCode = NMEASentenceErr_ParseError_ChecksumNotLongEnough;
+        return;
+    }
+
+    // increment prtToChecksumStart to point at first checksum char
+    prtToChecksumStart++;
+
+    // calculate checksum
+    int calculatedChecksum = 0;
+    for (int i = 1; i < strlen((*sentence).sentenceString) - 3; i++)
+    {
+        calculatedChecksum ^= (*sentence).sentenceString[i];
+    }
+
+    // compare checksum
+    if (calculatedChecksum != (int)strtol(prtToChecksumStart, NULL, 16))
+    {
+        (*sentence).errorCode = NMEASentenceErr_ParseError_ChecksumIncorrect;
+        return;
+    }
+
+    // get pointer to first separator
+    char *ptrToFirstSeparator = strchr((*sentence).sentenceString, ',');
+    if (ptrToFirstSeparator == nullptr)
+    {
+        (*sentence).errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
+        return;
+    }
+
+    // check talker length
+    if ((ptrToFirstSeparator - (*sentence).sentenceString) != 6)
+    {
+        (*sentence).errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
+        return;
+    }
+
+    // set talker and sentence identifiers
+    (*sentence).talkerIdentifier[0] = (*sentence).sentenceString[1];
+    (*sentence).talkerIdentifier[1] = (*sentence).sentenceString[2];
+    (*sentence).talkerIdentifier[2] = '\0';
+    (*sentence).sentenceIdentifier[0] = (*sentence).sentenceString[3];
+    (*sentence).sentenceIdentifier[1] = (*sentence).sentenceString[4];
+    (*sentence).sentenceIdentifier[2] = (*sentence).sentenceString[5];
+    (*sentence).sentenceIdentifier[3] = '\0';
 }
 
 //
@@ -119,72 +185,6 @@ void NMEASentence::initialiseSentenceString(void)
 //
 // Other Methods
 //
-
-void NMEASentence::parse(void)
-{
-    // check for minimum length
-    if (strlen(sentenceString) < 9)
-    {
-        errorCode = NMEASentenceErr_ParseError_SentenceNotLongEnough;
-        return;
-    }
-
-    // get a pointer to start of the checksum
-    char *prtToChecksumStart = strchr(sentenceString, '*');
-    if (prtToChecksumStart == nullptr)
-    {
-        errorCode = NMEASentenceErr_ParseError_ChecksumNotFound;
-        return;
-    }
-
-    // confirm that the checksum is 2 characters long and at end of string
-    if ((prtToChecksumStart - sentenceString) != (strlen(sentenceString) - 3))
-    {
-        errorCode = NMEASentenceErr_ParseError_ChecksumNotLongEnough;
-        return;
-    }
-
-    // increment prtToChecksumStart to point at first checksum char
-    prtToChecksumStart++;
-
-    // calculate checksum
-    int calculatedChecksum = 0;
-    for (int i = 1; i < strlen(sentenceString) - 3; i++)
-    {
-        calculatedChecksum ^= sentenceString[i];
-    }
-
-    // compare checksum
-    if (calculatedChecksum != (int)strtol(prtToChecksumStart, NULL, 16))
-    {
-        errorCode = NMEASentenceErr_ParseError_ChecksumIncorrect;
-        return;
-    }
-
-    // get pointer to first separator
-    char *ptrToFirstSeparator = strchr(sentenceString, ',');
-    if (ptrToFirstSeparator == nullptr)
-    {
-        errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
-        return;
-    }
-
-    // check talker length
-    if ((ptrToFirstSeparator - sentenceString) != 6)
-    {
-        errorCode = NMEASentenceErr_ParseError_TalkerDecoding;
-        return;
-    }
-
-    // set talker and sentence identifiers
-    talkerIdentifier[0] = sentenceString[1];
-    talkerIdentifier[1] = sentenceString[2];
-    talkerIdentifier[2] = '\0';
-    sentenceIdentifier[0] = sentenceString[3];
-    sentenceIdentifier[1] = sentenceString[4];
-    sentenceIdentifier[2] = sentenceString[5];
-    sentenceIdentifier[3] = '\0';
-}
 
 /*
     process_GNRMC_NMEASentence processes sentences with the following format:

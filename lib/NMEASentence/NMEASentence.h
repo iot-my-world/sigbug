@@ -40,7 +40,6 @@ public:
     bool readingStarted;
     bool readingComplete;
     char errorCode;
-    void parse(void);
 
     //
     // Constructors and Destructor
@@ -56,6 +55,7 @@ public:
 void resetNMEASentence(NMEASentence *sentence);
 void addCharToNMEASentence(NMEASentence *sentence, char c);
 void readCharForNMEASentence(NMEASentence *sentence, char c);
+void parseNMEASentence(NMEASentence *sentence);
 
 struct gpsReading
 {
