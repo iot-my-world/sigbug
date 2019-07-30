@@ -53,9 +53,10 @@ public:
     //
     // Other Methods
     //
-    void reset(void);
     void readChar(char c);
 };
+
+void resetNMEASentence(NMEASentence *sentence);
 
 struct gpsReading
 {

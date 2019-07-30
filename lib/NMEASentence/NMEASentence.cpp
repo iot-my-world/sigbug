@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+void resetNMEASentence(NMEASentence *sentence)
+{
+    (*sentence).sentenceIdentifier[0] = '\0';
+    (*sentence).sentenceStringUsedSize = 0;
+    (*sentence).readingStarted = false;
+    (*sentence).readingComplete = false;
+    (*sentence).errorCode = NMEASentenceErr_NoError;
+}
+
 //
 // Constructors and Destructor
 //
@@ -50,14 +59,6 @@ bool NMEASentence::sentenceStringNoSpaceLeft(void)
 //
 // Other Methods
 //
-void NMEASentence::reset(void)
-{
-    initialiseSentenceString();
-
-    readingStarted = false;
-    readingComplete = false;
-    errorCode = NMEASentenceErr_NoError;
-}
 
 void NMEASentence::readChar(char c)
 {
