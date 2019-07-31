@@ -60,6 +60,6 @@ typedef struct gpsReading
     char error;
 } gpsReading;
 
-gpsReading process_GNRMC_NMEASentence(NMEASentence *inputSentence);
+void process_GNRMC_NMEASentence(NMEASentence *sentence, gpsReading *reading);
 
 #endif

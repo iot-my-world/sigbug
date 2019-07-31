@@ -227,7 +227,7 @@ ISR(GPS_USART_RX_INT)
                 (strcmp(nmeaSentence.sentenceIdentifier, "RMC") == 0))
             {
                 // process the reading sententence
-                readingToTransmit = process_GNRMC_NMEASentence(&nmeaSentence);
+                process_GNRMC_NMEASentence(&nmeaSentence, &readingToTransmit);
 
                 // check for an error in the reading returned
                 if (readingToTransmit.error == NMEASentenceErr_processGPSNMEASentence_NoError)

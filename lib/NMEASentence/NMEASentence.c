@@ -165,98 +165,77 @@ void parseNMEASentence(NMEASentence *sentence)
     $GNRMC,160830.000,V,2608.9781,S,02808.0972,E,0.00,0.00,,,,A*73
     returns a gpsReading
 */
-gpsReading process_GNRMC_NMEASentence(NMEASentence *sentence)
+void process_GNRMC_NMEASentence(NMEASentence *sentence, gpsReading *reading)
 {
-    gpsReading reading;
-    reading.error = NMEASentenceErr_processGPSNMEASentence_NoError;
-    reading.lat.f = 0;
-    reading.lon.f = 0;
+    // reset reading
+    reading->error = NMEASentenceErr_processGPSNMEASentence_NoError;
+    reading->lat.f = 0;
+    reading->lon.f = 0;
 
-    char *nextCommaPointer;
+    // pointer a part of the sentence separated by ,
+    char *sentencePart;
+    // pointer to . in coordinate
+    char *coordinateDot = NULL;
+    // counter to keep track of part of sentence
+    int sentencePartIdx = 0;
+    // difference between start of sentence part and .
+    int diff;
 
-    nextCommaPointer = strtok((*sentence).sentenceString, ",");
-    int idx = 0;
-    while (nextCommaPointer != NULL)
+    // start tokenisation at first ,
+    sentencePart = strtok(sentence->sentenceString, ",");
+    while (sentencePart != NULL)
     {
-        switch (idx)
+        // to parse degree value
+        char degrees[] = "000";
+        switch (sentencePartIdx)
         {
-        case 3:
-            reading.lat.f = atof(nextCommaPointer);
+        case 3: // latitude value
+        case 5: // longitude value
+            coordinateDot = strchr(sentencePart, '.');
+            if (coordinateDot != NULL)
+            {
+                diff = coordinateDot - sentencePart;
+                for (int i = 0; i < diff - 2; i++)
+                {
+                    degrees[i + (5 - diff)] = sentencePart[i];
+                }
+                if (sentencePartIdx == 3)
+                {
+                    reading->lat.f = atof(degrees) + atof(coordinateDot - 2) / 60;
+                }
+                else
+                {
+                    reading->lon.f = atof(degrees) + atof(coordinateDot - 2) / 60;
+                }
+            }
             break;
 
-        case 4:
-            reading.latDirection = nextCommaPointer[0];
+        case 4: // latitude direction
+            reading->latDirection = sentencePart[0];
             break;
 
-        case 5:
-            reading.lon.f = atof(nextCommaPointer);
-            break;
-
-        case 6:
-            reading.lonDirection = nextCommaPointer[0];
+        case 6: // longitude direction
+            reading->lonDirection = sentencePart[0];
             break;
 
         default:
             break;
         }
-        idx++;
-        nextCommaPointer = strtok(NULL, ",");
+        sentencePart = strtok(NULL, ",");
+        sentencePartIdx++;
     }
 
-    if ((reading.lat.f == 0) || (reading.lon.f == 0))
+    if (reading->latDirection == 'S')
     {
-        reading.error = NMEASentenceErr_processGPSNMEASentence_BlankReading;
-        return reading;
+        reading->lat.f *= -1;
     }
-
-    if (reading.latDirection == 'S')
+    if (reading->lonDirection == 'W')
     {
-        reading.lat.f *= -1;
+        reading->lat.f *= -1;
     }
 
-    if (reading.lonDirection == 'W')
+    if ((reading->lat.f == 0) || (reading->lon.f == 0))
     {
-        reading.lon.f *= -1;
+        reading->error = NMEASentenceErr_processGPSNMEASentence_BlankReading;
     }
-
-    return reading;
 }
-
-/**
-
-  union {
-    float f;
-    unsigned char b[4];
-  } lat;
-
-  union {
-    float f;
-    unsigned char b[4];
-  } lon;
-
-  lat.f = -1 * (String("26").toFloat() + String("08.9986").toFloat() / 60.0);
-  lon.f = String("028").toFloat() + String("08.1069").toFloat() / 60.0;
-
-  for (int i = 0; i < 4; i++)
-  {
-    sSerial.print((char)lat.b[i]);
-  }
-  for (int i = 0; i < 4; i++)
-  {
-    sSerial.print((char)lon.b[i]);
-  }
-
-  // 200518.000,2608.9986,S,02808.1069,E,1,06,3.8,1640.3,M,0.0,M,, - 52
-  // -26.1499766667, 28.135115
-  // initialize serial:
-
-  // 27 33 D1 C1
-  // B7 14 E1 41
-  // 27 33 d1 c1
-  // b7 14 e1 41
-  // 41542453463d2733d1c1b714e1a
-  // 41542453463d2733d1c1b714a
-  // 41542453463d2733d1a
-
-  // 0110 1011 1011 1010
- */
