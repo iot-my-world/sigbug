@@ -1,10 +1,11 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
-#include <avr/interrupt.h> // library for interrupts handling
-#include <avr/sleep.h>     // library for sleep
-#include <avr/power.h>     // library for power control
+#include <avr/interrupt.h>
+#include <avr/sleep.h>
+#include <avr/power.h>
 #include <avr/wdt.h>
 #include <WDT.h>
+#include <NMEASentence.h>
 
 // ********************* Sleep *********************
 int sleepCounter;
@@ -28,6 +29,7 @@ bool runProgram;
 char programStep;
 #define programStepStart 'a'
 #define programStepWaitingForGPSFix 'b'
+NMEASentence nmeaSentence;
 #define programStepTransmit 'c'
 #define programStepDone 'd'
 
@@ -61,6 +63,7 @@ void loop()
     switch (programStep)
     {
     case programStepStart:
+      initialiseNMEASentence(&nmeaSentence);
       programStep = programStepWaitingForGPSFix;
       break;
 
@@ -68,10 +71,14 @@ void loop()
       if (sSerial.available())
       {
         // get the new byte:
-        char inChar = (char)sSerial.read();
-        if (inChar == '$')
+        char nextChar = (char)sSerial.read();
+
+        // read the new char into the nmeaSentence
+        readCharForNMEASentence(&nmeaSentence, nextChar);
+
+        if (nmeaSentence.readingComplete)
         {
-          Serial.println("aweh");
+          Serial.println(nmeaSentence.sentenceString);
           programStep = programStepTransmit;
         }
       }
