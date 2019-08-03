@@ -71,6 +71,7 @@ void loop()
         char inChar = (char)sSerial.read();
         if (inChar == '$')
         {
+          Serial.println("aweh");
           programStep = programStepTransmit;
         }
       }
@@ -138,6 +139,7 @@ void recurringHardwareSetup(void)
   // turn on GPS
   digitalWrite(gpsSwitchPin, HIGH);
 
+  Serial.begin(9600);
   sSerial.begin(9600);
 }
 
@@ -148,5 +150,6 @@ void recurringHardwareTeardown(void)
   // turn off GPS
   digitalWrite(gpsSwitchPin, LOW);
 
+  Serial.end();
   sSerial.end();
 }
