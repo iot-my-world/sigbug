@@ -1,3 +1,4 @@
-void setupWDT(void);
-void enableWDT(void);
-void disableWDT(void);
+#ifndef WDT_h
+#define WDT_H
+void wdtSetup(void);
+#endif
