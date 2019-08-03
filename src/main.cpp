@@ -30,6 +30,7 @@ char programStep;
 #define programStepStart 'a'
 #define programStepWaitingForGPSFix 'b'
 NMEASentence nmeaSentence;
+int noNMEASentencesRead;
 #define programStepTransmit 'c'
 #define programStepDone 'd'
 
@@ -64,6 +65,7 @@ void loop()
     {
     case programStepStart:
       initialiseNMEASentence(&nmeaSentence);
+      noNMEASentencesRead = 0;
       programStep = programStepWaitingForGPSFix;
       break;
 
@@ -76,10 +78,44 @@ void loop()
         // read the new char into the nmeaSentence
         readCharForNMEASentence(&nmeaSentence, nextChar);
 
-        if (nmeaSentence.readingComplete)
+        // check if any errors arose from reading the next char
+        if (nmeaSentence.errorCode != NMEASentenceErr_NoError)
         {
-          Serial.println(nmeaSentence.sentenceString);
-          programStep = programStepTransmit;
+          // if there is an error
+
+          // increase the number of sentences read
+          noNMEASentencesRead++;
+          // reset the nmea sentence
+          initialiseNMEASentence(&nmeaSentence);
+        }
+        else
+        {
+          // otherwise no error has arisen from reading the new char
+
+          // check if the reading is complete
+          if (nmeaSentence.readingComplete)
+          {
+
+            // if the reading is complete
+
+            // process reading
+            if ((strcmp(nmeaSentence.talkerIdentifier, "GN") == 0) &&
+                (strcmp(nmeaSentence.sentenceIdentifier, "RMC") == 0))
+            {
+              // process the reading sententence
+              Serial.println(nmeaSentence.sentenceString);
+              programStep = programStepTransmit;
+            }
+            else
+            {
+              // done - no
+
+              // increase the number of sentences read
+              noNMEASentencesRead++;
+              // reset the nmea sentence
+              initialiseNMEASentence(&nmeaSentence);
+            }
+          }
         }
       }
       break;
