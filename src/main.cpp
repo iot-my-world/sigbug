@@ -14,8 +14,8 @@ void goToSleep(void);
 #define sleepCounterMin 0
 
 // ********************* Hardware Setup/Teardown *********************
-void recurringHardwareSetup(void);
-void recurringHardwareTeardown(void);
+void hardwareSetup(void);
+void hardwareTeardown(void);
 
 // ********************* Pin Definitions *********************
 #define awakeLEDPin 13
@@ -24,7 +24,8 @@ void recurringHardwareTeardown(void);
 #define gpsUSARTTXPin 8
 SoftwareSerial sSerial = SoftwareSerial(gpsUSARTRXPin, gpsUSARTTXPin, false);
 
-// ******************** Program Loop ********************
+// ******************** Program ********************
+void program(void);
 bool runProgram;
 char programStep;
 #define programStepStart 'a'
@@ -51,14 +52,89 @@ void setup()
 
 void loop()
 {
-  // sleep
+  // [1.6] Sleep
   goToSleep();
 
-  // run program
+  // [1.1] Device Wakes Up
 
-  recurringHardwareSetup();
+  // [1.2] Hardware Setup
+  hardwareSetup();
+
+  // [1.3] Program Setup
   runProgram = true;
   programStep = programStepStart;
+
+  // [1.4] Run Program
+  program();
+
+  // [1.5] Hardware Teardown
+  hardwareTeardown();
+}
+
+// Handle watchdog timer interrupt
+ISR(WDT_vect)
+{
+  // reset watchdog timer
+  wdt_reset();
+}
+
+void goToSleep(void)
+{
+  // reset sleep counter
+  sleepCounter = sleepCounterMin;
+
+  // set sleep to full power down mode
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+
+  // turn off the ADC while asleep
+  power_adc_disable();
+
+  while (sleepCounter < sleepCounterMax)
+  {
+    // enable sleep and enter sleep mode.
+    sleep_mode();
+
+    // cpu will sleep util woken by WDT interrupt
+    // after executing the WDT ISR execution will
+    // continue from here
+
+    // disable sleep mode
+    sleep_disable();
+
+    // increment sleep counter
+    sleepCounter++;
+  }
+
+  // put everything on again
+  power_all_enable();
+}
+
+// ********************* Hardware Setup/Teardown *********************
+void hardwareSetup(void)
+{
+  // turn led on to show device is on
+  digitalWrite(awakeLEDPin, HIGH);
+  // turn on GPS
+  digitalWrite(gpsSwitchPin, HIGH);
+
+  Serial.begin(9600);
+  sSerial.begin(9600);
+}
+
+void hardwareTeardown(void)
+{
+  // turn led off to show device is off
+  digitalWrite(awakeLEDPin, LOW);
+  // turn off GPS
+  digitalWrite(gpsSwitchPin, LOW);
+
+  Serial.end();
+  sSerial.end();
+}
+
+// ******************** Program ********************
+void program(void)
+{
   while (runProgram)
   {
     switch (programStep)
@@ -133,66 +209,4 @@ void loop()
       break;
     }
   }
-  recurringHardwareTeardown();
-}
-
-// Handle watchdog timer interrupt
-ISR(WDT_vect)
-{
-  // reset watchdog timer
-  wdt_reset();
-}
-
-void goToSleep(void)
-{
-  // reset sleep counter
-  sleepCounter = sleepCounterMin;
-
-  // set sleep to full power down mode
-  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-
-  // turn off the ADC while asleep
-  power_adc_disable();
-
-  while (sleepCounter < sleepCounterMax)
-  {
-    // enable sleep and enter sleep mode.
-    sleep_mode();
-
-    // cpu will sleep util woken by WDT interrupt
-    // after executing the WDT ISR execution will
-    // continue from here
-
-    // disable sleep mode
-    sleep_disable();
-
-    // increment sleep counter
-    sleepCounter++;
-  }
-
-  // put everything on again
-  power_all_enable();
-}
-
-// ********************* Hardware Setup/Teardown *********************
-void recurringHardwareSetup(void)
-{
-  // turn led on to show device is on
-  digitalWrite(awakeLEDPin, HIGH);
-  // turn on GPS
-  digitalWrite(gpsSwitchPin, HIGH);
-
-  Serial.begin(9600);
-  sSerial.begin(9600);
-}
-
-void recurringHardwareTeardown(void)
-{
-  // turn led off to show device is off
-  digitalWrite(awakeLEDPin, LOW);
-  // turn off GPS
-  digitalWrite(gpsSwitchPin, LOW);
-
-  Serial.end();
-  sSerial.end();
 }
