@@ -10,7 +10,7 @@
 // ********************* Sleep *********************
 int sleepCounter;
 void goToSleep(void);
-#define sleepCounterMax 2
+#define sleepCounterMax 90
 #define sleepCounterMin 0
 
 // ********************* Hardware Setup/Teardown *********************
@@ -22,7 +22,10 @@ void hardwareTeardown(void);
 #define gpsSwitchPin 12
 #define gpsUSARTRXPin 7
 #define gpsUSARTTXPin 8
+#define debugUSARTRXPin 2
+#define debugUSARTTXPin 3
 SoftwareSerial sSerial = SoftwareSerial(gpsUSARTRXPin, gpsUSARTTXPin, false);
+SoftwareSerial dSerial = SoftwareSerial(debugUSARTRXPin, debugUSARTTXPin, false);
 
 // ******************** Program ********************
 void program(void);
@@ -46,6 +49,14 @@ gpsReading gpsReadingToTransmit;
 void waitForNMEASentence(void);
 NMEASentence nmeaSentence;
 
+// ******************** Transmit To Sigfox Modem ********************
+char transmitToSigfoxModem(String &message);
+#define waitingForSigfoxResponseStart 'a'
+#define waitingForSigfoxResponseEnd 'b'
+#define sigfoxErr_NoError '0'
+#define sigfoxErr_NoStart '1'
+#define sigfoxErr_NoEnd '2'
+
 void setup()
 {
   // set awake LED pin as output
@@ -56,6 +67,10 @@ void setup()
   // define pin modes GPS usart pins
   pinMode(gpsUSARTRXPin, INPUT);
   pinMode(gpsUSARTTXPin, OUTPUT);
+
+  // define pin modes debug usart pins
+  pinMode(debugUSARTRXPin, INPUT);
+  pinMode(debugUSARTTXPin, OUTPUT);
 
   // configure the watchdog
   wdtSetup();
@@ -112,6 +127,11 @@ void goToSleep(void)
 
     // disable sleep mode
     sleep_disable();
+
+    // flash led
+    digitalWrite(awakeLEDPin, HIGH);
+    delay(500);
+    digitalWrite(awakeLEDPin, LOW);
 
     // increment sleep counter
     sleepCounter++;
@@ -219,15 +239,49 @@ void program(void)
       switch (programError)
       {
       case programErr_NoError:
-        Serial.println("got fix!");
         break;
 
       case programErr_UnableToGetFix:
-        Serial.println("no fix!");
+        // transmit dummy AT command to ensure modem is awake and operating
+        String sigfoxMessage = String("AT");
+        char transmitErr = transmitToSigfoxModem(sigfoxMessage);
+
+        dSerial.begin(9600);
+        if (transmitErr != sigfoxErr_NoError)
+        {
+          dSerial.print("AT error: ");
+          dSerial.println(transmitErr);
+          programStep = programStepDone;
+          break;
+        }
+
+        // send data
+        if (programError == programErr_NoError)
+        {
+          sigfoxMessage = String("AT$SF=ABC123456789");
+          transmitErr = transmitToSigfoxModem(sigfoxMessage);
+        }
+        else
+        {
+          // Send could not get fix message
+          sigfoxMessage = String("AT$SF=01");
+          transmitErr = transmitToSigfoxModem(sigfoxMessage);
+        }
+        if (transmitErr == sigfoxErr_NoError)
+        {
+          dSerial.println("success!!");
+        }
+        else
+        {
+          dSerial.print("err: ");
+          dSerial.println(transmitErr);
+        }
+
+        dSerial.end();
         break;
 
       default:
-        Serial.println("unknown error!");
+        programStep = programStepDone;
         break;
       }
       programStep = programStepDone;
@@ -350,4 +404,99 @@ void waitForNMEASentence(void)
       break;
     }
   }
+}
+
+// ******************** Transmit To Sigfox Modem ********************
+char transmitToSigfoxModem(String &message)
+{
+  // [4.1] initialise send message variables
+  String sigfoxResponse = String();
+  bool waitingForResponse = true;
+  char waitingForResponseStep = waitingForSigfoxResponseStart;
+  int waitForResponseStartTimeout = 0;
+  int waitForResponseEndTimeout = 0;
+
+  // [4.2] send message
+  Serial.print(String(message) + "\r\n");
+
+  // [4.3] waiting for response?
+  while (waitingForResponse)
+  {
+    // [4.4] waiting for response step?
+    switch (waitingForResponseStep)
+    {
+    case waitingForSigfoxResponseStart:
+      // [4.5] waiting for start timeout?
+      if (waitForResponseStartTimeout > 50)
+      {
+        // [4.6] Yes, timeout waiting for start
+        return sigfoxErr_NoStart;
+        break;
+      }
+      // Not timed out
+
+      // [4.8] new character to read?
+      if (Serial.available())
+      {
+        // [4.9] Yes, read new char into response
+        sigfoxResponse += (char)Serial.read();
+        waitForResponseStartTimeout++;
+      }
+      else
+      {
+        // no, go back to start of step
+        waitForResponseStartTimeout++;
+        delay(100);
+        break;
+      }
+
+      // [4.10] response started?
+      if ((sigfoxResponse.length() > 0) && sigfoxResponse[0] == 'O')
+      {
+        waitingForResponseStep = waitingForSigfoxResponseEnd;
+      }
+
+      break; // case waitingForSigfoxResponseStart
+
+    case waitingForSigfoxResponseEnd:
+      // [4.11] waiting for end timeout?
+      if (waitForResponseEndTimeout > 200)
+      {
+        // [4.12] Yes, timeout waiting for end
+        return sigfoxErr_NoEnd;
+        break;
+      }
+      // Not timed out
+
+      // [4.13] increment waiting for end timeout
+      waitForResponseEndTimeout++;
+
+      // [4.14] new character to read?
+      if (Serial.available())
+      {
+        // [4.15] Yes, read new char into response
+        sigfoxResponse += (char)Serial.read();
+      }
+      else
+      {
+        // no, go back to start of step
+        break;
+      }
+
+      // [4.16] response ended?
+      if ((sigfoxResponse.length() > 0) &&
+          (sigfoxResponse[sigfoxResponse.length() - 1] == '\n'))
+      {
+        waitingForResponse = false;
+      }
+
+      break;
+
+    default:
+      waitingForResponse = false;
+      break;
+    }
+  }
+
+  return sigfoxErr_NoError;
 }
