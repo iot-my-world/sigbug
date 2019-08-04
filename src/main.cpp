@@ -124,6 +124,9 @@ void hardwareSetup(void)
 
   Serial.begin(9600);
   sSerial.begin(9600);
+
+  // wait a little for gps to start
+  delay(1000);
 }
 
 void hardwareTeardown(void)
@@ -159,7 +162,16 @@ void program(void)
     case programStepWaitingForGPSFix:
       // [2.4] wait for NMEA Sentence
       waitForNMEASentence();
-      Serial.println("done!");
+      if (nmeaSentence.errorCode != NMEASentenceErr_NoError)
+      {
+        Serial.print("done error!");
+        Serial.println(nmeaSentence.errorCode);
+      }
+      else
+      {
+        Serial.print("done no error!: ");
+        Serial.println(nmeaSentence.sentenceString);
+      }
       programStep = programStepTransmit;
       break;
 
@@ -195,7 +207,7 @@ void waitForNMEASentence(void)
     {
     case waitingForSentenceStartStep:
       // [3.4] Waiting for start timeout?
-      if (waitForStartTimeout > 250)
+      if (waitForStartTimeout > 200)
       {
         // [3.5] Yes, timeout waiting for start
         nmeaSentence.errorCode = NMEASentenceErr_MessageDidntStart;

@@ -64,9 +64,6 @@ void readCharForNMEASentence(NMEASentence *sentence, char c)
         {
             // mark if this is the end of the sentence
             (*sentence).readingComplete = true;
-
-            // parse the read sentence
-            parseNMEASentence(sentence);
         }
     }
     else
