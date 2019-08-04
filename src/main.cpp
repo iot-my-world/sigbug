@@ -279,14 +279,18 @@ void waitForNMEASentence(void)
       // [3.18] Sentence ended?
       if (nmeaSentence.readingComplete)
       {
-        // yes ended!
+        // [3.19] sentence ended, parse
+        parseNMEASentence(&nmeaSentence);
         waitingForSentence = false;
         break;
       }
+      // No sentence not ended
 
       break; // case waitingForSentenceEndStep
 
+    // other case
     default:
+      // [3.20] Unexpeced error
       nmeaSentence.errorCode = NMEASentenceErr_UnexpectedError;
       waitingForSentence = false;
       break;
