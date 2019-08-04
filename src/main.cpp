@@ -252,7 +252,7 @@ void waitForNMEASentence(void)
       // No
 
       // [3.13] Waiting for end timeout?
-      if (waitForEndTimeout > 255)
+      if (waitForEndTimeout > 200)
       {
         // [3.14] Yes, timeout waiting for end
         nmeaSentence.errorCode = NMEASentenceErr_MessageDidntEnd;
@@ -287,6 +287,8 @@ void waitForNMEASentence(void)
       break; // case waitingForSentenceEndStep
 
     default:
+      nmeaSentence.errorCode = NMEASentenceErr_UnexpectedError;
+      waitingForSentence = false;
       break;
     }
   }
