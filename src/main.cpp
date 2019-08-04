@@ -183,7 +183,7 @@ void waitForNMEASentence(void)
   // [3.1] initialise waiting for NMEA Sentence variables
   bool waitingForSentence = true;
   int waitForStartTimeout = 0;
-  int noCharsRead = 0;
+  int waitForEndTimeout = 0;
   initialiseNMEASentence(&nmeaSentence);
   char waitingForSentenceStep = waitingForSentenceStartStep;
 
@@ -230,8 +230,49 @@ void waitForNMEASentence(void)
       break; // case waitingForSentenceStartStep
 
     case waitingForSentenceEndStep:
-      waitingForSentence = false;
-      break;
+      // [3.11] NMEA Sentence read error?
+      if (nmeaSentence.errorCode != NMEASentenceErr_NoError)
+      {
+        // [3.12] Yes
+        waitingForSentence = false;
+        break;
+      }
+      // No
+
+      // [3.13] Waiting for end timeout?
+      if (waitForEndTimeout > 255)
+      {
+        // [3.14] Yes, timeout waiting for end
+        nmeaSentence.errorCode = NMEASentenceErr_MessageDidntEnd;
+        waitingForSentence = false;
+        break;
+      }
+      // Not timed out
+
+      // [3.15] Increment waiting for end timeout
+      waitForEndTimeout++;
+
+      // [3.16] New Character to read?
+      if (sSerial.available())
+      {
+        // [3.17] Yes read new char into sentence
+        readCharForNMEASentence(&nmeaSentence, (char)sSerial.read());
+      }
+      else
+      {
+        // no, go back to start of step
+        break;
+      }
+
+      // [3.18] Sentence ended?
+      if (nmeaSentence.readingComplete)
+      {
+        // yes ended!
+        waitingForSentence = false;
+        break;
+      }
+
+      break; // case waitingForSentenceEndStep
 
     default:
       break;
