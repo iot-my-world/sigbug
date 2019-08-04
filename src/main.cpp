@@ -10,7 +10,7 @@
 // ********************* Sleep *********************
 int sleepCounter;
 void goToSleep(void);
-#define sleepCounterMax 2
+#define sleepCounterMax 90
 #define sleepCounterMin 0
 
 // ********************* Hardware Setup/Teardown *********************
