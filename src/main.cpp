@@ -22,7 +22,10 @@ void hardwareTeardown(void);
 #define gpsSwitchPin 12
 #define gpsUSARTRXPin 7
 #define gpsUSARTTXPin 8
+#define debugUSARTRXPin 2
+#define debugUSARTTXPin 3
 SoftwareSerial sSerial = SoftwareSerial(gpsUSARTRXPin, gpsUSARTTXPin, false);
+SoftwareSerial dSerial = SoftwareSerial(debugUSARTRXPin, debugUSARTTXPin, false);
 
 // ******************** Program ********************
 void program(void);
@@ -46,6 +49,9 @@ gpsReading gpsReadingToTransmit;
 void waitForNMEASentence(void);
 NMEASentence nmeaSentence;
 
+// ******************** Transmit To Sigfox Modem ********************
+void transmitToSigfoxModem(void);
+
 void setup()
 {
   // set awake LED pin as output
@@ -56,6 +62,10 @@ void setup()
   // define pin modes GPS usart pins
   pinMode(gpsUSARTRXPin, INPUT);
   pinMode(gpsUSARTTXPin, OUTPUT);
+
+  // define pin modes debug usart pins
+  pinMode(debugUSARTRXPin, INPUT);
+  pinMode(debugUSARTTXPin, OUTPUT);
 
   // configure the watchdog
   wdtSetup();
@@ -219,11 +229,10 @@ void program(void)
       switch (programError)
       {
       case programErr_NoError:
-        Serial.println("got fix!");
         break;
 
       case programErr_UnableToGetFix:
-        Serial.println("no fix!");
+        transmitToSigfoxModem();
         break;
 
       default:
@@ -350,4 +359,26 @@ void waitForNMEASentence(void)
       break;
     }
   }
+}
+
+// ******************** Transmit To Sigfox Modem ********************
+void transmitToSigfoxModem(void)
+{
+
+  Serial.print("AT\r\n");
+  delay(200);
+  int count = 0;
+  String word = String("");
+  while (count < 500)
+  {
+    if (Serial.available())
+    {
+      word += (char)Serial.read();
+    }
+    count++;
+  }
+  dSerial.begin(9600);
+  dSerial.print("w: ");
+  dSerial.println(word);
+  dSerial.end();
 }
