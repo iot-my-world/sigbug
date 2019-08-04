@@ -128,6 +128,11 @@ void goToSleep(void)
     // disable sleep mode
     sleep_disable();
 
+    // flash led
+    digitalWrite(awakeLEDPin, HIGH);
+    delay(500);
+    digitalWrite(awakeLEDPin, LOW);
+
     // increment sleep counter
     sleepCounter++;
   }
