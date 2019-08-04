@@ -55,6 +55,7 @@ char transmitToSigfoxModem(String &message);
 #define waitingForSigfoxResponseEnd 'b'
 #define sigfoxErr_NoError '0'
 #define sigfoxErr_NoStart '1'
+#define sigfoxErr_NoEnd '2'
 
 void setup()
 {
@@ -252,7 +253,7 @@ void program(void)
         break;
 
       default:
-        Serial.println("unknown error!");
+        programStep = programStepDone;
         break;
       }
       programStep = programStepDone;
@@ -385,7 +386,7 @@ char transmitToSigfoxModem(String &message)
   bool waitingForResponse = true;
   char waitingForResponseStep = waitingForSigfoxResponseStart;
   int waitForResponseStartTimeout = 0;
-  int waitForRespnseEndTimeout = 0;
+  int waitForResponseEndTimeout = 0;
 
   // [4.2] send message
   Serial.print(String(message) + "\r\n");
@@ -431,7 +432,37 @@ char transmitToSigfoxModem(String &message)
       break; // case waitingForSigfoxResponseStart
 
     case waitingForSigfoxResponseEnd:
-      waitingForResponse = false;
+      // [4.11] waiting for end timeout?
+      if (waitForResponseEndTimeout > 200)
+      {
+        // [4.12] Yes, timeout waiting for end
+        return sigfoxErr_NoEnd;
+        break;
+      }
+      // Not timed out
+
+      // [4.13] increment waiting for end timeout
+      waitForResponseEndTimeout++;
+
+      // [4.14] new character to read?
+      if (Serial.available())
+      {
+        // [4.15] Yes, read new char into response
+        sigfoxResponse += (char)Serial.read();
+      }
+      else
+      {
+        // no, go back to start of step
+        break;
+      }
+
+      // [4.16] response ended?
+      if ((sigfoxResponse.length() > 0) &&
+          (sigfoxResponse[sigfoxResponse.length() - 1] == '\n'))
+      {
+        waitingForResponse = false;
+      }
+
       break;
 
     default:
