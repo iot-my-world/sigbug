@@ -26,6 +26,11 @@ SoftwareSerial sSerial = SoftwareSerial(gpsUSARTRXPin, gpsUSARTTXPin, false);
 
 // ******************** Program ********************
 void program(void);
+char programError;
+#define programErr_NoError '0'
+#define programErr_UnexpecedError '!'
+#define programErr_WaitingForNMEASentence '1'
+#define programErr_UnableToGetFix '2'
 bool runProgram;
 char programStep;
 #define programStepStart 'a'
@@ -33,6 +38,7 @@ char programStep;
 int noNMEASentencesRead;
 #define programStepTransmit 'c'
 #define programStepDone 'd'
+gpsReading gpsReadingToTransmit;
 
 // ******************** Waiting for NMEA Sentence ********************
 #define waitingForSentenceStartStep 'a'
@@ -67,6 +73,7 @@ void loop()
 
   // [1.3] Program Setup
   runProgram = true;
+  programError = programErr_NoError;
   programStep = programStepStart;
 
   // [1.4] Run Program
@@ -165,7 +172,7 @@ void program(void)
       if (noNMEASentencesRead > 250)
       {
         // [2.5] could not get valid fix
-        Serial.println("no fix");
+        programError = programErr_UnableToGetFix;
         programStep = programStepTransmit;
         break;
       }
@@ -186,7 +193,7 @@ void program(void)
       // No, there is no error
 
       // [2.9] is this a gps sentence?
-      if ((strcmp(nmeaSentence.talkerIdentifier, "GN") != 0) &&
+      if ((strcmp(nmeaSentence.talkerIdentifier, "GN") != 0) ||
           (strcmp(nmeaSentence.sentenceIdentifier, "RMC") != 0))
       {
         // No, this is not a gps sentence, go back to start of step
@@ -195,12 +202,34 @@ void program(void)
       // Yes, this is a gps sentence
 
       // [2.10] process the sentence
-      Serial.println(nmeaSentence.sentenceString);
+      process_GNRMC_NMEASentence(&nmeaSentence, &gpsReadingToTransmit);
 
+      // [2.11] is the reading valid?
+      if (gpsReadingToTransmit.error != NMEASentenceErr_processGPSNMEASentence_NoError)
+      {
+        // the reading is not valid, go back to start of step
+        break;
+      }
+
+      // the reading is valid, transition to transmit step
       programStep = programStepTransmit;
       break;
 
     case programStepTransmit:
+      switch (programError)
+      {
+      case programErr_NoError:
+        Serial.println("got fix!");
+        break;
+
+      case programErr_UnableToGetFix:
+        Serial.println("no fix!");
+        break;
+
+      default:
+        Serial.println("unknown error!");
+        break;
+      }
       programStep = programStepDone;
       break;
 
