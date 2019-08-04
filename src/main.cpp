@@ -50,7 +50,11 @@ void waitForNMEASentence(void);
 NMEASentence nmeaSentence;
 
 // ******************** Transmit To Sigfox Modem ********************
-void transmitToSigfoxModem(void);
+char transmitToSigfoxModem(String &message);
+#define waitingForSigfoxResponseStart 'a'
+#define waitingForSigfoxResponseEnd 'b'
+#define sigfoxErr_NoError '0'
+#define sigfoxErr_NoStart '1'
 
 void setup()
 {
@@ -232,7 +236,19 @@ void program(void)
         break;
 
       case programErr_UnableToGetFix:
-        transmitToSigfoxModem();
+        String AT = String("AT");
+        char transmitErr = transmitToSigfoxModem(AT);
+        dSerial.begin(9600);
+        if (transmitErr == sigfoxErr_NoError)
+        {
+          dSerial.println("no error");
+        }
+        else
+        {
+          dSerial.print("error: ");
+          dSerial.println(transmitErr);
+        }
+        dSerial.end();
         break;
 
       default:
@@ -362,23 +378,67 @@ void waitForNMEASentence(void)
 }
 
 // ******************** Transmit To Sigfox Modem ********************
-void transmitToSigfoxModem(void)
+char transmitToSigfoxModem(String &message)
 {
+  // [4.1] initialise send message variables
+  String sigfoxResponse = String();
+  bool waitingForResponse = true;
+  char waitingForResponseStep = waitingForSigfoxResponseStart;
+  int waitForResponseStartTimeout = 0;
+  int waitForRespnseEndTimeout = 0;
 
-  Serial.print("AT\r\n");
-  delay(200);
-  int count = 0;
-  String word = String("");
-  while (count < 500)
+  // [4.2] send message
+  Serial.print(String(message) + "\r\n");
+  delay(100); // wait for modem to process
+
+  // [4.3] waiting for response?
+  while (waitingForResponse)
   {
-    if (Serial.available())
+    // [4.4] waiting for response step?
+    switch (waitingForResponseStep)
     {
-      word += (char)Serial.read();
+    case waitingForSigfoxResponseStart:
+      // [4.5] waiting for start timeout?
+      if (waitForResponseStartTimeout > 200)
+      {
+        // [4.6] Yes, timeout waiting for start
+        return sigfoxErr_NoStart;
+        break;
+      }
+      // Not timed out
+
+      // [4.7] increment waiting for start timeout
+      waitForResponseStartTimeout++;
+
+      // [4.8] new character to read?
+      if (Serial.available())
+      {
+        // [4.9] Yes, read new char into response
+        sigfoxResponse += (char)Serial.read();
+      }
+      else
+      {
+        // no, go back to start of step
+        break;
+      }
+
+      // [4.10] response started?
+      if ((sigfoxResponse.length() > 0) && sigfoxResponse[0] == 'O')
+      {
+        waitingForResponseStep = waitingForSigfoxResponseEnd;
+      }
+
+      break; // case waitingForSigfoxResponseStart
+
+    case waitingForSigfoxResponseEnd:
+      waitingForResponse = false;
+      break;
+
+    default:
+      waitingForResponse = false;
+      break;
     }
-    count++;
   }
-  dSerial.begin(9600);
-  dSerial.print("w: ");
-  dSerial.println(word);
-  dSerial.end();
+
+  return sigfoxErr_NoError;
 }
