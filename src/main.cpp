@@ -159,6 +159,7 @@ void program(void)
     case programStepWaitingForGPSFix:
       // [2.4] wait for NMEA Sentence
       waitForNMEASentence();
+      Serial.println("done!");
       programStep = programStepTransmit;
       break;
 
@@ -212,19 +213,24 @@ void waitForNMEASentence(void)
         // [3.8] Yes read new char into sentence
         readCharForNMEASentence(&nmeaSentence, (char)sSerial.read());
       }
+      else
+      {
+        // no, go back to start of step
+        break;
+      }
 
       // [3.9] Sentence Started?
       if (nmeaSentence.readingStarted)
       {
-        // [3.10]
+        // [3.10] Yes, sentence started. Transition to waiting for sentence end
         waitingForSentenceStep = waitingForSentenceEndStep;
         break;
       }
 
-      break;
+      break; // case waitingForSentenceStartStep
 
     case waitingForSentenceEndStep:
-
+      waitingForSentence = false;
       break;
 
     default:
