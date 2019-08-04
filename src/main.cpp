@@ -404,7 +404,6 @@ char transmitToSigfoxModem(String &message)
 
   // [4.2] send message
   Serial.print(String(message) + "\r\n");
-  delay(2000); // wait for modem to process
 
   // [4.3] waiting for response?
   while (waitingForResponse)
@@ -414,7 +413,7 @@ char transmitToSigfoxModem(String &message)
     {
     case waitingForSigfoxResponseStart:
       // [4.5] waiting for start timeout?
-      if (waitForResponseStartTimeout > 200)
+      if (waitForResponseStartTimeout > 50)
       {
         // [4.6] Yes, timeout waiting for start
         return sigfoxErr_NoStart;
@@ -422,18 +421,18 @@ char transmitToSigfoxModem(String &message)
       }
       // Not timed out
 
-      // [4.7] increment waiting for start timeout
-      waitForResponseStartTimeout++;
-
       // [4.8] new character to read?
       if (Serial.available())
       {
         // [4.9] Yes, read new char into response
         sigfoxResponse += (char)Serial.read();
+        waitForResponseStartTimeout++;
       }
       else
       {
         // no, go back to start of step
+        waitForResponseStartTimeout++;
+        delay(100);
         break;
       }
 
