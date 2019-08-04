@@ -251,8 +251,17 @@ void program(void)
         }
 
         // send data
-        sigfoxMessage = String("AT$SF=ABC123456789");
-        transmitErr = transmitToSigfoxModem(sigfoxMessage);
+        if (programError == programErr_NoError)
+        {
+          sigfoxMessage = String("AT$SF=ABC123456789");
+          transmitErr = transmitToSigfoxModem(sigfoxMessage);
+        }
+        else
+        {
+          // Send could not get fix message
+          sigfoxMessage = String("AT$SF=01");
+          transmitErr = transmitToSigfoxModem(sigfoxMessage);
+        }
         if (transmitErr == sigfoxErr_NoError)
         {
           dSerial.println("success!!");
