@@ -16,17 +16,19 @@ communications between marine instrumentation.
 
 #define maxSentenceStringSize 75
 
+#define NMEASentenceErr_UnexpectedError '!'
 #define NMEASentenceErr_NoError '0'
-#define NMEASentenceErr_StringOutOfMemory '1'
+#define NMEASentenceErr_MessageDidntStart '1'
 #define NMEASentenceErr_MessageDidntEnd '2'
-#define NMEASentenceErr_ParseError_SentenceNotLongEnough '3'
-#define NMEASentenceErr_ParseError_ChecksumNotFound '4'
-#define NMEASentenceErr_ParseError_ChecksumNotLongEnough '5'
-#define NMEASentenceErr_ParseError_ChecksumIncorrect '6'
-#define NMEASentenceErr_ParseError_TalkerDecoding '7'
+#define NMEASentenceErr_StringOutOfMemory '3'
+#define NMEASentenceErr_ParseError_SentenceNotLongEnough '4'
+#define NMEASentenceErr_ParseError_ChecksumNotFound '5'
+#define NMEASentenceErr_ParseError_ChecksumNotLongEnough '6'
+#define NMEASentenceErr_ParseError_ChecksumIncorrect '7'
+#define NMEASentenceErr_ParseError_TalkerDecoding '8'
 
-#define NMEASentenceErr_processGPSNMEASentence_NoError '8'
-#define NMEASentenceErr_processGPSNMEASentence_BlankReading '9'
+#define NMEASentenceErr_processGPSNMEASentence_NoError '9'
+#define NMEASentenceErr_processGPSNMEASentence_BlankReading '10'
 
 typedef struct NMEASentence
 {
