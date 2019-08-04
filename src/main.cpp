@@ -30,8 +30,6 @@ bool runProgram;
 char programStep;
 #define programStepStart 'a'
 #define programStepWaitingForGPSFix 'b'
-void waitForNMEASentence(void);
-NMEASentence nmeaSentence;
 int noNMEASentencesRead;
 #define programStepTransmit 'c'
 #define programStepDone 'd'
@@ -39,6 +37,8 @@ int noNMEASentencesRead;
 // ******************** Waiting for NMEA Sentence ********************
 #define waitingForSentenceStartStep 'a'
 #define waitingForSentenceEndStep 'b'
+void waitForNMEASentence(void);
+NMEASentence nmeaSentence;
 
 void setup()
 {
@@ -160,18 +160,43 @@ void program(void)
       break;
 
     case programStepWaitingForGPSFix:
-      // [2.4] wait for NMEA Sentence
+      // [2.4] has max allowed number of nmea messages been read
+      // without getting a valid gps fix?
+      if (noNMEASentencesRead > 250)
+      {
+        // [2.5] could not get valid fix
+        Serial.println("no fix");
+        programStep = programStepTransmit;
+        break;
+      }
+      // max number of sentences not reached
+
+      // [2.6] increment number of sentences
+      noNMEASentencesRead++;
+
+      // [2.7] wait for NMEA Sentence
       waitForNMEASentence();
+
+      // [2.8] is there an error with the nmea sentence?
       if (nmeaSentence.errorCode != NMEASentenceErr_NoError)
       {
-        Serial.print("done error!");
-        Serial.println(nmeaSentence.errorCode);
+        // Yes, there is an error, go back to start of step
+        break;
       }
-      else
+      // No, there is no error
+
+      // [2.9] is this a gps sentence?
+      if ((strcmp(nmeaSentence.talkerIdentifier, "GN") != 0) &&
+          (strcmp(nmeaSentence.sentenceIdentifier, "RMC") != 0))
       {
-        Serial.print("done no error!: ");
-        Serial.println(nmeaSentence.sentenceString);
+        // No, this is not a gps sentence, go back to start of step
+        break;
       }
+      // Yes, this is a gps sentence
+
+      // [2.10] process the sentence
+      Serial.println(nmeaSentence.sentenceString);
+
       programStep = programStepTransmit;
       break;
 
