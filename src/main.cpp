@@ -237,18 +237,32 @@ void program(void)
         break;
 
       case programErr_UnableToGetFix:
-        String AT = String("AT");
-        char transmitErr = transmitToSigfoxModem(AT);
+        // transmit dummy AT command to ensure modem is awake and operating
+        String sigfoxMessage = String("AT");
+        char transmitErr = transmitToSigfoxModem(sigfoxMessage);
+
         dSerial.begin(9600);
+        if (transmitErr != sigfoxErr_NoError)
+        {
+          dSerial.print("AT error: ");
+          dSerial.println(transmitErr);
+          programStep = programStepDone;
+          break;
+        }
+
+        // send data
+        sigfoxMessage = String("AT$SF=ABC123456789");
+        transmitErr = transmitToSigfoxModem(sigfoxMessage);
         if (transmitErr == sigfoxErr_NoError)
         {
-          dSerial.println("no error");
+          dSerial.println("success!!");
         }
         else
         {
-          dSerial.print("error: ");
+          dSerial.print("err: ");
           dSerial.println(transmitErr);
         }
+
         dSerial.end();
         break;
 
@@ -390,7 +404,7 @@ char transmitToSigfoxModem(String &message)
 
   // [4.2] send message
   Serial.print(String(message) + "\r\n");
-  delay(100); // wait for modem to process
+  delay(2000); // wait for modem to process
 
   // [4.3] waiting for response?
   while (waitingForResponse)
