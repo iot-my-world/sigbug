@@ -30,10 +30,15 @@ bool runProgram;
 char programStep;
 #define programStepStart 'a'
 #define programStepWaitingForGPSFix 'b'
+void waitForNMEASentence(void);
 NMEASentence nmeaSentence;
 int noNMEASentencesRead;
 #define programStepTransmit 'c'
 #define programStepDone 'd'
+
+// ******************** Waiting for NMEA Sentence ********************
+#define waitingForSentenceStartStep 'a'
+#define waitingForSentenceEndStep 'b'
 
 void setup()
 {
@@ -135,65 +140,26 @@ void hardwareTeardown(void)
 // ******************** Program ********************
 void program(void)
 {
+  // [2.1] Run Program?
   while (runProgram)
   {
+    // Yes - Run the program
+
+    // [2.2] What is the program step?
     switch (programStep)
     {
+    // [2.3] Program Step is 'Program Step Start'
     case programStepStart:
       initialiseNMEASentence(&nmeaSentence);
       noNMEASentencesRead = 0;
+      // Transition to waiting for GPS Fix
       programStep = programStepWaitingForGPSFix;
       break;
 
     case programStepWaitingForGPSFix:
-      if (sSerial.available())
-      {
-        // get the new byte:
-        char nextChar = (char)sSerial.read();
-
-        // read the new char into the nmeaSentence
-        readCharForNMEASentence(&nmeaSentence, nextChar);
-
-        // check if any errors arose from reading the next char
-        if (nmeaSentence.errorCode != NMEASentenceErr_NoError)
-        {
-          // if there is an error
-
-          // increase the number of sentences read
-          noNMEASentencesRead++;
-          // reset the nmea sentence
-          initialiseNMEASentence(&nmeaSentence);
-        }
-        else
-        {
-          // otherwise no error has arisen from reading the new char
-
-          // check if the reading is complete
-          if (nmeaSentence.readingComplete)
-          {
-
-            // if the reading is complete
-
-            // process reading
-            if ((strcmp(nmeaSentence.talkerIdentifier, "GN") == 0) &&
-                (strcmp(nmeaSentence.sentenceIdentifier, "RMC") == 0))
-            {
-              // process the reading sententence
-              Serial.println(nmeaSentence.sentenceString);
-              programStep = programStepTransmit;
-            }
-            else
-            {
-              // done - no
-
-              // increase the number of sentences read
-              noNMEASentencesRead++;
-              // reset the nmea sentence
-              initialiseNMEASentence(&nmeaSentence);
-            }
-          }
-        }
-      }
+      // [2.4] wait for NMEA Sentence
+      waitForNMEASentence();
+      programStep = programStepTransmit;
       break;
 
     case programStepTransmit:
@@ -206,6 +172,62 @@ void program(void)
 
     default:
       runProgram = false;
+      break;
+    }
+  }
+}
+
+void waitForNMEASentence(void)
+{
+  // [3.1] initialise waiting for NMEA Sentence variables
+  bool waitingForSentence = true;
+  int waitForStartTimeout = 0;
+  int noCharsRead = 0;
+  initialiseNMEASentence(&nmeaSentence);
+  char waitingForSentenceStep = waitingForSentenceStartStep;
+
+  // [3.2] Waiting for sentence?
+  while (waitingForSentence)
+  {
+    // [3.3] Waiting for sentence step?
+    switch (waitingForSentenceStep)
+    {
+    case waitingForSentenceStartStep:
+      // [3.4] Waiting for start timeout?
+      if (waitForStartTimeout > 250)
+      {
+        // [3.5] Yes, timeout waiting for start
+        nmeaSentence.errorCode = NMEASentenceErr_MessageDidntStart;
+        waitingForSentence = false;
+        break;
+      }
+      // Not timed out
+
+      // [3.6] Increment waiting for start timeout
+      waitForStartTimeout++;
+
+      // [3.7] New Character to read?
+      if (sSerial.available())
+      {
+        // [3.8] Yes read new char into sentence
+        readCharForNMEASentence(&nmeaSentence, (char)sSerial.read());
+      }
+
+      // [3.9] Sentence Started?
+      if (nmeaSentence.readingStarted)
+      {
+        // [3.10]
+        waitingForSentenceStep = waitingForSentenceEndStep;
+        break;
+      }
+
+      break;
+
+    case waitingForSentenceEndStep:
+
+      break;
+
+    default:
       break;
     }
   }
