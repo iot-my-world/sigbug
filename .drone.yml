@@ -5,9 +5,7 @@ steps:
   - name: test
     image: pitkley/platformio
     commands:
-      - ls
-      - pwd
-      - platformio
+      - platformio test -e native
 
 trigger:
   branch:
