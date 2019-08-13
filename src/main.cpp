@@ -10,7 +10,8 @@
 // ********************* Sleep *********************
 int sleepCounter;
 void goToSleep(void);
-#define sleepCounterMax 90
+// #define sleepCounterMax 90
+#define sleepCounterMax 2
 #define sleepCounterMin 0
 
 // ********************* Hardware Setup/Teardown *********************
@@ -25,7 +26,7 @@ void hardwareTeardown(void);
 #define debugUSARTRXPin 2
 #define debugUSARTTXPin 3
 SoftwareSerial sSerial = SoftwareSerial(gpsUSARTRXPin, gpsUSARTTXPin, false);
-SoftwareSerial dSerial = SoftwareSerial(debugUSARTRXPin, debugUSARTTXPin, false);
+// SoftwareSerial dSerial = SoftwareSerial(debugUSARTRXPin, debugUSARTTXPin, false);
 
 // ******************** Program ********************
 void program(void);
@@ -246,11 +247,10 @@ void program(void)
         String sigfoxMessage = String("AT");
         char transmitErr = transmitToSigfoxModem(sigfoxMessage);
 
-        dSerial.begin(9600);
         if (transmitErr != sigfoxErr_NoError)
         {
-          dSerial.print("AT error: ");
-          dSerial.println(transmitErr);
+          // TODO: add debug log here
+          Serial.println("error");
           programStep = programStepDone;
           break;
         }
@@ -269,15 +269,13 @@ void program(void)
         }
         if (transmitErr == sigfoxErr_NoError)
         {
-          dSerial.println("success!!");
+          // TODO: add debug log here
         }
         else
         {
-          dSerial.print("err: ");
-          dSerial.println(transmitErr);
+          // TODO: add debug log here
         }
 
-        dSerial.end();
         break;
 
       default:
@@ -315,7 +313,7 @@ void waitForNMEASentence(void)
     {
     case waitingForSentenceStartStep:
       // [3.4] Waiting for start timeout?
-      if (waitForStartTimeout > 200)
+      if (waitForStartTimeout > 100)
       {
         // [3.5] Yes, timeout waiting for start
         nmeaSentence.errorCode = NMEASentenceErr_MessageDidntStart;
@@ -427,7 +425,7 @@ char transmitToSigfoxModem(String &message)
     {
     case waitingForSigfoxResponseStart:
       // [4.5] waiting for start timeout?
-      if (waitForResponseStartTimeout > 50)
+      if (waitForResponseStartTimeout > 100)
       {
         // [4.6] Yes, timeout waiting for start
         return sigfoxErr_NoStart;
