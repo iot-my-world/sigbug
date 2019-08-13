@@ -5,7 +5,9 @@ steps:
   - name: test
     image: pitkley/platformio
     commands:
-      - platformio test -e native
+      - pio upgrade --dev
+      - pio update
+      - pio test -e native
 
 trigger:
   branch:
