@@ -13,6 +13,7 @@ void test_function_make_gps(void)
 {
     gpsReading test;
     gpsReading expected;
+    int test2;
 }
 
 int main(int argc, char **argv)
