@@ -1,4 +1,4 @@
-// #include <NMEASentence.h>
+#include <NMEASentence.h>
 #include <unity.h>
 
 // void setUp(void) {
@@ -11,7 +11,9 @@
 
 void test_function_make_gps(void)
 {
-    TEST_ASSERT_EQUAL(32, 32);
+    gpsReading test;
+    gpsReading expected;
+    TEST_ASSERT_EQUAL(test, expected);
 }
 
 int main(int argc, char **argv)
