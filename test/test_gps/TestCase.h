@@ -1,17 +1,10 @@
 #ifndef TestCase_h
 #define TestCase_h
 
-class TestCase
+typedef struct testCase
 {
-private:
-    const char *nmeaSentenceString;
+    const char *inputTestString;
 
-public:
-    //
-    // Constructors and Destructors
-    //
-    TestCase();
-    ~TestCase();
-};
+} testCase;
 
 #endif

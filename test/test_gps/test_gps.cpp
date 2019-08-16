@@ -12,7 +12,7 @@
 // // clean stuff up here
 // }
 
-const char *testString = "$GNRMC,112738.000,A,2608.9935,S,02808.1064,E,0.00,0.00,090619,,,A*6F";
+const char *testString = "$GNRMC,112738.000,A,2608.9935,S,02808.1064,E,0.00,0.00,090619,,,A*6F\r\n";
 
 void test_function_make_gps(void)
 {
@@ -31,6 +31,8 @@ void test_function_make_gps(void)
     {
         readCharForNMEASentence(&nmeaSentence, testString[i]);
     }
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, nmeaSentence.readingStarted, "Reading Started Indication");
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, nmeaSentence.readingComplete, "Reading Ended Indication");
     TEST_ASSERT_EQUAL_INT(NMEASentenceErr_NoError, nmeaSentence.errorCode);
 
     parseNMEASentence(&nmeaSentence);
