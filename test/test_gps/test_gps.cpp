@@ -14,7 +14,7 @@
 
 testCase cases[] = {
     {
-        .inputTestString = "$GNRMC,112738.000,A,2554.6687,S,9559.03573,N,0.00,0.00,090619,,,A*6F\r\n",
+        .inputTestString = "$GNRMC,112738.000,A,5800.2859,S,04511.5409,N,0.00,0.00,090619,,,A*6F\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -25,9 +25,9 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -25.9111,
+            .lat = -58.0048,
             .latDirection = 'S',
-            .lon = 95.9839,
+            .lon = 45.1923,
             .lonDirection = 'N',
         },
     },

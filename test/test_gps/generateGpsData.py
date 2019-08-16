@@ -41,7 +41,7 @@ if __name__ == '__main__':
             b if len(b) == 2 else '0' + b for b in latHexBytes)
 
         # random longitude
-        lonDirection = random.choice([('N', 1.00), ('S', -1.00)])
+        lonDirection = random.choice([('E', 1.00), ('W', -1.00)])
         longitudeValue = float32(random.uniform(10, 170))
         longitudeFractionalParts = str(
             round(math.modf(longitudeValue)[0]*60.00, 4)).split('.')
