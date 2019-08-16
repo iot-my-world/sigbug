@@ -18,11 +18,11 @@ void test_function_make_gps(void)
 {
     gpsReading test;
     struct gpsReading expected = {
-        .lat = 26.12,
-        .latDirection = 'S',
-        .lon = 32.12,
-        .lonDirection = 'E',
         .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+        .lat = -26.1499,
+        .latDirection = 'S',
+        .lon = 28.1351,
+        .lonDirection = 'E',
     };
     NMEASentence nmeaSentence;
 
@@ -32,12 +32,18 @@ void test_function_make_gps(void)
         readCharForNMEASentence(&nmeaSentence, testString[i]);
     }
     TEST_ASSERT_EQUAL_INT(NMEASentenceErr_NoError, nmeaSentence.errorCode);
+
     parseNMEASentence(&nmeaSentence);
     TEST_ASSERT_EQUAL_INT(NMEASentenceErr_NoError, nmeaSentence.errorCode);
     TEST_ASSERT_EQUAL_STRING("GN", nmeaSentence.talkerIdentifier);
     TEST_ASSERT_EQUAL_STRING("RMC", nmeaSentence.sentenceIdentifier);
+
     process_GNRMC_NMEASentence(&nmeaSentence, &test);
     TEST_ASSERT_EQUAL_INT(expected.error, test.error);
+    TEST_ASSERT_EQUAL_FLOAT(expected.lat.f, test.lat.f);
+    TEST_ASSERT_EQUAL_INT(expected.latDirection, test.latDirection);
+    TEST_ASSERT_EQUAL_FLOAT(expected.lon.f, test.lon.f);
+    TEST_ASSERT_EQUAL_INT(expected.lonDirection, test.lonDirection);
 }
 
 int main(int argc, char **argv)
