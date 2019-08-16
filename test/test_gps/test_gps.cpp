@@ -18,7 +18,6 @@ void test_function_make_gps(void)
 {
     gpsReading test;
     gpsReading expected;
-    int test2;
     NMEASentence nmeaSentence;
 
     initialiseNMEASentence(&nmeaSentence);
@@ -26,8 +25,10 @@ void test_function_make_gps(void)
     {
         readCharForNMEASentence(&nmeaSentence, testString[i]);
     }
-
+    parseNMEASentence(&nmeaSentence);
     TEST_ASSERT_EQUAL_INT(NMEASentenceErr_NoError, nmeaSentence.errorCode);
+    TEST_ASSERT_EQUAL_STRING("GN", nmeaSentence.talkerIdentifier);
+    TEST_ASSERT_EQUAL_STRING("RMC", nmeaSentence.sentenceIdentifier);
 }
 
 int main(int argc, char **argv)
