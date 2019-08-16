@@ -4,7 +4,7 @@ from numpy import float32
 from string import Template
 
 template = Template('''{
-        .inputTestString = "$$GNRMC,112738.000,A,$latitudeNMEA,$latDirection,02808.1064,E,0.00,0.00,090619,,,A*6F\\r\\n",
+        .inputTestString = "$$GNRMC,112738.000,A,$latitudeNMEA,$latDirection,$longitudeNMEA,$lonDirection,0.00,0.00,090619,,,A*6F\\r\\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -41,16 +41,27 @@ if __name__ == '__main__':
             b if len(b) == 2 else '0' + b for b in latHexBytes)
 
         # random longitude
-        lonDirection = random.choice([('E', 1), ('W', -1)])
-        signedLongitude = float32(lonDirection[1]*random.uniform(10, 179))
+        lonDirection = random.choice([('N', 1.00), ('S', -1.00)])
+        longitudeValue = float32(random.uniform(10, 170))
+        longitudeFractionalParts = str(
+            round(math.modf(longitudeValue)[0]*60.00, 4)).split('.')
+        longitudeDegreePart = str(int(math.modf(longitudeValue)[1]))
+        longitudeNMEA = '0'*(2-len(longitudeDegreePart))+longitudeDegreePart+'0'*(2-len(
+            longitudeFractionalParts[0]))+longitudeFractionalParts[0]+'.'+'0'*(5-len(longitudeFractionalParts[1]))+longitudeFractionalParts[1]
+        signedLongitude = float32(round(lonDirection[1]*(float32(float(longitudeNMEA[:longitudeNMEA.find(
+            '.')-2]))+float32(float(longitudeNMEA[longitudeNMEA.find('.')-2:]))/60.00), 4))
+
         lonHexBytes = ['00' if b == 0 else hex(b).strip(
             '0x') for b in signedLongitude.tobytes('C')]
         lonHexValue = ''.join(
             b if len(b) == 2 else '0' + b for b in lonHexBytes)
+
         print(template.substitute({
             'latitudeNMEA': latitudeNMEA,
             'latDirection': latDirection[0],
             'signedLatitude': signedLatitude,
-            'signedLongitude': signedLongitude,
+
+            'longitudeNMEA': longitudeNMEA,
             'lonDirection': lonDirection[0],
+            'signedLongitude': signedLongitude,
         }))
