@@ -31,6 +31,7 @@ testCase cases[] = {
             .lonDirection = 'E',
         },
     },
+
 };
 
 void test_function_make_gps(void)
