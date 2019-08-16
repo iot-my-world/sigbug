@@ -50,7 +50,6 @@ void waitForNMEASentence(void);
 NMEASentence nmeaSentence;
 
 // ******************** Transmit To Sigfox Modem ********************
-char oldTransmitToSigfoxModem(String &message);
 char transmitToSigfoxModem(const char *message, const char *desiredResponse = "OK");
 #define waitingForSigfoxResponseStart 'a'
 #define waitingForSigfoxResponseEnd 'b'
@@ -451,98 +450,4 @@ char transmitToSigfoxModem(const char *message, const char *desiredResponse = "O
   }
 
   return sigfoxErr_NoEnd;
-}
-
-char oldTransmitToSigfoxModem(String &message)
-{
-  // [4.1] initialise send message variables
-  String sigfoxResponse = String();
-  bool waitingForResponse = true;
-  char waitingForResponseStep = waitingForSigfoxResponseStart;
-  int waitForResponseStartTimeout = 0;
-  int waitForResponseEndTimeout = 0;
-
-  // [4.2] send message
-  Serial.print(String(message) + "\r\n");
-
-  // [4.3] waiting for response?
-  while (waitingForResponse)
-  {
-    // [4.4] waiting for response step?
-    switch (waitingForResponseStep)
-    {
-    case waitingForSigfoxResponseStart:
-      // [4.5] waiting for start timeout?
-      if (waitForResponseStartTimeout > 50)
-      {
-        // [4.6] Yes, timeout waiting for start
-        return sigfoxErr_NoStart;
-        break;
-      }
-      // Not timed out
-
-      // [4.8] new character to read?
-      if (Serial.available())
-      {
-        // [4.9] Yes, read new char into response
-        sigfoxResponse += (char)Serial.read();
-        waitForResponseStartTimeout++;
-      }
-      else
-      {
-        // no, go back to start of step
-        waitForResponseStartTimeout++;
-        delay(100);
-        break;
-      }
-
-      // [4.10] response started?
-      if ((sigfoxResponse.length() > 0) && sigfoxResponse[0] == 'O')
-      {
-        waitingForResponseStep = waitingForSigfoxResponseEnd;
-      }
-
-      break; // case waitingForSigfoxResponseStart
-
-    case waitingForSigfoxResponseEnd:
-      // [4.11] waiting for end timeout?
-      if (waitForResponseEndTimeout > 200)
-      {
-        // [4.12] Yes, timeout waiting for end
-        return sigfoxErr_NoEnd;
-        break;
-      }
-      // Not timed out
-
-      // [4.13] increment waiting for end timeout
-      waitForResponseEndTimeout++;
-
-      // [4.14] new character to read?
-      if (Serial.available())
-      {
-        // [4.15] Yes, read new char into response
-        sigfoxResponse += (char)Serial.read();
-      }
-      else
-      {
-        // no, go back to start of step
-        break;
-      }
-
-      // [4.16] response ended?
-      if ((sigfoxResponse.length() > 0) &&
-          (sigfoxResponse[sigfoxResponse.length() - 1] == '\n'))
-      {
-        waitingForResponse = false;
-      }
-
-      break;
-
-    default:
-      waitingForResponse = false;
-      break;
-    }
-  }
-
-  return sigfoxErr_NoError;
 }
