@@ -10,7 +10,6 @@
 // ********************* Sleep *********************
 int sleepCounter;
 void goToSleep(void);
-// #define sleepCounterMax 90
 #define sleepCounterMax 2
 #define sleepCounterMin 0
 
@@ -26,7 +25,7 @@ void hardwareTeardown(void);
 #define debugUSARTRXPin 2
 #define debugUSARTTXPin 3
 SoftwareSerial sSerial = SoftwareSerial(gpsUSARTRXPin, gpsUSARTTXPin, false);
-// SoftwareSerial dSerial = SoftwareSerial(debugUSARTRXPin, debugUSARTTXPin, false);
+SoftwareSerial dSerial = SoftwareSerial(debugUSARTRXPin, debugUSARTTXPin, false);
 
 // ******************** Program ********************
 void program(void);
@@ -51,7 +50,8 @@ void waitForNMEASentence(void);
 NMEASentence nmeaSentence;
 
 // ******************** Transmit To Sigfox Modem ********************
-char transmitToSigfoxModem(String &message);
+char oldTransmitToSigfoxModem(String &message);
+char transmitToSigfoxModem(const char *message, const char *desiredResponse = "OK");
 #define waitingForSigfoxResponseStart 'a'
 #define waitingForSigfoxResponseEnd 'b'
 #define sigfoxErr_NoError '0'
@@ -152,6 +152,7 @@ void hardwareSetup(void)
 
   Serial.begin(9600);
   sSerial.begin(9600);
+  dSerial.begin(9600);
 
   // wait a little for gps to start
   delay(1000);
@@ -166,6 +167,7 @@ void hardwareTeardown(void)
 
   Serial.end();
   sSerial.end();
+  dSerial.end();
 }
 
 // ******************** Program ********************
@@ -212,6 +214,7 @@ void program(void)
         break;
       }
       // No, there is no error
+      Serial.println(nmeaSentence.sentenceString);
 
       // [2.9] is this a gps sentence?
       if ((strcmp(nmeaSentence.talkerIdentifier, "GN") != 0) ||
@@ -243,37 +246,26 @@ void program(void)
         break;
 
       case programErr_UnableToGetFix:
-        // transmit dummy AT command to ensure modem is awake and operating
-        String sigfoxMessage = String("AT");
-        char transmitErr = transmitToSigfoxModem(sigfoxMessage);
 
-        if (transmitErr != sigfoxErr_NoError)
+        // transmit dummy AT command to ensure modem is awake and operating
+        if (transmitToSigfoxModem("AT") != sigfoxErr_NoError)
         {
-          // TODO: add debug log here
-          Serial.println("error");
+          // if an error is returned, end program
           programStep = programStepDone;
           break;
         }
 
-        // send data
+        // if there is no program error, i.e. gps data parsed successfully
         if (programError == programErr_NoError)
         {
-          sigfoxMessage = String("AT$SF=ABC123456789");
-          transmitErr = transmitToSigfoxModem(sigfoxMessage);
+          // transmit the data
+          transmitToSigfoxModem("AT$SF=ABC123456789");
         }
         else
         {
-          // Send could not get fix message
-          sigfoxMessage = String("AT$SF=01");
-          transmitErr = transmitToSigfoxModem(sigfoxMessage);
-        }
-        if (transmitErr == sigfoxErr_NoError)
-        {
-          // TODO: add debug log here
-        }
-        else
-        {
-          // TODO: add debug log here
+          // otherwise, there was a program error
+          // transmit could not get fix
+          transmitToSigfoxModem("AT$SF=01");
         }
 
         break;
@@ -313,7 +305,7 @@ void waitForNMEASentence(void)
     {
     case waitingForSentenceStartStep:
       // [3.4] Waiting for start timeout?
-      if (waitForStartTimeout > 100)
+      if (waitForStartTimeout > 200)
       {
         // [3.5] Yes, timeout waiting for start
         nmeaSentence.errorCode = NMEASentenceErr_MessageDidntStart;
@@ -405,7 +397,63 @@ void waitForNMEASentence(void)
 }
 
 // ******************** Transmit To Sigfox Modem ********************
-char transmitToSigfoxModem(String &message)
+char transmitToSigfoxModem(const char *message, const char *desiredResponse = "OK")
+{
+  // [4.1] initialise send message variables
+  String sigfoxResponse = String();
+  int waitForStartResponseTimeout = 0;
+  int waitForEndTimeout = 0;
+
+  // clear serial buffer
+  Serial.flush();
+
+  // [4.2] send message
+  Serial.print(message);
+  Serial.print("\r\n");
+
+  // wait for serial data to become available
+  while (!Serial.available())
+  {
+    waitForStartResponseTimeout++;
+    delay(30);
+    if (waitForStartResponseTimeout > 400)
+    {
+      // if no data after allowed time, return error
+      return sigfoxErr_NoStart;
+    }
+  }
+  // serial data is now available
+
+  while (waitForEndTimeout < 300)
+  {
+    // read all availabe serial data
+    while (Serial.available())
+    {
+      sigfoxResponse += (char)Serial.read();
+      if (sigfoxResponse.length() > 20)
+      {
+        // if serial still available after max
+        // allowed length, return error
+        return sigfoxErr_NoEnd;
+      }
+    }
+
+    // check if desired response is in what was received
+    if (sigfoxResponse.indexOf(desiredResponse) >= 0)
+    {
+      // it was found, return success
+      return sigfoxErr_NoError;
+    }
+
+    // it was not found, wait a bit and then keep trying
+    delay(30);
+    waitForEndTimeout++;
+  }
+
+  return sigfoxErr_NoEnd;
+}
+
+char oldTransmitToSigfoxModem(String &message)
 {
   // [4.1] initialise send message variables
   String sigfoxResponse = String();
@@ -425,7 +473,7 @@ char transmitToSigfoxModem(String &message)
     {
     case waitingForSigfoxResponseStart:
       // [4.5] waiting for start timeout?
-      if (waitForResponseStartTimeout > 100)
+      if (waitForResponseStartTimeout > 50)
       {
         // [4.6] Yes, timeout waiting for start
         return sigfoxErr_NoStart;

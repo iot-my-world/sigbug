@@ -21,8 +21,8 @@ void wdtSetup(void)
   // Interrupt enabled: WDIE = 1
   // Reset Disabled:    WDE = 0
   // 8 second interval: WDP3,2,1,0 = 1001
-  WDTCSR = (1 << WDIE) | (1 << WDP3) | (1 << WDP0); // 8 second - WDP3,2,1,0 = 1001
-  // WDTCSR = (1 << WDIE) | (1 << WDP2) | (1 << WDP1) | (1 << WDP0); // 2 second - WDP3,2,1,0 = 0111
+  // WDTCSR = (1 << WDIE) | (1 << WDP3) | (1 << WDP0); // 8 second - WDP3,2,1,0 = 1001
+  WDTCSR = (1 << WDIE) | (1 << WDP2) | (1 << WDP1) | (1 << WDP0); // 2 second - WDP3,2,1,0 = 0111
 
   sei(); // re-enable interrupts
 }
