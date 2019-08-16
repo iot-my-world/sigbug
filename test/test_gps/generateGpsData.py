@@ -31,7 +31,7 @@ if __name__ == '__main__':
             round(math.modf(latitudeValue)[0]*60.00, 4)).split('.')
         latitudeDegreePart = str(int(math.modf(latitudeValue)[1]))
         latitudeNMEA = '0'*(2-len(latitudeDegreePart))+latitudeDegreePart+'0'*(2-len(
-            latitudeFractionalParts[0]))+latitudeFractionalParts[0]+'.'+'0'*(4-len(latitudeFractionalParts[1]))+latitudeFractionalParts[1]
+            latitudeFractionalParts[0]))+latitudeFractionalParts[0]+'.'+latitudeFractionalParts[1]+'0'*(4-len(latitudeFractionalParts[1]))
         signedLatitude = float32(round(latDirection[1]*(float32(float(latitudeNMEA[:latitudeNMEA.find(
             '.')-2]))+float32(float(latitudeNMEA[latitudeNMEA.find('.')-2:]))/60.00), 4))
 
@@ -46,8 +46,8 @@ if __name__ == '__main__':
         longitudeFractionalParts = str(
             round(math.modf(longitudeValue)[0]*60.00, 4)).split('.')
         longitudeDegreePart = str(int(math.modf(longitudeValue)[1]))
-        longitudeNMEA = '0'*(2-len(longitudeDegreePart))+longitudeDegreePart+'0'*(2-len(
-            longitudeFractionalParts[0]))+longitudeFractionalParts[0]+'.'+'0'*(5-len(longitudeFractionalParts[1]))+longitudeFractionalParts[1]
+        longitudeNMEA = '0'*(3-len(longitudeDegreePart))+longitudeDegreePart+'0'*(2-len(
+            longitudeFractionalParts[0]))+longitudeFractionalParts[0]+'.'+longitudeFractionalParts[1]+'0'*(4-len(longitudeFractionalParts[1]))
         signedLongitude = float32(round(lonDirection[1]*(float32(float(longitudeNMEA[:longitudeNMEA.find(
             '.')-2]))+float32(float(longitudeNMEA[longitudeNMEA.find('.')-2:]))/60.00), 4))
 

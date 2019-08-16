@@ -14,7 +14,7 @@
 
 testCase cases[] = {
     {
-        .inputTestString = "$GNRMC,112738.000,A,2608.9935,S,02808.1064,E,0.00,0.00,090619,,,A*6F\r\n",
+        .inputTestString = "$GNRMC,112738.000,A,2554.6687,S,9559.03573,N,0.00,0.00,090619,,,A*6F\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -25,13 +25,12 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -26.1499,
+            .lat = -25.9111,
             .latDirection = 'S',
-            .lon = 28.1351,
-            .lonDirection = 'E',
+            .lon = 95.9839,
+            .lonDirection = 'N',
         },
     },
-
 };
 
 void test_function_make_gps(void)
