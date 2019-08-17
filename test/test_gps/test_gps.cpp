@@ -13,8 +13,12 @@
 // }
 
 testCase cases[] = {
+    //
+    // Success tests
+    //
     {
-        .inputTestString = "$GNRMC,112738.000,A,1024.8696,S,11338.0173,E,0.00,0.00,090619,,,A*6f\r\n",
+        .id = "6597874fd60347a89a329e67e551be7c",
+        .inputTestString = "$GNRMC,112738.000,A,8313.6166,S,07840.7790,W,0.00,0.00,090619,,,A*7a\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -25,14 +29,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -10.4145,
+            .lat = -83.2269,
             .latDirection = 'S',
-            .lon = 113.6336,
-            .lonDirection = 'E',
+            .lon = -78.6796,
+            .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,3413.8132,S,08313.6519,E,0.00,0.00,090619,,,A*6b\r\n",
+        .id = "d2f0d45ad90142eab722e03c1d439571",
+        .inputTestString = "$GNRMC,112738.000,A,2147.2297,N,12913.1818,E,0.00,0.00,090619,,,A*7f\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -43,14 +48,53 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -34.2302,
+            .lat = 21.7872,
+            .latDirection = 'N',
+            .lon = 129.2197,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "6c05cd937a8d4e59afc15b4b3826f26c",
+        .inputTestString = "$GNRMC,112738.000,A,2042.3298,N,05225.0408,E,0.00,0.00,090619,,,A*71\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = 20.7055,
+            .latDirection = 'N',
+            .lon = 52.4173,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "b80cde938d4b46089fd70618c57b73ce",
+        .inputTestString = "$GNRMC,112738.000,A,4624.7499,S,03415.1570,E,0.00,0.00,090619,,,A*63\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -46.4125,
             .latDirection = 'S',
-            .lon = 83.2275,
+            .lon = 34.2526,
             .lonDirection = 'E',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,8245.6935,S,13451.4700,W,0.00,0.00,090619,,,A*75\r\n",
+        .id = "0973ef0cd3dd41b7b65c297f7730bec5",
+        .inputTestString = "$GNRMC,112738.000,A,4235.7552,S,05415.5159,W,0.00,0.00,090619,,,A*7e\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -61,14 +105,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -82.7616,
+            .lat = -42.5959,
             .latDirection = 'S',
-            .lon = -134.8578,
+            .lon = -54.2586,
             .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,1519.2452,S,07555.3304,W,0.00,0.00,090619,,,A*7d\r\n",
+        .id = "d4ad5cb5b97548309cfa74cd85311861",
+        .inputTestString = "$GNRMC,112738.000,A,3402.5802,S,01510.7315,E,0.00,0.00,090619,,,A*6b\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -79,68 +124,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -15.3208,
+            .lat = -34.043,
             .latDirection = 'S',
-            .lon = -75.9222,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,1329.0227,N,03505.6532,W,0.00,0.00,090619,,,A*64\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 13.4837,
-            .latDirection = 'N',
-            .lon = -35.0942,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,2333.9179,N,03646.7816,W,0.00,0.00,090619,,,A*63\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 23.5653,
-            .latDirection = 'N',
-            .lon = -36.7797,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,1806.8409,N,03329.2635,E,0.00,0.00,090619,,,A*7a\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 18.114,
-            .latDirection = 'N',
-            .lon = 33.4877,
+            .lon = 15.1789,
             .lonDirection = 'E',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,3825.0610,N,03143.6958,E,0.00,0.00,090619,,,A*75\r\n",
+        .id = "8eae7044c4c441da9ad0d63dc98e8654",
+        .inputTestString = "$GNRMC,112738.000,A,1123.3709,S,14937.2913,W,0.00,0.00,090619,,,A*7b\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -151,122 +143,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 38.4177,
-            .latDirection = 'N',
-            .lon = 31.7283,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,6733.5522,N,11105.6996,W,0.00,0.00,090619,,,A*6e\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 67.5592,
-            .latDirection = 'N',
-            .lon = -111.095,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,8055.2882,N,05359.9767,W,0.00,0.00,090619,,,A*66\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 80.9215,
-            .latDirection = 'N',
-            .lon = -53.9996,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,2843.3230,N,09128.9508,E,0.00,0.00,090619,,,A*70\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 28.7221,
-            .latDirection = 'N',
-            .lon = 91.4825,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,3542.5647,N,03421.0223,E,0.00,0.00,090619,,,A*7e\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 35.7094,
-            .latDirection = 'N',
-            .lon = 34.3504,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,3137.8368,N,04540.2129,E,0.00,0.00,090619,,,A*77\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 31.6306,
-            .latDirection = 'N',
-            .lon = 45.6702,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,1726.8303,S,09210.0964,W,0.00,0.00,090619,,,A*7d\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -17.4472,
+            .lat = -11.3895,
             .latDirection = 'S',
-            .lon = -92.1683,
+            .lon = -149.6215,
             .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,4115.8677,S,05411.9238,W,0.00,0.00,090619,,,A*78\r\n",
+        .id = "e927de1d1b474fd582ac9fea3d3160e5",
+        .inputTestString = "$GNRMC,112738.000,A,1008.8120,S,03310.7007,W,0.00,0.00,090619,,,A*75\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -277,14 +162,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -41.2645,
+            .lat = -10.1469,
             .latDirection = 'S',
-            .lon = -54.1987,
+            .lon = -33.1783,
             .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,5556.9504,N,01940.8401,W,0.00,0.00,090619,,,A*61\r\n",
+        .id = "93300bedc24e4b238d8f18861d51ec9b",
+        .inputTestString = "$GNRMC,112738.000,A,4803.5680,S,05858.8217,W,0.00,0.00,090619,,,A*7e\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -295,140 +181,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 55.9492,
-            .latDirection = 'N',
-            .lon = -19.6807,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,7524.8012,S,06430.0513,E,0.00,0.00,090619,,,A*6d\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -75.4134,
+            .lat = -48.0595,
             .latDirection = 'S',
-            .lon = 64.5009,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,6607.9070,N,09758.3978,E,0.00,0.00,090619,,,A*76\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 66.1318,
-            .latDirection = 'N',
-            .lon = 97.9733,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,4850.4108,N,16844.3774,E,0.00,0.00,090619,,,A*75\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 48.8402,
-            .latDirection = 'N',
-            .lon = 168.7396,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,7508.0772,N,12202.4687,E,0.00,0.00,090619,,,A*7f\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 75.1346,
-            .latDirection = 'N',
-            .lon = 122.0411,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,5002.8963,N,15620.7275,E,0.00,0.00,090619,,,A*7d\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 50.0483,
-            .latDirection = 'N',
-            .lon = 156.3455,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,4856.1049,N,03431.3685,E,0.00,0.00,090619,,,A*77\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 48.9351,
-            .latDirection = 'N',
-            .lon = 34.5228,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,5540.0369,N,07403.3806,W,0.00,0.00,090619,,,A*6e\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 55.6673,
-            .latDirection = 'N',
-            .lon = -74.0563,
+            .lon = -58.9804,
             .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,3755.1415,N,03639.0033,W,0.00,0.00,090619,,,A*61\r\n",
+        .id = "383089f958fa4874b57dade07ec3a157",
+        .inputTestString = "$GNRMC,112738.000,A,6046.5374,S,08655.1527,W,0.00,0.00,090619,,,A*78\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -439,14 +200,53 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 37.919,
+            .lat = -60.7756,
+            .latDirection = 'S',
+            .lon = -86.9192,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "c800ae899df9401b989e3ee1650d53a5",
+        .inputTestString = "$GNRMC,112738.000,A,6850.2034,S,01603.5756,W,0.00,0.00,090619,,,A*7d\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -68.8367,
+            .latDirection = 'S',
+            .lon = -16.0596,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "a1239af75efa4cfa83557b7bc2dd46a2",
+        .inputTestString = "$GNRMC,112738.000,A,4643.9989,N,15626.0843,W,0.00,0.00,090619,,,A*66\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = 46.7333,
             .latDirection = 'N',
-            .lon = -36.6501,
+            .lon = -156.4347,
             .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,2007.8921,S,13321.1194,W,0.00,0.00,090619,,,A*7e\r\n",
+        .id = "1e8ed08096da40fb96d43dd6133922d0",
+        .inputTestString = "$GNRMC,112738.000,A,2258.4821,N,06159.4571,E,0.00,0.00,090619,,,A*77\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -457,50 +257,34 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -20.1315,
-            .latDirection = 'S',
-            .lon = -133.352,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,4802.5875,S,10135.1544,W,0.00,0.00,090619,,,A*75\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -48.0431,
-            .latDirection = 'S',
-            .lon = -101.5859,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,6220.9431,N,15512.3331,W,0.00,0.00,090619,,,A*62\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 62.3491,
+            .lat = 22.9747,
             .latDirection = 'N',
-            .lon = -155.2056,
+            .lon = 61.991,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "f61a1d1271d64c448e7dc01257323bd9",
+        .inputTestString = "$GNRMC,112738.000,A,7809.4363,S,07646.5720,W,0.00,0.00,090619,,,A*71\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -78.1573,
+            .latDirection = 'S',
+            .lon = -76.7762,
             .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,1538.5625,S,13029.1046,E,0.00,0.00,090619,,,A*65\r\n",
+        .id = "a93ce9761f56483bb67d52819a8f451d",
+        .inputTestString = "$GNRMC,112738.000,A,5722.9823,S,02658.6264,W,0.00,0.00,090619,,,A*7b\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -511,14 +295,34 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -15.6427,
+            .lat = -57.383,
             .latDirection = 'S',
-            .lon = 130.4851,
+            .lon = -26.9771,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "ca0c1bf6c64d42ff91a7d645578fcba4",
+        .inputTestString = "$GNRMC,112738.000,A,4425.1482,S,02950.6005,E,0.00,0.00,090619,,,A*61\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -44.4191,
+            .latDirection = 'S',
+            .lon = 29.8433,
             .lonDirection = 'E',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,2858.0892,S,15439.2734,E,0.00,0.00,090619,,,A*68\r\n",
+        .id = "4d1e4ef2ea3a45b48f5f702168f624de",
+        .inputTestString = "$GNRMC,112738.000,A,5210.4922,S,16224.5425,W,0.00,0.00,090619,,,A*78\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -529,14 +333,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -28.9682,
+            .lat = -52.1749,
             .latDirection = 'S',
-            .lon = 154.6546,
-            .lonDirection = 'E',
+            .lon = -162.409,
+            .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,5300.0481,N,04236.6522,W,0.00,0.00,090619,,,A*60\r\n",
+        .id = "9899553bd7d5416f950cfa4ba6071e16",
+        .inputTestString = "$GNRMC,112738.000,A,4814.8423,N,02549.6661,E,0.00,0.00,090619,,,A*70\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -547,14 +352,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 53.0008,
+            .lat = 48.2474,
             .latDirection = 'N',
-            .lon = -42.6109,
-            .lonDirection = 'W',
+            .lon = 25.8278,
+            .lonDirection = 'E',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,5010.3120,N,03608.0049,E,0.00,0.00,090619,,,A*7d\r\n",
+        .id = "040493f07b5c4b9a83077e6c0bfaee8c",
+        .inputTestString = "$GNRMC,112738.000,A,5648.1583,N,01940.5510,E,0.00,0.00,090619,,,A*74\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -565,14 +371,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 50.1719,
+            .lat = 56.8026,
             .latDirection = 'N',
-            .lon = 36.1334,
+            .lon = 19.6758,
             .lonDirection = 'E',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,6238.4483,N,11809.1045,W,0.00,0.00,090619,,,A*6e\r\n",
+        .id = "7b68b8772ae54e4e810096f55a07e4c6",
+        .inputTestString = "$GNRMC,112738.000,A,4939.7904,S,09400.5406,W,0.00,0.00,090619,,,A*71\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -583,14 +390,129 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 62.6408,
+            .lat = -49.6632,
+            .latDirection = 'S',
+            .lon = -94.009,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "8fc01e29bc1f404a88dd713c34f4453b",
+        .inputTestString = "$GNRMC,112738.000,A,3329.8924,S,11332.2879,W,0.00,0.00,090619,,,A*7c\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -33.4982,
+            .latDirection = 'S',
+            .lon = -113.5381,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "2aaea08738814fdabdcf8fcac58cf0ad",
+        .inputTestString = "$GNRMC,112738.000,A,7221.8985,S,05833.7539,E,0.00,0.00,090619,,,A*6b\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -72.365,
+            .latDirection = 'S',
+            .lon = 58.5626,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "36994209f18c4bbd90c5c4e284f86010",
+        .inputTestString = "$GNRMC,112738.000,A,6629.0533,S,15550.1434,W,0.00,0.00,090619,,,A*7e\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -66.4842,
+            .latDirection = 'S',
+            .lon = -155.8357,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "9a138089af604500964670c87d88712b",
+        .inputTestString = "$GNRMC,112738.000,A,1234.4001,S,12409.3741,W,0.00,0.00,090619,,,A*78\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -12.5733,
+            .latDirection = 'S',
+            .lon = -124.1562,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "d528605eee4a45f0b2e8f80d6bd92529",
+        .inputTestString = "$GNRMC,112738.000,A,3320.6653,S,12201.5504,E,0.00,0.00,090619,,,A*64\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -33.3444,
+            .latDirection = 'S',
+            .lon = 122.0258,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "67cf1202573b46108ffab0c2e0636f95",
+        .inputTestString = "$GNRMC,112738.000,A,5038.6094,N,08144.1481,W,0.00,0.00,090619,,,A*6b\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = 50.6435,
             .latDirection = 'N',
-            .lon = -118.1517,
+            .lon = -81.7358,
             .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,6616.1082,N,02828.9734,E,0.00,0.00,090619,,,A*7c\r\n",
+        .id = "bf9da234fafd4bf89a803320b7b74d8a",
+        .inputTestString = "$GNRMC,112738.000,A,7814.1756,S,06714.1257,W,0.00,0.00,090619,,,A*7c\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -601,14 +523,34 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 66.2685,
+            .lat = -78.2363,
+            .latDirection = 'S',
+            .lon = -67.2354,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "c7f123508e3e49b09b73ec3627a4aa8b",
+        .inputTestString = "$GNRMC,112738.000,A,8131.5344,N,05244.6038,W,0.00,0.00,090619,,,A*6c\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = 81.5256,
             .latDirection = 'N',
-            .lon = 28.4829,
-            .lonDirection = 'E',
+            .lon = -52.7434,
+            .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,8651.5776,N,05605.2240,E,0.00,0.00,090619,,,A*72\r\n",
+        .id = "75f764508cd14bce942e8b3a655ab656",
+        .inputTestString = "$GNRMC,112738.000,A,4332.7903,N,07758.0600,W,0.00,0.00,090619,,,A*6b\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -619,32 +561,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 86.8596,
+            .lat = 43.5465,
             .latDirection = 'N',
-            .lon = 56.0871,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,5517.1719,S,15429.5020,W,0.00,0.00,090619,,,A*72\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -55.2862,
-            .latDirection = 'S',
-            .lon = -154.4917,
+            .lon = -77.9677,
             .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,6208.6591,S,13846.2927,E,0.00,0.00,090619,,,A*65\r\n",
+        .id = "db02dc96ecde4bd08260ec0a06e0081b",
+        .inputTestString = "$GNRMC,112738.000,A,6951.8820,S,07013.0573,W,0.00,0.00,090619,,,A*7b\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -655,14 +580,34 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -62.1443,
+            .lat = -69.8647,
             .latDirection = 'S',
-            .lon = 138.7715,
+            .lon = -70.2176,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "3727df6578594f8cb402e8541c8eafff",
+        .inputTestString = "$GNRMC,112738.000,A,7535.6158,S,06723.8165,E,0.00,0.00,090619,,,A*60\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -75.5936,
+            .latDirection = 'S',
+            .lon = 67.3969,
             .lonDirection = 'E',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,4307.2414,S,09402.9132,E,0.00,0.00,090619,,,A*61\r\n",
+        .id = "2e4c256dda86409eb05a94212699338b",
+        .inputTestString = "$GNRMC,112738.000,A,5236.1345,N,13352.4597,W,0.00,0.00,090619,,,A*63\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -673,32 +618,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -43.1207,
-            .latDirection = 'S',
-            .lon = 94.0486,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,6516.3321,N,02838.5430,W,0.00,0.00,090619,,,A*6f\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 65.2722,
+            .lat = 52.6022,
             .latDirection = 'N',
-            .lon = -28.6424,
+            .lon = -133.8743,
             .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,1236.8539,S,12944.7528,W,0.00,0.00,090619,,,A*75\r\n",
+        .id = "e5f09b0f94d0490c9f2dbd6304223ec7",
+        .inputTestString = "$GNRMC,112738.000,A,4017.0494,N,11017.3254,W,0.00,0.00,090619,,,A*66\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -709,122 +637,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -12.6142,
-            .latDirection = 'S',
-            .lon = -129.7459,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,7907.4858,S,08556.7810,W,0.00,0.00,090619,,,A*7e\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -79.1248,
-            .latDirection = 'S',
-            .lon = -85.9463,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,8208.6252,S,03617.8535,E,0.00,0.00,090619,,,A*6d\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -82.1438,
-            .latDirection = 'S',
-            .lon = 36.2976,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,2040.4420,S,09217.6834,W,0.00,0.00,090619,,,A*76\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -20.674,
-            .latDirection = 'S',
-            .lon = -92.2947,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,1935.2982,S,05348.1107,E,0.00,0.00,090619,,,A*66\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -19.5883,
-            .latDirection = 'S',
-            .lon = 53.8018,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,6405.3188,S,08420.7069,E,0.00,0.00,090619,,,A*67\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -64.0886,
-            .latDirection = 'S',
-            .lon = 84.3451,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,7429.7112,N,08459.8814,E,0.00,0.00,090619,,,A*71\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 74.4952,
+            .lat = 40.2842,
             .latDirection = 'N',
-            .lon = 84.998,
-            .lonDirection = 'E',
+            .lon = -110.2888,
+            .lonDirection = 'W',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,7017.3103,S,09424.7916,W,0.00,0.00,090619,,,A*74\r\n",
+        .id = "4154ae6cfc6d459388841dca09629f6e",
+        .inputTestString = "$GNRMC,112738.000,A,2639.8668,S,05651.7914,E,0.00,0.00,090619,,,A*66\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -835,32 +656,15 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -70.2885,
+            .lat = -26.6644,
             .latDirection = 'S',
-            .lon = -94.4132,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,2943.6402,N,12645.7878,E,0.00,0.00,090619,,,A*71\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 29.7273,
-            .latDirection = 'N',
-            .lon = 126.7631,
+            .lon = 56.8632,
             .lonDirection = 'E',
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,4542.0378,N,02627.4789,W,0.00,0.00,090619,,,A*63\r\n",
+        .id = "df7b96abb4da4825aeb3633b6f68654f",
+        .inputTestString = "$GNRMC,112738.000,A,1705.0977,N,16152.0642,W,0.00,0.00,090619,,,A*60\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -871,11 +675,320 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 45.7006,
+            .lat = 17.085,
             .latDirection = 'N',
-            .lon = -26.458,
+            .lon = -161.8677,
             .lonDirection = 'W',
         },
+    },
+    {
+        .id = "ad2dd54519634ecc9eb4d77fe208dafc",
+        .inputTestString = "$GNRMC,112738.000,A,3138.5400,S,12908.6234,E,0.00,0.00,090619,,,A*6d\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -31.6423,
+            .latDirection = 'S',
+            .lon = 129.1437,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "81af40e3706d4048b3441def138893d8",
+        .inputTestString = "$GNRMC,112738.000,A,6614.1902,S,05337.2954,E,0.00,0.00,090619,,,A*63\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -66.2365,
+            .latDirection = 'S',
+            .lon = 53.6216,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "7dde13a2182a4b6baa98b9008fc776e2",
+        .inputTestString = "$GNRMC,112738.000,A,2715.9440,S,15927.8979,E,0.00,0.00,090619,,,A*6b\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -27.2657,
+            .latDirection = 'S',
+            .lon = 159.465,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "fd84378653054f11b959760e347b0487",
+        .inputTestString = "$GNRMC,112738.000,A,8849.3597,N,11615.5205,E,0.00,0.00,090619,,,A*7c\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = 88.8227,
+            .latDirection = 'N',
+            .lon = 116.2587,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "bee85b9f0406485baa3708babce1c25d",
+        .inputTestString = "$GNRMC,112738.000,A,2848.0299,S,10434.2664,E,0.00,0.00,090619,,,A*64\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -28.8005,
+            .latDirection = 'S',
+            .lon = 104.5711,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "6806c51b961d4a0f9e4945eb84448950",
+        .inputTestString = "$GNRMC,112738.000,A,5438.2432,S,08555.9209,E,0.00,0.00,090619,,,A*66\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -54.6374,
+            .latDirection = 'S',
+            .lon = 85.932,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "71070193c24741b1b5abc6154293a162",
+        .inputTestString = "$GNRMC,112738.000,A,1810.1077,N,14645.8945,W,0.00,0.00,090619,,,A*60\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = 18.1685,
+            .latDirection = 'N',
+            .lon = -146.7649,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "ca8dcef41a8944cb9d989bcd3854ad37",
+        .inputTestString = "$GNRMC,112738.000,A,3829.7530,N,04643.8245,W,0.00,0.00,090619,,,A*64\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = 38.4959,
+            .latDirection = 'N',
+            .lon = -46.7304,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "9a6e718fa4db4f13991ebcff77786b8e",
+        .inputTestString = "$GNRMC,112738.000,A,2303.7151,S,11519.8779,E,0.00,0.00,090619,,,A*68\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -23.0619,
+            .latDirection = 'S',
+            .lon = 115.3313,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "44127b86db7c49adab339153e0c26600",
+        .inputTestString = "$GNRMC,112738.000,A,5635.0171,S,01820.5329,E,0.00,0.00,090619,,,A*60\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -56.5836,
+            .latDirection = 'S',
+            .lon = 18.3422,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "d3b3aa91ddad41479abae87e0e60465d",
+        .inputTestString = "$GNRMC,112738.000,A,2044.9182,S,12756.2106,W,0.00,0.00,090619,,,A*74\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -20.7486,
+            .latDirection = 'S',
+            .lon = -127.9368,
+            .lonDirection = 'W',
+        },
+    },
+    {
+        .id = "0976c430155d4371aa0e4214f88c4683",
+        .inputTestString = "$GNRMC,112738.000,A,7756.0664,N,15441.3672,E,0.00,0.00,090619,,,A*7b\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = 77.9344,
+            .latDirection = 'N',
+            .lon = 154.6895,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "b72f150f79494b6897f70d7b5599c149",
+        .inputTestString = "$GNRMC,112738.000,A,3841.7570,S,06555.8902,E,0.00,0.00,090619,,,A*6f\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -38.6959,
+            .latDirection = 'S',
+            .lon = 65.9315,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "4c3c1154632d4a8b97d5749fffaa0d28",
+        .inputTestString = "$GNRMC,112738.000,A,8001.6791,S,08505.8932,E,0.00,0.00,090619,,,A*6c\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -80.028,
+            .latDirection = 'S',
+            .lon = 85.0982,
+            .lonDirection = 'E',
+        },
+    },
+    {
+        .id = "6363e9c842ba4ad5a5396084afb6a87f",
+        .inputTestString = "$GNRMC,112738.000,A,2616.8042,S,02627.9844,W,0.00,0.00,090619,,,A*7b\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -26.2801,
+            .latDirection = 'S',
+            .lon = -26.4664,
+            .lonDirection = 'W',
+        },
+    },
+    //
+    // Failure Tests
+    //
+    {
+        .id = "failure_1",
+        .inputTestString = "GNRMC,112738.000,A,1024.8696,S,11338.0173,E,0.00,0.00,090619,,,A*6f\r\n",
+        .expectedReadingStartIndication = false,
+        .expectedReadingCompleteIndication = false,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+    },
+    {
+        .id = "failure_2",
+        .inputTestString = "$GNRMC,112738.000,A,1024.8696,S,11338.0173,E,0.00,0.00,090619,,,A*6f",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = false,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_MessageDidntEnd,
+    },
+    {
+        .id = "failure_3",
+        .inputTestString = "$GNRMC,112738.000,A,1024.8696,S,11338.0173,E,0.00,0.00,090619,,,_________________________________________________________________________________________________________________A*6f\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = false,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_MessageDidntEnd,
     },
 };
 
@@ -884,7 +997,7 @@ void test_function_make_gps(void)
 
     for (int caseIdx = 0; caseIdx < sizeof(cases) / sizeof(*cases); caseIdx++)
     {
-        printf("Test Idx: %d\n", caseIdx);
+        printf("Test ID: %s\n", cases[caseIdx].id);
         NMEASentence nmeaSentence;
         gpsReading test;
         initialiseNMEASentence(&nmeaSentence);
@@ -901,6 +1014,11 @@ void test_function_make_gps(void)
         TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedPostReadingNMEASentenceErr,
                                       nmeaSentence.errorCode,
                                       "Post NMEA Sentence Reading Error");
+        // if reading is not expected to start or complete go to next test case from here
+        if (!(cases[caseIdx].expectedReadingStartIndication && cases[caseIdx].expectedReadingCompleteIndication))
+        {
+            continue;
+        }
 
         parseNMEASentence(&nmeaSentence);
         TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedPostParse_NMEASentenceErr,

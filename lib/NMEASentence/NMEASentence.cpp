@@ -20,7 +20,7 @@ void initialiseNMEASentence(NMEASentence *nmeaSentence)
 
 void addCharToNMEASentence(NMEASentence *sentence, char c)
 {
-    if ((*sentence).sentenceStringUsedSize == maxSentenceStringSize)
+    if ((*sentence).sentenceStringUsedSize == NMEA_MaxSentenceStringSize)
     {
         return;
     }
@@ -43,7 +43,7 @@ void readCharForNMEASentence(NMEASentence *sentence, char c)
         // if reading has already started
 
         // check that there is space left in the string
-        if ((*sentence).sentenceStringUsedSize == maxSentenceStringSize)
+        if ((*sentence).sentenceStringUsedSize == NMEA_MaxSentenceStringSize)
         {
             // if there is no space left at this point,
             // then we have run out of space while the
@@ -73,7 +73,7 @@ void readCharForNMEASentence(NMEASentence *sentence, char c)
         if (c == '$')
         {
             // check that there is space left in the string
-            if ((*sentence).sentenceStringUsedSize == maxSentenceStringSize)
+            if ((*sentence).sentenceStringUsedSize == NMEA_MaxSentenceStringSize)
             {
                 // if there is no space in the string at this point
                 // then the reading cannot start

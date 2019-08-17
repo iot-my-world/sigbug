@@ -14,7 +14,7 @@ communications between marine instrumentation.
 #ifndef NMEASentence_h
 #define NMEASentence_h
 
-#define maxSentenceStringSize 75
+#define NMEA_MaxSentenceStringSize 75
 
 #define NMEASentenceErr_NoError 0
 #define NMEASentenceErr_UnexpectedError 1

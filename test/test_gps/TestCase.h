@@ -5,6 +5,7 @@
 
 typedef struct testCase
 {
+    const char *id;
     const char *inputTestString;
     bool expectedReadingStartIndication;
     bool expectedReadingCompleteIndication;
