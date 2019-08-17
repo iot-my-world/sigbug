@@ -970,25 +970,34 @@ testCase cases[] = {
     // Failure Tests
     //
     {
-        .id = "failure_1",
+        .id = "failure_1: reading never starts",
         .inputTestString = "GNRMC,112738.000,A,1024.8696,S,11338.0173,E,0.00,0.00,090619,,,A*6f\r\n",
         .expectedReadingStartIndication = false,
         .expectedReadingCompleteIndication = false,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
     },
     {
-        .id = "failure_2",
+        .id = "failure_2: reading never ends due to missing end char",
         .inputTestString = "$GNRMC,112738.000,A,1024.8696,S,11338.0173,E,0.00,0.00,090619,,,A*6f",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = false,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
     },
     {
-        .id = "failure_3",
+        .id = "failure_3: reading never ends due to exceeding maximum allowed length",
         .inputTestString = "$GNRMC,112738.000,A,1024.8696,S,11338.0173,E,0.00,0.00,090619,,,______________________________________________________________________________________________________________________________________________________________________________________________________________________________A*6f\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = false,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_MessageDidntEnd,
+    },
+    {
+        .id = "failure_4: sentence not long enough error",
+        .inputTestString = "$GNRM*6f\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_SentenceNotLongEnough,
     },
 };
 
@@ -1014,7 +1023,7 @@ void test_function_make_gps(void)
         TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedPostReadingNMEASentenceErr,
                                       nmeaSentence.errorCode,
                                       "Post NMEA Sentence Reading Error");
-        // if reading is not expected to start or complete go to next test case from here
+        // if reading is not expected to start or complete - go to next test case from here
         if (!(cases[caseIdx].expectedReadingStartIndication && cases[caseIdx].expectedReadingCompleteIndication))
         {
             continue;
@@ -1024,6 +1033,11 @@ void test_function_make_gps(void)
         TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedPostParse_NMEASentenceErr,
                                       nmeaSentence.errorCode,
                                       "Post Parse NMEA Sentence Error");
+        // if a parse error is expected - go to next test case from here
+        if (cases[caseIdx].expectedPostParse_NMEASentenceErr != NMEASentenceErr_NoError)
+        {
+            continue;
+        }
         TEST_ASSERT_EQUAL_STRING_MESSAGE(cases[caseIdx].expectedNMEATalkerIdentifier,
                                          nmeaSentence.talkerIdentifier,
                                          "NMEA Talker Identifier");
