@@ -1053,6 +1053,42 @@ testCase cases[] = {
 
         .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_ChecksumIncorrect,
     },
+    {
+        .id = "failure_10: talker decoding error",
+        .inputTestString = "$GNRMC112738.000A2044.9182S12756.2106W0.000.00090619A*74\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_TalkerDecoding,
+    },
+    {
+        .id = "failure_11: talker decoding error",
+        .inputTestString = "$GNRMC112738.000,A,2044.9182,S,12756.2106,W,0.00,0.00,090619,,,A*58\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_TalkerDecoding,
+    },
+    {
+        .id = "failure_12: talker decoding error",
+        .inputTestString = "$GNRM,112738.000,A,8001.6791,S,08505.8932,E,0.00,0.00,090619,,,A*2f\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_TalkerDecoding,
+    },
+    {
+        .id = "failure_13: talker decoding error",
+        .inputTestString = "$GNRMDC,112738.000,A,8001.6791,S,08505.8932,E,0.00,0.00,090619,,,A*28\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_TalkerDecoding,
+    },
 };
 
 void test_function_make_gps(void)
