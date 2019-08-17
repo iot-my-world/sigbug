@@ -53,6 +53,7 @@ NMEASentence nmeaSentence;
 
 // ******************** Transmit To Sigfox Modem ********************
 char transmitToSigfoxModem(String &message, const char *desiredResponse = "OK");
+void flashModemCommsLight(void);
 #define waitingForSigfoxResponseStart 'a'
 #define waitingForSigfoxResponseEnd 'b'
 #define sigfoxErr_NoError '0'
@@ -260,9 +261,7 @@ void program(void)
         break;
       }
       // indicate that the ok went ok
-      digitalWrite(commsLEDPin, HIGH);
-      delay(500);
-      digitalWrite(commsLEDPin, LOW);
+      flashModemCommsLight();
 
       // transmit appropriate data to modem
       switch (programError)
@@ -283,9 +282,7 @@ void program(void)
         if (transmitToSigfoxModem(sigfoxGPSFixMessage) == sigfoxErr_NoError)
         {
           // indicate that ok was received
-          digitalWrite(commsLEDPin, HIGH);
-          delay(200);
-          digitalWrite(commsLEDPin, LOW);
+          flashModemCommsLight();
         }
         break;
 
@@ -294,9 +291,7 @@ void program(void)
         if (transmitToSigfoxModem(sigfoxCantGetFixMessage) == sigfoxErr_NoError)
         {
           // indicate that ok was received
-          digitalWrite(commsLEDPin, HIGH);
-          delay(200);
-          digitalWrite(commsLEDPin, LOW);
+          flashModemCommsLight();
         }
         break;
 
@@ -427,6 +422,12 @@ void waitForNMEASentence(void)
 }
 
 // ******************** Transmit To Sigfox Modem ********************
+void flashModemCommsLight(void)
+{
+  digitalWrite(commsLEDPin, HIGH);
+  delay(100);
+  digitalWrite(commsLEDPin, LOW);
+}
 char transmitToSigfoxModem(String &message, const char *desiredResponse = "OK")
 {
   // [4.1] initialise send message variables
@@ -454,7 +455,7 @@ char transmitToSigfoxModem(String &message, const char *desiredResponse = "OK")
   }
   // serial data is now available
 
-  while (waitForEndTimeout < 300)
+  while (waitForEndTimeout < 400)
   {
     // read all availabe serial data
     while (Serial.available())
