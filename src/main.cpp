@@ -253,17 +253,18 @@ void program(void)
       switch (programError)
       {
       case programErr_NoError:
-        char msg[14];
+        char msg[15];
         msg[0] = 'A';
         msg[1] = 'T';
         msg[2] = '$';
         msg[3] = 'S';
         msg[4] = 'F';
         msg[5] = '=';
+        msg[6] = (char)2;
         for (int i = 0; i < 4; i++)
         {
-          msg[i + 6] = (char)gpsReadingToTransmit.lat.b[i];
-          msg[i + 10] = (char)gpsReadingToTransmit.lon.b[i];
+          msg[i + 7] = (char)gpsReadingToTransmit.lat.b[i];
+          msg[i + 11] = (char)gpsReadingToTransmit.lon.b[i];
         }
         transmitToSigfoxModem(msg);
 
