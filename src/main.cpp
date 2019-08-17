@@ -36,6 +36,7 @@ char programStep;
 #define programStepStart 'a'
 #define programStepWaitingForGPSFix 'b'
 int noNMEASentencesRead;
+int noValidGPSFixes;
 #define programStepTransmit 'c'
 #define programStepDone 'd'
 gpsReading gpsReadingToTransmit;
@@ -175,6 +176,7 @@ void program(void)
     case programStepStart:
       initialiseNMEASentence(&nmeaSentence);
       noNMEASentencesRead = 0;
+      noValidGPSFixes = 0;
       // Transition to waiting for GPS Fix
       programStep = programStepWaitingForGPSFix;
       break;
@@ -224,7 +226,17 @@ void program(void)
         break;
       }
 
-      // the reading is valid, transition to transmit step
+      // reading is valid, increment no of valid readings
+      noValidGPSFixes++;
+
+      if (noValidGPSFixes < 5)
+      {
+        // wait for another valid reading
+        break;
+      }
+
+      // using 5th valid reading
+      // transition to transmit step
       programStep = programStepTransmit;
       break;
 
@@ -241,8 +253,20 @@ void program(void)
       switch (programError)
       {
       case programErr_NoError:
-        Serial.println("no error!");
-        Serial.println(nmeaSentence.sentenceString);
+        char msg[13];
+        msg[0] = 'A';
+        msg[1] = 'T';
+        msg[2] = '$';
+        msg[3] = 'S';
+        msg[4] = 'F';
+        msg[5] = '=';
+        for (int i = 0; i < 4; i++)
+        {
+          msg[i + 6] = (char)gpsReadingToTransmit.lat.b[i];
+          msg[i + 10] = (char)gpsReadingToTransmit.lon.b[i];
+        }
+        transmitToSigfoxModem(msg);
+
         break;
 
       case programErr_UnableToGetFix:
