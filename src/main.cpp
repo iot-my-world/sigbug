@@ -22,10 +22,7 @@ void hardwareTeardown(void);
 #define gpsSwitchPin 12
 #define gpsUSARTRXPin 7
 #define gpsUSARTTXPin 8
-#define debugUSARTRXPin 2
-#define debugUSARTTXPin 3
 SoftwareSerial sSerial = SoftwareSerial(gpsUSARTRXPin, gpsUSARTTXPin, false);
-SoftwareSerial dSerial = SoftwareSerial(debugUSARTRXPin, debugUSARTTXPin, false);
 
 // ******************** Program ********************
 void program(void);
@@ -67,10 +64,6 @@ void setup()
   // define pin modes GPS usart pins
   pinMode(gpsUSARTRXPin, INPUT);
   pinMode(gpsUSARTTXPin, OUTPUT);
-
-  // define pin modes debug usart pins
-  pinMode(debugUSARTRXPin, INPUT);
-  pinMode(debugUSARTTXPin, OUTPUT);
 
   // configure the watchdog
   wdtSetup();
@@ -149,12 +142,11 @@ void hardwareSetup(void)
   // turn on GPS
   digitalWrite(gpsSwitchPin, HIGH);
 
+  // wait a little for gps to start
+  delay(8000);
+
   Serial.begin(9600);
   sSerial.begin(9600);
-  dSerial.begin(9600);
-
-  // wait a little for gps to start
-  delay(1000);
 }
 
 void hardwareTeardown(void)
@@ -166,7 +158,6 @@ void hardwareTeardown(void)
 
   Serial.end();
   sSerial.end();
-  dSerial.end();
 }
 
 // ******************** Program ********************
@@ -191,7 +182,7 @@ void program(void)
     case programStepWaitingForGPSFix:
       // [2.4] has max allowed number of nmea messages been read
       // without getting a valid gps fix?
-      if (noNMEASentencesRead > 250)
+      if (noNMEASentencesRead > 15000)
       {
         // [2.5] could not get valid fix
         programError = programErr_UnableToGetFix;
@@ -213,7 +204,6 @@ void program(void)
         break;
       }
       // No, there is no error
-      Serial.println(nmeaSentence.sentenceString);
 
       // [2.9] is this a gps sentence?
       if ((strcmp(nmeaSentence.talkerIdentifier, "GN") != 0) ||
@@ -239,40 +229,31 @@ void program(void)
       break;
 
     case programStepTransmit:
-      switch (programError)
+      // transmit dummy AT command to ensure modem is awake and operating
+      if (transmitToSigfoxModem("AT") != sigfoxErr_NoError)
       {
-      case programErr_NoError:
-        break;
-
-      case programErr_UnableToGetFix:
-
-        // transmit dummy AT command to ensure modem is awake and operating
-        if (transmitToSigfoxModem("AT") != sigfoxErr_NoError)
-        {
-          // if an error is returned, end program
-          programStep = programStepDone;
-          break;
-        }
-
-        // if there is no program error, i.e. gps data parsed successfully
-        if (programError == programErr_NoError)
-        {
-          // transmit the data
-          transmitToSigfoxModem("AT$SF=ABC123456789");
-        }
-        else
-        {
-          // otherwise, there was a program error
-          // transmit could not get fix
-          transmitToSigfoxModem("AT$SF=01");
-        }
-
-        break;
-
-      default:
+        // if an error is returned, end program
         programStep = programStepDone;
         break;
       }
+
+      // transmit appropriate data to modem
+      switch (programError)
+      {
+      case programErr_NoError:
+        Serial.println("no error!");
+        Serial.println(nmeaSentence.sentenceString);
+        break;
+
+      case programErr_UnableToGetFix:
+        // transmit could not get fix
+        transmitToSigfoxModem("AT$SF=01");
+        break;
+
+      default:
+        break;
+      }
+
       programStep = programStepDone;
       break;
 
@@ -349,7 +330,7 @@ void waitForNMEASentence(void)
       // No
 
       // [3.13] Waiting for end timeout?
-      if (waitForEndTimeout > 200)
+      if (waitForEndTimeout > 500)
       {
         // [3.14] Yes, timeout waiting for end
         nmeaSentence.errorCode = NMEASentenceErr_MessageDidntEnd;
