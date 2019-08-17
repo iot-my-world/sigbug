@@ -64,6 +64,24 @@ testCase cases[] = {
             .lonDirection = 'E',
         },
     },
+    {
+        .inputTestString = "$GNRMC,112738.000,A,8245.6935,S,13451.4700,W,0.00,0.00,090619,,,A*75\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
+            .lat = -82.7616,
+            .latDirection = 'S',
+            .lon = -134.8578,
+            .lonDirection = 'W',
+        },
+    },
 };
 
 void test_function_make_gps(void)
