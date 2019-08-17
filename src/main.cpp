@@ -261,6 +261,8 @@ void program(void)
       }
       // indicate that the ok went ok
       digitalWrite(commsLEDPin, HIGH);
+      delay(500);
+      digitalWrite(commsLEDPin, LOW);
 
       // transmit appropriate data to modem
       switch (programError)
@@ -278,12 +280,24 @@ void program(void)
           sprintf(hexVal, "%02x", gpsReadingToTransmit.lon.b[i]);
           sigfoxGPSFixMessage += String(hexVal);
         }
-        transmitToSigfoxModem(sigfoxGPSFixMessage);
+        if (transmitToSigfoxModem(sigfoxGPSFixMessage) == sigfoxErr_NoError)
+        {
+          // indicate that ok was received
+          digitalWrite(commsLEDPin, HIGH);
+          delay(200);
+          digitalWrite(commsLEDPin, LOW);
+        }
         break;
 
       case programErr_UnableToGetFix:
         // transmit could not get fix
-        transmitToSigfoxModem(sigfoxCantGetFixMessage);
+        if (transmitToSigfoxModem(sigfoxCantGetFixMessage) == sigfoxErr_NoError)
+        {
+          // indicate that ok was received
+          digitalWrite(commsLEDPin, HIGH);
+          delay(200);
+          digitalWrite(commsLEDPin, LOW);
+        }
         break;
 
       default:
