@@ -215,6 +215,7 @@ void test_function_make_gps(void)
 
     for (int caseIdx = 0; caseIdx < sizeof(cases) / sizeof(*cases); caseIdx++)
     {
+        printf("Test Idx: %d\n", caseIdx);
         NMEASentence nmeaSentence;
         gpsReading test;
         initialiseNMEASentence(&nmeaSentence);
@@ -222,21 +223,43 @@ void test_function_make_gps(void)
         {
             readCharForNMEASentence(&nmeaSentence, cases[caseIdx].inputTestString[i]);
         }
-        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedReadingStartIndication, nmeaSentence.readingStarted, "Reading Started Indication");
-        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedReadingCompleteIndication, nmeaSentence.readingComplete, "Reading Ended Indication");
-        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedPostReadingNMEASentenceErr, nmeaSentence.errorCode, "Post NMEA Sentence Reading Error");
+        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedReadingStartIndication,
+                                      nmeaSentence.readingStarted,
+                                      "Reading Started Indication");
+        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedReadingCompleteIndication,
+                                      nmeaSentence.readingComplete,
+                                      "Reading Ended Indication");
+        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedPostReadingNMEASentenceErr,
+                                      nmeaSentence.errorCode,
+                                      "Post NMEA Sentence Reading Error");
 
         parseNMEASentence(&nmeaSentence);
-        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedPostParse_NMEASentenceErr, nmeaSentence.errorCode, "Post Parse NMEA Sentence Error");
-        TEST_ASSERT_EQUAL_STRING_MESSAGE(cases[caseIdx].expectedNMEATalkerIdentifier, nmeaSentence.talkerIdentifier, "NMEA Talker Identifier");
-        TEST_ASSERT_EQUAL_STRING_MESSAGE(cases[caseIdx].expectedNMEASentenceIdentifier, nmeaSentence.sentenceIdentifier, "NMEA Sentence Identifier");
+        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedPostParse_NMEASentenceErr,
+                                      nmeaSentence.errorCode,
+                                      "Post Parse NMEA Sentence Error");
+        TEST_ASSERT_EQUAL_STRING_MESSAGE(cases[caseIdx].expectedNMEATalkerIdentifier,
+                                         nmeaSentence.talkerIdentifier,
+                                         "NMEA Talker Identifier");
+        TEST_ASSERT_EQUAL_STRING_MESSAGE(cases[caseIdx].expectedNMEASentenceIdentifier,
+                                         nmeaSentence.sentenceIdentifier,
+                                         "NMEA Sentence Identifier");
 
         process_GNRMC_NMEASentence(&nmeaSentence, &test);
-        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedGPSReading.error, test.error, "GPS Reading Error");
-        TEST_ASSERT_EQUAL_FLOAT_MESSAGE(cases[caseIdx].expectedGPSReading.lat.f, test.lat.f, "GPS Reading Latitude Float");
-        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedGPSReading.latDirection, test.latDirection, "GPS Reading Latitude Direction");
-        TEST_ASSERT_EQUAL_FLOAT_MESSAGE(cases[caseIdx].expectedGPSReading.lon.f, test.lon.f, "GPS Reading Longitude Float");
-        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedGPSReading.lonDirection, test.lonDirection, "GPS Reading Longitude Direction");
+        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedGPSReading.error,
+                                      test.error,
+                                      "GPS Reading Error");
+        TEST_ASSERT_EQUAL_FLOAT_MESSAGE(cases[caseIdx].expectedGPSReading.lat.f,
+                                        test.lat.f,
+                                        "GPS Reading Latitude Float");
+        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedGPSReading.latDirection,
+                                      test.latDirection,
+                                      "GPS Reading Latitude Direction");
+        TEST_ASSERT_EQUAL_FLOAT_MESSAGE(cases[caseIdx].expectedGPSReading.lon.f,
+                                        test.lon.f,
+                                        "GPS Reading Longitude Float");
+        TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedGPSReading.lonDirection,
+                                      test.lonDirection,
+                                      "GPS Reading Longitude Direction");
     }
 }
 
