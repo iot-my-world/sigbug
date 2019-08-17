@@ -16,8 +16,6 @@ typedef struct testCase
     const char *expectedNMEASentenceIdentifier;
 
     gpsReading expectedGPSReading;
-    const char *expectedLatitudeHexData;
-    const char *expectedLongitudeHexData;
 } testCase;
 
 #endif
