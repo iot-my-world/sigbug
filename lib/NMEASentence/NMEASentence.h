@@ -32,7 +32,7 @@ communications between marine instrumentation.
 
 typedef struct NMEASentence
 {
-    char sentenceString[70];
+    char sentenceString[NMEA_MaxSentenceStringSize + 1];
     int sentenceStringUsedSize;
     char talkerIdentifier[3];
     char sentenceIdentifier[4];

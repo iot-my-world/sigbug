@@ -981,11 +981,11 @@ testCase cases[] = {
         .inputTestString = "$GNRMC,112738.000,A,1024.8696,S,11338.0173,E,0.00,0.00,090619,,,A*6f",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = false,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_MessageDidntEnd,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
     },
     {
         .id = "failure_3",
-        .inputTestString = "$GNRMC,112738.000,A,1024.8696,S,11338.0173,E,0.00,0.00,090619,,,_________________________________________________________________________________________________________________A*6f\r\n",
+        .inputTestString = "$GNRMC,112738.000,A,1024.8696,S,11338.0173,E,0.00,0.00,090619,,,______________________________________________________________________________________________________________________________________________________________________________________________________________________________A*6f\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = false,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_MessageDidntEnd,
@@ -1010,7 +1010,7 @@ void test_function_make_gps(void)
                                       "Reading Started Indication");
         TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedReadingCompleteIndication,
                                       nmeaSentence.readingComplete,
-                                      "Reading Ended Indication");
+                                      "Reading Complete Indication");
         TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedPostReadingNMEASentenceErr,
                                       nmeaSentence.errorCode,
                                       "Post NMEA Sentence Reading Error");
