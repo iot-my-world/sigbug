@@ -20,6 +20,7 @@ void hardwareTeardown(void);
 // ********************* Pin Definitions *********************
 #define awakeLEDPin 13
 #define gpsSwitchPin 12
+#define commsLEDPin 11
 #define gpsUSARTRXPin 7
 #define gpsUSARTTXPin 8
 SoftwareSerial sSerial = SoftwareSerial(gpsUSARTRXPin, gpsUSARTTXPin, false);
@@ -61,6 +62,8 @@ void setup()
   pinMode(awakeLEDPin, OUTPUT);
   // set gps switch pin as output
   pinMode(gpsSwitchPin, OUTPUT);
+  // set comms led pin as output
+  pinMode(commsLEDPin, OUTPUT);
 
   // define pin modes GPS usart pins
   pinMode(gpsUSARTRXPin, INPUT);
@@ -142,6 +145,8 @@ void hardwareSetup(void)
   digitalWrite(awakeLEDPin, HIGH);
   // turn on GPS
   digitalWrite(gpsSwitchPin, HIGH);
+  // ensure ok led off
+  digitalWrite(commsLEDPin, LOW);
 
   // wait a little for gps to start
   delay(8000);
@@ -156,6 +161,8 @@ void hardwareTeardown(void)
   digitalWrite(awakeLEDPin, LOW);
   // turn off GPS
   digitalWrite(gpsSwitchPin, LOW);
+  // turn off comms led
+  digitalWrite(commsLEDPin, LOW);
 
   Serial.end();
   sSerial.end();
@@ -248,6 +255,8 @@ void program(void)
         programStep = programStepDone;
         break;
       }
+      // indicate that the ok went ok
+      digitalWrite(commsLEDPin, HIGH);
 
       // transmit appropriate data to modem
       switch (programError)
@@ -266,7 +275,8 @@ void program(void)
           msg[i + 7] = (char)gpsReadingToTransmit.lat.b[i];
           msg[i + 11] = (char)gpsReadingToTransmit.lon.b[i];
         }
-        transmitToSigfoxModem(msg);
+        //transmitToSigfoxModem(msg);
+        transmitToSigfoxModem("AT$SF=02C732D1C16C14E141");
 
         break;
 
