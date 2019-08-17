@@ -253,7 +253,7 @@ void program(void)
       switch (programError)
       {
       case programErr_NoError:
-        char msg[13];
+        char msg[14];
         msg[0] = 'A';
         msg[1] = 'T';
         msg[2] = '$';
