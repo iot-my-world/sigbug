@@ -20,7 +20,7 @@ void initialiseNMEASentence(NMEASentence *nmeaSentence)
 
 void addCharToNMEASentence(NMEASentence *sentence, char c)
 {
-    if ((*sentence).sentenceStringUsedSize == maxSentenceStringSize)
+    if ((*sentence).sentenceStringUsedSize == NMEA_MaxSentenceStringSize)
     {
         return;
     }
@@ -43,7 +43,7 @@ void readCharForNMEASentence(NMEASentence *sentence, char c)
         // if reading has already started
 
         // check that there is space left in the string
-        if ((*sentence).sentenceStringUsedSize == maxSentenceStringSize)
+        if ((*sentence).sentenceStringUsedSize == NMEA_MaxSentenceStringSize)
         {
             // if there is no space left at this point,
             // then we have run out of space while the
@@ -73,7 +73,7 @@ void readCharForNMEASentence(NMEASentence *sentence, char c)
         if (c == '$')
         {
             // check that there is space left in the string
-            if ((*sentence).sentenceStringUsedSize == maxSentenceStringSize)
+            if ((*sentence).sentenceStringUsedSize == NMEA_MaxSentenceStringSize)
             {
                 // if there is no space in the string at this point
                 // then the reading cannot start
@@ -111,7 +111,7 @@ void parseNMEASentence(NMEASentence *sentence)
     // confirm that the checksum is 2 characters long and at end of string
     if ((prtToChecksumStart - (*sentence).sentenceString) != (strlen((*sentence).sentenceString) - 3))
     {
-        (*sentence).errorCode = NMEASentenceErr_ParseError_ChecksumNotLongEnough;
+        (*sentence).errorCode = NMEASentenceErr_ParseError_ChecksumNotCorrectLength;
         return;
     }
 
@@ -164,10 +164,12 @@ void parseNMEASentence(NMEASentence *sentence)
 */
 void process_GNRMC_NMEASentence(NMEASentence *sentence, gpsReading *reading)
 {
-    // reset reading
+    // initialise reading
     reading->error = NMEASentenceErr_processGPSNMEASentence_NoError;
     reading->lat.f = 0;
     reading->lon.f = 0;
+    reading->latDirection = '_';
+    reading->lonDirection = '_';
 
     // pointer a part of the sentence separated by ,
     char *sentencePart;
@@ -228,7 +230,7 @@ void process_GNRMC_NMEASentence(NMEASentence *sentence, gpsReading *reading)
     }
     if (reading->lonDirection == 'W')
     {
-        reading->lat.f *= -1;
+        reading->lon.f *= -1;
     }
 
     if ((reading->lat.f == 0) || (reading->lon.f == 0))
