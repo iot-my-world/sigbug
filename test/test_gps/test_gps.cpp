@@ -47,7 +47,7 @@ testCase cases[] = {
         },
     },
     {
-        .inputTestString = "$GNRMC,112738.000,A,8839.0276,N,06316.7489,E,0.00,0.00,090619,,,A*07\r\n",
+        .inputTestString = "$GNRMC,112738.000,A,3413.8132,S,08313.6519,E,0.00,0.00,090619,,,A*6b\r\n",
         .expectedReadingStartIndication = true,
         .expectedReadingCompleteIndication = true,
         .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
@@ -58,154 +58,10 @@ testCase cases[] = {
 
         .expectedGPSReading = (gpsReading){
             .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 88.6505,
-            .latDirection = 'N',
-            .lon = 63.2791,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,1825.7489,S,11710.4031,E,0.00,0.00,090619,,,A*68\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -18.4291,
+            .lat = -34.2302,
             .latDirection = 'S',
-            .lon = 117.1734,
+            .lon = 83.2275,
             .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,7528.8625,S,08311.9673,W,0.00,0.00,090619,,,A*77\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -75.481,
-            .latDirection = 'S',
-            .lon = -83.1995,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,4429.9547,N,08150.6602,E,0.00,0.00,090619,,,A*73\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 44.4992,
-            .latDirection = 'N',
-            .lon = 81.8443,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,7606.5822,S,01641.7824,E,0.00,0.00,090619,,,A*65\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -76.1097,
-            .latDirection = 'S',
-            .lon = 16.6964,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,5920.3893,N,04216.9185,E,0.00,0.00,090619,,,A*72\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 59.3398,
-            .latDirection = 'N',
-            .lon = 42.282,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,8034.0672,N,16346.9775,E,0.00,0.00,090619,,,A*7f\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 80.5678,
-            .latDirection = 'N',
-            .lon = 163.783,
-            .lonDirection = 'E',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,1833.2617,S,04118.7367,W,0.00,0.00,090619,,,A*74\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = -18.5544,
-            .latDirection = 'S',
-            .lon = -41.3123,
-            .lonDirection = 'W',
-        },
-    },
-    {
-        .inputTestString = "$GNRMC,112738.000,A,3754.4189,N,02300.0702,W,0.00,0.00,090619,,,A*6e\r\n",
-        .expectedReadingStartIndication = true,
-        .expectedReadingCompleteIndication = true,
-        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
-
-        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
-        .expectedNMEATalkerIdentifier = "GN",
-        .expectedNMEASentenceIdentifier = "RMC",
-
-        .expectedGPSReading = (gpsReading){
-            .error = NMEASentenceErr_processGPSNMEASentence_NoError,
-            .lat = 37.907,
-            .latDirection = 'N',
-            .lon = -23.0012,
-            .lonDirection = 'W',
         },
     },
 };
