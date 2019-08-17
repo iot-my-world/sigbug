@@ -41,6 +41,9 @@ int noValidGPSFixes;
 #define programStepTransmit 'c'
 #define programStepDone 'd'
 gpsReading gpsReadingToTransmit;
+String sigfoxDummyMessage("AT");
+String sigfoxCantGetFixMessage("AT$SF=01");
+String sigfoxGPSFixMessage;
 
 // ******************** Waiting for NMEA Sentence ********************
 #define waitingForSentenceStartStep 'a'
@@ -49,7 +52,7 @@ void waitForNMEASentence(void);
 NMEASentence nmeaSentence;
 
 // ******************** Transmit To Sigfox Modem ********************
-char transmitToSigfoxModem(const char *message, const char *desiredResponse = "OK");
+char transmitToSigfoxModem(String &message, const char *desiredResponse = "OK");
 #define waitingForSigfoxResponseStart 'a'
 #define waitingForSigfoxResponseEnd 'b'
 #define sigfoxErr_NoError '0'
@@ -184,6 +187,7 @@ void program(void)
       initialiseNMEASentence(&nmeaSentence);
       noNMEASentencesRead = 0;
       noValidGPSFixes = 0;
+      sigfoxGPSFixMessage = String("AT$SF=02");
       // Transition to waiting for GPS Fix
       programStep = programStepWaitingForGPSFix;
       break;
@@ -249,7 +253,7 @@ void program(void)
 
     case programStepTransmit:
       // transmit dummy AT command to ensure modem is awake and operating
-      if (transmitToSigfoxModem("AT") != sigfoxErr_NoError)
+      if (transmitToSigfoxModem(sigfoxDummyMessage) != sigfoxErr_NoError)
       {
         // if an error is returned, end program
         programStep = programStepDone;
@@ -262,27 +266,24 @@ void program(void)
       switch (programError)
       {
       case programErr_NoError:
-        char msg[15];
-        msg[0] = 'A';
-        msg[1] = 'T';
-        msg[2] = '$';
-        msg[3] = 'S';
-        msg[4] = 'F';
-        msg[5] = '=';
-        msg[6] = (char)2;
         for (int i = 0; i < 4; i++)
         {
-          msg[i + 7] = (char)gpsReadingToTransmit.lat.b[i];
-          msg[i + 11] = (char)gpsReadingToTransmit.lon.b[i];
+          char hexVal[2];
+          sprintf(hexVal, "%02x", gpsReadingToTransmit.lat.b[i]);
+          sigfoxGPSFixMessage += String(hexVal);
         }
-        //transmitToSigfoxModem(msg);
-        transmitToSigfoxModem("AT$SF=02C732D1C16C14E141");
-
+        for (int i = 0; i < 4; i++)
+        {
+          char hexVal[2];
+          sprintf(hexVal, "%02x", gpsReadingToTransmit.lon.b[i]);
+          sigfoxGPSFixMessage += String(hexVal);
+        }
+        transmitToSigfoxModem(sigfoxGPSFixMessage);
         break;
 
       case programErr_UnableToGetFix:
         // transmit could not get fix
-        transmitToSigfoxModem("AT$SF=01");
+        transmitToSigfoxModem(sigfoxCantGetFixMessage);
         break;
 
       default:
@@ -412,7 +413,7 @@ void waitForNMEASentence(void)
 }
 
 // ******************** Transmit To Sigfox Modem ********************
-char transmitToSigfoxModem(const char *message, const char *desiredResponse = "OK")
+char transmitToSigfoxModem(String &message, const char *desiredResponse = "OK")
 {
   // [4.1] initialise send message variables
   String sigfoxResponse = String();
@@ -431,7 +432,7 @@ char transmitToSigfoxModem(const char *message, const char *desiredResponse = "O
   {
     waitForStartResponseTimeout++;
     delay(30);
-    if (waitForStartResponseTimeout > 400)
+    if (waitForStartResponseTimeout > 100)
     {
       // if no data after allowed time, return error
       return sigfoxErr_NoStart;
