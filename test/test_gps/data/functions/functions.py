@@ -1,4 +1,3 @@
-import random
 import math
 from numpy import float32
 from string import Template
@@ -31,7 +30,7 @@ def calculate_checksum(value):
     for c in value:
         checksum ^= ord(c)
     checksum = hex(checksum).strip('0x')
-    return checksum if len(checksum) == 2 else '0'*(2 - len(checksum)) + checksum
+    return checksum if len(checksum) == 2 else checksum + '0'*(2 - len(checksum))
 
 
 def generate_test_case(latitude, latitude_direction, longitude, longitude_direction):
@@ -78,22 +77,3 @@ def generate_test_case(latitude, latitude_direction, longitude, longitude_direct
         'lonDirection': longitude_direction[0],
         'signedLongitude': signed_longitude,
     })
-
-
-if __name__ == '__main__':
-    # test = "$GNRMC,112738.000,A,2608.9935,S,02808.1064,E,0.00,0.00,090619,,,A*6F"
-    # checkSection = test[1:test.find('*')]
-    # print(calculate_checksum(checkSection))
-    # print(generate_test_case(26.1499, ('S', -1.00), 28.1351, ('E', 1.00)))
-
-    for i in range(10):
-        # random latitude
-        latDirection = random.choice([('N', 1.00), ('S', -1.00)])
-        latitudeValue = float32(random.uniform(10, 89))
-
-        # random longitude
-        lonDirection = random.choice([('E', 1.00), ('W', -1.00)])
-        longitudeValue = float32(random.uniform(10, 170))
-
-        print(generate_test_case(latitudeValue,
-                                 latDirection, longitudeValue, lonDirection))
