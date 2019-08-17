@@ -1089,6 +1089,44 @@ testCase cases[] = {
 
         .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_TalkerDecoding,
     },
+    {
+        .id = "failure_14: process gps reading error",
+        .inputTestString = "$GNRMC,A*38\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_BlankReading,
+            .lat = 0,
+            .latDirection = '_',
+            .lon = 0,
+            .lonDirection = '_',
+        },
+    },
+    {
+        .id = "failure_15: process gps reading error",
+        .inputTestString = "$GNRMC,,,,,,,,,,,,A*14\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_NoError,
+        .expectedNMEATalkerIdentifier = "GN",
+        .expectedNMEASentenceIdentifier = "RMC",
+
+        .expectedGPSReading = (gpsReading){
+            .error = NMEASentenceErr_processGPSNMEASentence_BlankReading,
+            .lat = 0,
+            .latDirection = '_',
+            .lon = 0,
+            .lonDirection = '_',
+        },
+    },
 };
 
 void test_function_make_gps(void)

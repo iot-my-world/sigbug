@@ -164,10 +164,12 @@ void parseNMEASentence(NMEASentence *sentence)
 */
 void process_GNRMC_NMEASentence(NMEASentence *sentence, gpsReading *reading)
 {
-    // reset reading
+    // initialise reading
     reading->error = NMEASentenceErr_processGPSNMEASentence_NoError;
     reading->lat.f = 0;
     reading->lon.f = 0;
+    reading->latDirection = '_';
+    reading->lonDirection = '_';
 
     // pointer a part of the sentence separated by ,
     char *sentencePart;
