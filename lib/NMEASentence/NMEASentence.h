@@ -23,7 +23,7 @@ communications between marine instrumentation.
 #define NMEASentenceErr_StringOutOfMemory 4
 #define NMEASentenceErr_ParseError_SentenceNotLongEnough 5
 #define NMEASentenceErr_ParseError_ChecksumNotFound 6
-#define NMEASentenceErr_ParseError_ChecksumNotLongEnough 7
+#define NMEASentenceErr_ParseError_ChecksumNotCorrectLength 7
 #define NMEASentenceErr_ParseError_ChecksumIncorrect 8
 #define NMEASentenceErr_ParseError_TalkerDecoding 9
 

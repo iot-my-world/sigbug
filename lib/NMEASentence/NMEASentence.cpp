@@ -111,7 +111,7 @@ void parseNMEASentence(NMEASentence *sentence)
     // confirm that the checksum is 2 characters long and at end of string
     if ((prtToChecksumStart - (*sentence).sentenceString) != (strlen((*sentence).sentenceString) - 3))
     {
-        (*sentence).errorCode = NMEASentenceErr_ParseError_ChecksumNotLongEnough;
+        (*sentence).errorCode = NMEASentenceErr_ParseError_ChecksumNotCorrectLength;
         return;
     }
 

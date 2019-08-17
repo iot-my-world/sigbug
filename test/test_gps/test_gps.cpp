@@ -1008,6 +1008,33 @@ testCase cases[] = {
 
         .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_ChecksumNotFound,
     },
+    {
+        .id = "failure_6: checksum not long enough error",
+        .inputTestString = "$GNRMC,112738.000,A,7756.0664,N,15441.3672,E,0.00,0.00,090619,,,A*7\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_ChecksumNotCorrectLength,
+    },
+    {
+        .id = "failure_7: checksum not correct length error",
+        .inputTestString = "$GNRMC,112738.000,A,7756.0664,N,15441.3672,E,0.00,0.00,090619,,,A*\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_ChecksumNotCorrectLength,
+    },
+    {
+        .id = "failure_8: checksum not correct length error",
+        .inputTestString = "$GNRMC,112738.000,A,7756.0664,N,15441.3672,E,0.00,0.00,090619,,,A*444\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_ChecksumNotCorrectLength,
+    },
 };
 
 void test_function_make_gps(void)
