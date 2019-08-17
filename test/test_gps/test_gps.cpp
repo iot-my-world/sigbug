@@ -999,6 +999,15 @@ testCase cases[] = {
 
         .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_SentenceNotLongEnough,
     },
+    {
+        .id = "failure_5: checksum not found error",
+        .inputTestString = "$GNRMC,112738.000,A,2616.8042,S,02627.9844,W,0.00,0.00,090619,,,A7b\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_ChecksumNotFound,
+    },
 };
 
 void test_function_make_gps(void)
