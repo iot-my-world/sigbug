@@ -228,7 +228,7 @@ void process_GNRMC_NMEASentence(NMEASentence *sentence, gpsReading *reading)
     }
     if (reading->lonDirection == 'W')
     {
-        reading->lat.f *= -1;
+        reading->lon.f *= -1;
     }
 
     if ((reading->lat.f == 0) || (reading->lon.f == 0))

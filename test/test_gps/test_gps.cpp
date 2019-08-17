@@ -122,18 +122,18 @@ void test_function_make_gps(void)
         TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedGPSReading.error,
                                       test.error,
                                       "GPS Reading Error");
-        TEST_ASSERT_EQUAL_FLOAT_MESSAGE(cases[caseIdx].expectedGPSReading.lat.f,
-                                        test.lat.f,
-                                        "GPS Reading Latitude Float");
         TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedGPSReading.latDirection,
                                       test.latDirection,
                                       "GPS Reading Latitude Direction");
-        TEST_ASSERT_EQUAL_FLOAT_MESSAGE(cases[caseIdx].expectedGPSReading.lon.f,
-                                        test.lon.f,
-                                        "GPS Reading Longitude Float");
+        TEST_ASSERT_EQUAL_FLOAT_MESSAGE(cases[caseIdx].expectedGPSReading.lat.f,
+                                        test.lat.f,
+                                        "GPS Reading Latitude Float");
         TEST_ASSERT_EQUAL_INT_MESSAGE(cases[caseIdx].expectedGPSReading.lonDirection,
                                       test.lonDirection,
                                       "GPS Reading Longitude Direction");
+        TEST_ASSERT_EQUAL_FLOAT_MESSAGE(cases[caseIdx].expectedGPSReading.lon.f,
+                                        test.lon.f,
+                                        "GPS Reading Longitude Float");
     }
 }
 
