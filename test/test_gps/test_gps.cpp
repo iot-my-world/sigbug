@@ -1035,6 +1035,24 @@ testCase cases[] = {
 
         .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_ChecksumNotCorrectLength,
     },
+    {
+        .id = "failure_9: checksum incorrect error",
+        .inputTestString = "$GNRMC,112738.000,A,7756.0664,N,15441.3672,E,0.00,0.00,090619,,,A*4b\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_ChecksumIncorrect,
+    },
+    {
+        .id = "failure_9: checksum incorrect error",
+        .inputTestString = "$GNRMC,112738.000,A,7756.0664,N,15441.3672,E,0.00,0.00,030619,,,A*7b\r\n",
+        .expectedReadingStartIndication = true,
+        .expectedReadingCompleteIndication = true,
+        .expectedPostReadingNMEASentenceErr = NMEASentenceErr_NoError,
+
+        .expectedPostParse_NMEASentenceErr = NMEASentenceErr_ParseError_ChecksumIncorrect,
+    },
 };
 
 void test_function_make_gps(void)
